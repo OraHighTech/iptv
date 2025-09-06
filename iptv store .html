@@ -1,0 +1,1392 @@
+<script src="https://cdn.emailjs.com/dist/email.min.js" type="text/javascript"></script>
+<script type="text/javascript">
+    (function () {
+        emailjs.init("WNOIpj1FX2dDPSQMS");
+    })();
+</script>
+<div class="sq-widepost"></div>
+<style>
+    /* Product Section */
+    .product {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        padding: 20px 0;
+        flex-wrap: wrap;
+    }
+
+    @media screen and (max-width: 900px) {
+        .product-gallery {
+            max-width: 900px !important;
+        }
+    }
+
+    .product-gallery {
+        max-width: 600px;
+        width: 100%;
+    }
+
+    .gallery-all {
+        position: relative;
+    }
+
+    .product-image img {
+        width: 100%;
+        height: auto;
+        border-radius: 10px;
+    }
+
+    img#mainImage {
+        height: 370px;
+        border: solid 1px #cdcdcd;
+        box-shadow: 01px 1px 15px #cdcdcd;
+    }
+
+    @media screen and (max-width: 680px) {
+        img#mainImage {
+            object-fit: cover;
+        }
+    }
+
+    .product-thumbnails {
+        display: flex;
+        justify-content: space-between;
+        padding: 5px;
+        border: solid 2px #002653;
+        box-shadow: 01px 1px 15px #cdcdcd;
+        border-radius: 10px;
+    }
+
+    .product-thumbnails img {
+        width: 100px;
+        height: auto;
+        cursor: pointer;
+        border-radius: 5px;
+        border: 2px solid transparent;
+        transition: border 0.3s;
+        object-fit: cover;
+        background: #f0f0f0;
+        margin-left: 2px;
+        overflow: auto;
+        border-radius: 15px;
+    }
+
+    .product-thumbnails img:hover {
+        border: 2px solid #e8491d;
+    }
+
+    .active-thumbnail {
+        border: 2px solid red !important;
+    }
+
+    .carousel {
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        background-color: rgba(0, 0, 0, 0.5);
+        color: white;
+        border: none;
+        padding: 10px;
+        cursor: pointer;
+        border-radius: 5px;
+    }
+
+    .prev-L {
+        left: 10px;
+    }
+
+    .next-R {
+        right: 10px;
+    }
+
+    .product-image img {
+        transition: opacity 0.5s ease-in-out;
+        opacity: 1;
+    }
+
+    .product-image img.fade-out {
+        opacity: 0;
+    }
+
+    .description {
+        margin-top: 10px;
+        border: solid 2px #002653;
+        box-shadow: 01px 1px 15px #cdcdcd;
+        border-radius: 10px;
+        padding: 10px;
+    }
+    @media screen and (max-width: 900px) {
+        .product-details {
+            margin-top: 10px !important;
+            margin-left: 0 !important;
+            max-width: 900px !important;
+        }
+    }
+    .product-details {
+        max-width: 600px;
+        margin-left: 20px;
+        flex: 1;
+        border: solid 2px #002653;
+        box-shadow: 01px 1px 15px #cdcdcd;
+        user-select: none;
+        border-radius: 10px;
+        padding: 15px;
+        color: #002653;
+    }
+
+    .product-details h2 {
+        font-size: 2.2em;
+        margin-bottom: 10px;
+        color: #343a40;
+    }
+
+    .product-details .price {
+        font-size: 2.1em;
+        color: #fff;
+        background: linear-gradient(to right, #002653, #6f94c1);
+        box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        text-decoration: none;
+        margin-top: 0px;
+        text-align: center;
+        cursor: context-menu;
+    }
+
+    .product-details .price:before {
+        content: "\f02b";
+        font-family: fontawesome;
+        display: inline-block;
+        vertical-align: top;
+        color: #ffffff;
+        -webkit-transition: 0.3s ease-out;
+        transition: 0.3s ease-out;
+    }
+
+    .product-details .device-details {
+        margin: 10px 0px 10px 52px;
+    border-radius: 5px;
+    }
+
+    .error-message {
+        color: red;
+    }
+   .error-message-f {
+        color: red;
+        margin-left: 53px;
+    }
+    .product-details .quantity input,
+    .product-details .select-city select,
+    .product-details .device-details input,
+    .product-details .form-all select,
+    .product-details .form-all input {
+        padding: 10px;
+        font-size: 1.1em;
+        border-radius: 5px;
+        border: 2px solid #002653;
+        width: 100%;
+    }
+
+    label.form-ligne {
+        display: flex;
+        margin-top: 5px;
+    }
+    select#ApkDyn {
+    padding-left: 5px;
+    padding-bottom: 5px;
+}
+   .button-Tuto {
+    border-radius: 5px;
+    width: 100%;
+    height: auto;
+    font-size: 1.2em;
+    cursor: pointer;
+    background: #FF5722;
+    color: white;
+    display: flex;
+}
+  
+  a.Tuto-btn {
+    padding: 10px;
+    width: 100%;
+}
+  .Tuto-btn {
+    padding: 10px;
+    width: 100%;
+}
+  @media screen and (max-width: 980px) {
+        .button-Tuto {
+            font-size: 1.0em;
+        }
+    }
+
+
+
+   
+
+    .form-ligne-fa {
+        border: 1px solid #002653;
+        border-radius: 5px;
+        margin-right: 5px;
+        background: #002653;
+        color: #fff;
+        padding: 10px;
+        font-size: 1.3em;
+        width: 50px;
+        text-align: center;
+        height: fit-content
+    }
+    .phone-all {
+    width: 100%;
+    display: flex;
+    height: auto;
+    justify-content: space-between;
+}
+
+select#countryCode {
+    width: 34%;
+    border-radius: 5px;
+    margin: 0;
+    border: 2px solid #002653;
+    padding: 5px;
+}
+
+input#phone {
+    width: 50%;
+    border-radius: 5px;
+    margin: 0;
+    border: 2px solid #002653;
+    padding: 5px;
+}
+  .custom-select-wrapper {
+    position: relative;
+    display: inline-block;
+    width: 49%;
+}
+
+.custom-select {
+    position: relative;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    background: #fff;
+    border: 2px solid #002653;
+    border-radius: 5px;
+    align-items: center;
+}
+
+.custom-select-trigger {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    padding: 9px;
+}
+
+.custom-select-trigger:after {
+    content: '\25BC';
+    margin-left: 10px;
+}
+
+.custom-options {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background-color: #fff;
+    border: 1px solid #ccc;
+    border-top: none;
+    border-radius: 0 0 4px 4px;
+    display: none;
+    max-height: 200px;
+    overflow-y: auto;
+    z-index: 1000;
+}
+
+.custom-options .custom-option {
+    padding: 10px;
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+}
+
+.custom-options .custom-option:hover {
+    background-color: #f2f2f2;
+}
+
+.custom-option img {
+    margin-right: 10px;
+    width: 20px;
+    height: 20px;
+    object-fit: cover;
+}
+
+    .product-details .description {
+        font-size: 1.2em;
+        margin-bottom: 20px;
+        color: #6c757d;
+    }
+    .b-order {
+        display: flex;
+        height: 40px;
+        justify-content: space-between;
+    }
+  
+  @media screen and (max-width: 980px) {
+        .b-order {
+            margin-top: 0px !important;
+        }
+    }
+    .product-details .buy-button-w {
+        font-size: 1.1em;
+        color: #fff;
+        background: linear-gradient(to right, #002653, #6f94c1);
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        text-decoration: none;
+        margin-top: 0px;
+        width: 8%;
+        box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
+        height: 40px;
+    }
+    .product-details .buy-button-w:hover {
+        background: #35d771;
+    }
+
+    .product-details .buy-button-emailjs {
+        font-size: 1.1em;
+        color: #fff;
+        background: linear-gradient(to right, #002653, #6f94c1);
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        text-decoration: none;
+        width: 58%;
+        box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
+        height: 40px;
+    }
+
+    .product-details .buy-button-emailjs:hover {
+        background: red;
+    }
+
+    input#delivery-fee {
+        width: 50%;
+        border: none;
+        cursor: unset;
+    }
+    .product-details .total-price {
+        padding: 3px 20px;
+        font-size: 1.1em;
+        color: #fff;
+        background-color: #000000;
+        border: aliceblue;
+        border-radius: 5px;
+        cursor: context-menu;
+        text-decoration: none;
+        margin-top: 20px;
+        float: left;
+        margin-right: 5px;
+        width: 49%;
+        text-align: center;
+        box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
+    }
+
+    .product-details .total-price:before {
+        content: "\f02b";
+        font-family: fontawesome;
+        display: inline-block;
+        vertical-align: top;
+        color: #ffffff;
+        -webkit-transition: 0.3s ease-out;
+        transition: 0.3s ease-out;
+    }
+    @media screen and (max-width: 680px) {
+        .product-details .buy-button-w {
+            width: 12%;
+        }
+      .quantity{
+            width: 42% !important;
+        }
+      .product-details .buy-button-emailjs{
+            width: 44%;
+    }
+      }
+    @media screen and (max-width: 980px) {
+        .product-details .total-price {
+            width: 100%;
+        }
+    }
+
+    .Order-Summary {
+        border: 2px solid ;
+        width: 100%;
+        padding: 5px;
+        border-radius: 5px;
+        margin: 15px 0px 10px 0px;
+    }
+
+    .Order-Summary-t {
+        font-size: 22px;
+        font-weight: bold;
+        padding: 5px;
+        color: #002653;
+    }
+    .order-prod {
+        border-top: 2px solid;
+    }
+   .order-prod p {
+        line-height: 1;
+    }
+   @media screen and (max-width: 480px) { .order-prod p {font-size: 0.8em;}}
+    .order-prod-t-p-q {
+        display: flex;
+        justify-content: space-between;
+        width: 100%;
+        align-items: center;
+        height: 30px;
+    }
+    p#orderTitle {
+        flex: 0 0 auto;
+        width: 50%;
+    }
+    .OderPlug {
+        flex: 0 0 auto;
+        width: 10%;
+        display: flex;
+    }
+
+    .OderPrice {
+        flex: 0 0 auto;
+        display: flex;
+    }
+
+    p#orderquantity {
+        margin: auto;
+        background: red;
+        color: white;
+        border-radius: 4px;
+        margin-right: 5px;
+        font-weight: bold;
+        height: 20px;
+        line-height: 1em;
+        padding: 2px;
+    }
+    .order-prod-d {
+        display: flex;
+        justify-content: space-between;
+        width: 100%;
+        border-top: 2px dashed;
+        align-items: center;
+        height: 30px;
+    }
+    .order-prod-P-t {
+        display: flex;
+        justify-content: space-between;
+        width: 100%;
+        border-top: 2px dashed;
+        align-items: center;
+        height: 30px;
+    }
+
+    .quantity {
+        display: flex;
+        height: 40px;
+        justify-content: space-between;
+        width: 31%;
+        line-height: 2.2em;
+    }
+
+    span.button-Q {
+        flex: 0 0 auto;
+        width: 25%;
+        display: flex;
+        height: 40px;
+        font-size: 40px;
+        background: #002653;
+        color: white;
+        border-radius: 4px;
+        flex-direction: row;
+        flex-wrap: nowrap;
+        justify-content: center;
+        box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
+    }
+    input#quantity {
+        width: 44%;
+        height: 40px;
+        border: 2px solid;
+        border-radius: 5px;
+        margin: 0;
+        background: #ffff;
+        line-height: 0;
+        box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
+    }
+
+    .alert-container {
+        left: 60px;
+        width: 100%;
+        max-width: 1233px;
+        position: fixed;
+        top: 50%;
+        z-index: 1000;
+        user-select: none;
+    }
+
+    .alert {
+        padding: 10px;
+        margin-bottom: 10px;
+        border-radius: 5px;
+    }
+
+    .alert-success {
+        color: #002653;
+        background: #fff;
+        text-align: center;
+        font-size: 20px;
+        font-weight: bold;
+        box-shadow: 01px 1px 15px #cdcdcd;
+    }
+  
+  @media screen and (max-width: 680px) {
+       .alert-container {
+            max-width: 350px;
+            left:0px;
+        }
+    }
+
+
+    .alert-error {
+        background-color: #f8d7da;
+        color: #721c24;
+        border: 1px solid #f5c6cb;
+    }
+    .alert.alert-info {
+    text-align: center;
+}
+  
+@-moz-keyframes spin {
+  100% { -moz-transform: rotate(-360deg); }
+}
+@-webkit-keyframes spin {
+  100% { -webkit-transform: rotate(-360deg); }
+}
+@keyframes spin {
+  100% { -webkit-transform: rotate(-360deg); transform: rotate(-360deg); }
+}
+ 
+.fa-spinner {
+  -webkit-animation: spin 1.5s linear infinite;
+  -moz-animation: spin 1.5s linear infinite;
+  animation: spin 1.5s linear infinite;
+}
+</style>
+<body>
+    <main>
+        <div class="product product--thumbnails-bottom">
+            <div class="product-gallery">
+                <div class="gallery-all">
+                    <button class="carousel prev-L" onclick="prevImage()">❮</button>
+                    <div class="product-image">
+                        <img alt="Produit Électronique" id="mainImage" src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEipgetGkNyVszm659Cczi2M7wwZyiqQfRKFoygMx_VrbaM235wi4qIR3VaFh4PCgSO4QV22bw4dm6pmSptj6dBYWEXIaFSdeYk6IAxOkgV61tgDc-LFCIwcKluwBDgp6t9Zg8Wxj2rLZYmfvbkFRClvOsFqN3XBJMIsWfJ8e-FE6igdpfYZFmZEzMoSu6w/s1005/iron%20iptv-store%20gift%20card%20final.png" />
+                    </div>
+                    <button class="carousel next-R" onclick="nextImage()">❯</button>
+                    <div class="product-thumbnails">
+                        <img alt="Thumbnail 1" onclick="changeImage(this)" src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEipgetGkNyVszm659Cczi2M7wwZyiqQfRKFoygMx_VrbaM235wi4qIR3VaFh4PCgSO4QV22bw4dm6pmSptj6dBYWEXIaFSdeYk6IAxOkgV61tgDc-LFCIwcKluwBDgp6t9Zg8Wxj2rLZYmfvbkFRClvOsFqN3XBJMIsWfJ8e-FE6igdpfYZFmZEzMoSu6w/s1005/iron%20iptv-store%20gift%20card%20final.png" />
+                        <img alt="Thumbnail 2" onclick="changeImage(this)" src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEifbdCqLUfM4PNGWmxxr7enoRsfhq2JLPRWL2JMJavInlgDx63HM2u_j99oAhWWObrKiQLHbLVsGyDYvLy5VOdheyNoL4ElMIWOah0S_onPZrxD0LNRK_ofgEDtQ-EoDk2bHV382JsGaIBPiNEncrVf-4RKw5PIXXDGoigjzTeCokB9zwFcIYZTsVIiD6k/s1600/iron%200.png" />
+                        <img alt="Thumbnail 3" onclick="changeImage(this)" src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjtGMyHXeuoOxYRFLqGvod-kH_6EXg9FbecZdHXFxTBuxL0Euf_gnjVs1qQwylUwfMtk-3GYcZJf3vO3vxqLZJ6d3iyhMIrQRtt8D-D8phrT0iecZBS3Bo2zoIkxNla2u9envJ6JsFm7GabunRH5QK7CEc6dLTBbnQ_kGmU_R6lmsM0wAp9QvJhUndSJb0/s1600/iron%201.png" />
+                        <img alt="Thumbnail 4" onclick="changeImage(this)" src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgGyxqNvLRQIf9_7aN85pFGqTTGmsfO4Sgap1e83YR7FYEP3du1Erx7q14jcvN7TZk6bcTrMS6KQA70ry-xxrP30Mh4a-Eb9GPW-9MT3R9sKxlETZt6d6TH_86SsO44VjQfWM7Af9NEhMHRQIrvZgr_KFmptlc_-hrfWBgV6e3YXMkktVKWS6Ss_swaqmI/s1600/iron%202.png" />
+                        <img alt="Thumbnail 5" onclick="changeImage(this)" src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhO-xjJZxzs58MtwdGRNTABljBkRYwRzwooiVXHFoBHiNuc2XhjHmBLQ5LpHbwGBjwINXfVmwAa7TC4iE-Ax2_oLsgkuxM8TXNv_ANGYlrW9C3FQAUZy_Zbhn5I5OZS5Xup01PaWNkTXpeDvSQIkLr6L8qzo5PVLrUE9a5mRcCHIOKB_pbD9eYCT5i4few/s1600/iron%203.png" />
+                        <img alt="Thumbnail 6" onclick="changeImage(this)" src="https://play-lh.googleusercontent.com/yPzf-O8nbQxADu_SV0t9yMrGLyaXdeBO8lFdzDWnWrqpQzK9KvVd2H8xReeFKqBeaPs=w1000-h1000-rw" />
+                        <img alt="Thumbnail 7" onclick="changeImage(this)" src="https://play-lh.googleusercontent.com/-rR9hUKnZjBqauuv7AIppQ56dA95Mrmw0u4KYlIumkHPJsuZ1zIYLRtUnG6huaIEgZ9m=w1000-h1000-rw" />
+                        <img alt="Thumbnail 8" onclick="changeImage(this)" src="https://play-lh.googleusercontent.com/L7EZBTKaDEopB59OPHz6M0Gv8eyydfILC6xgt9ZMFHedARw4ICRv3Ak2ah03JgPEjC8=w1000-h1000-rw" />
+                    </div>
+                </div>
+                <div class="description">
+                    <p style="text-align: left;">
+    <span style="color: red; font-family: Open Sans; font-size: medium;">
+        <span><b>LIVE TV &amp; VOD&nbsp;</b></span>
+    </span>
+</p>
+<p style="text-align: left;">
+    <span style="color: #4a505e; font-family: Open Sans;"><span>plus de 3500 chaines mondiale en LIVE classées par categories et des centaines de films et séries en VOD (vidéo à la demande)</span></span>
+</p>
+<p style="text-align: left;">
+    <span style="color: red; font-family: Open Sans; font-size: medium;">
+        <span><b>Qualité d'image&nbsp;</b></span>
+    </span>
+</p>
+<p style="text-align: left;">
+    <span style="color: #4a505e; font-family: Open Sans;"><span>La plus part des chaines sont diffusées en plusieurs qualités: 1080,720p,low (pour les bas débits)</span></span>
+</p>
+<p style="text-align: left;">
+    <span style="color: red; font-family: Open Sans; font-size: medium;">
+        <span><b>Timeshif&nbsp;</b></span>
+    </span>
+</p>
+<p style="text-align: left;">
+    <span style="color: #4a505e; font-family: Open Sans;">
+        <span>Controle du direct, avec application GOLD, il vous est possible de mettre la chaine sur pause, puis de reprendre le stream la ou vous l’avez laisser</span>
+    </span>
+</p>
+                </div>
+            </div>
+            <div class="product-details">
+                <p class="price" data-price="productPrice" id="productPrice"></p>
+                <div class="form-all">
+                        <div class="form-ligne">
+                        <label class="form-ligne">
+                            <div class="form-ligne-fa">
+                                <i class="fa fa-solid fa-server"></i>
+                            </div>
+                            <select id="Plug"></select>
+                        </label>
+                    </div>
+                  <div class="form-ligne">
+                        <label class="form-ligne">
+                            <div class="form-ligne-fa">
+                                <i class="fa fa-solid fa-tv"></i>
+                            </div>
+                            <select id="ApkDyn"></select>
+                        </label>
+                    </div>
+                                     <div class="device-details" id="deviceDetails"></div>
+                    <!-- Device details will be inserted here -->
+                    <div class="form-ligne">
+                        <label class="form-ligne">
+                            <div class="form-ligne-fa">
+                                <i class="fa fa-user"></i>
+                            </div>
+                            <input id="name" placeholder="Nom Complet" required="" type="text" />
+                        </label>
+                        <div class="error-message-f" id="nameError"></div>
+                    </div>
+
+                    <div class="form-ligne">
+                        <label class="form-ligne">
+                            <div class="form-ligne-fa">
+                                <i class="fa fa-phone"></i>
+                            </div>
+                          <div class="phone-all">
+                             <div class="custom-select-wrapper">
+    <div class="custom-select" id="customSelect">
+        <span class="custom-select-trigger">Indicatif</span>
+        <div class="custom-options">
+            <!-- Options will be populated by JavaScript -->
+        </div>
+    </div>
+</div>
+                            <input id="selectedCountryCode" name="selectedCountryCode" required="" type="hidden" />
+                            <input id="phone" placeholder="Numero Whatsapp" required="" type="text" />
+                            </div>
+                        </label>
+                        <div class="error-message-f" id="phoneError"></div>
+                    </div>
+
+                    <div class="form-ligne">
+                        <label class="form-ligne">
+                            <div class="form-ligne-fa">
+                                <i class="fa fa-envelope"></i>
+                            </div>
+                            <input id="email" pattern="^([A-Za-z0-9_\-\.])+\@([A-Za-z0-9_\-\.])+\.([A-Za-z]{2,4})$" placeholder="Enter Email here ..." required="" type="email" />
+                        </label>
+                        <div class="error-message-f" id="emailError"></div>
+                    </div>
+                    <div class="Order-Summary">
+                        <div class="Order-Summary-t"><i class="fa fa-shopping-basket"></i> Order Summary</div>
+                        <div class="order-prod">
+                            <div class="order-prod-t-p-q">
+                                <p class="orderTitle" id="orderTitle"></p>
+                                <div class="OderPlug">
+                                    <p id="OderPlug"></p>
+                                </div>
+
+                                <div class="OderPrice">
+                                    <p id="orderquantity">1</p>
+                                    <p>x</p>
+                                    <p id="Oderprice"></p>
+                                </div>
+                            </div>
+                          <div class="order-prod-d">
+                           <p class="orderTitle"> Dispositif :</p>
+                           <p id="OderApk"></p>
+                            <p id="apkPrice"></p>
+                            </div>
+                          <div class="order-prod-d">
+                           <p>Discount :</p>
+                            <span id="discountPercent">0%</span>
+                           <p id="discount"></p>
+                            </div>
+                            <div class="order-prod-P-t">
+                                <p>Prix Total :</p>
+                                <p class="total-price0" id="totalPrice"></p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="b-order">
+                        <div class="quantity">
+                            <span class="button-Q" onclick="decreaseQuantity()">-</span>
+                            <input class="quantity" id="quantity" min="1" onchange="updateTotalPrice()" type="reset" value="1" />
+                            <span class="button-Q" onclick="increaseQuantity()">+</span>
+                        </div>
+                        <button class="buy-button-w" onclick="sendOrder()"><i class="fa fa-brands fa-whatsapp"></i></button>
+                        <button class="buy-button-emailjs" onclick="sendOrderByEmail()">Commandé <i class="fa fa-shopping-cart"></i></button>
+                              
+                    </div>
+                  <div class="alert-waiting" id="waitingMessageContainer"></div>
+                </div>
+            </div>
+        </div>
+        <div class="alert-container" id="alertContainer"></div>
+    </main>
+  <script src="https://raw.githack.com/OraHighTech/OrderTvCode/main/indicatif.js"></script>
+   <script>
+     // carousel image
+        let currentIndex = 0;
+        const thumbnails = document.querySelectorAll(".product-thumbnails img");
+        const mainImage = document.getElementById("mainImage");
+
+        function changeImage(thumbnail) {
+            mainImage.classList.add("fade-out");
+            setTimeout(() => {
+                mainImage.src = thumbnail.src;
+                thumbnails.forEach((img) => img.classList.remove("active-thumbnail"));
+                thumbnail.classList.add("active-thumbnail");
+                currentIndex = Array.from(thumbnails).indexOf(thumbnail);
+                mainImage.classList.remove("fade-out");
+            }, 500); // Correspond à la durée de la transition CSS
+        }
+
+        function autoChangeImage() {
+            currentIndex = (currentIndex + 1) % thumbnails.length;
+            changeImage(thumbnails[currentIndex]);
+        }
+
+        function nextImage() {
+            currentIndex = (currentIndex + 1) % thumbnails.length;
+            changeImage(thumbnails[currentIndex]);
+        }
+
+        function prevImage() {
+            currentIndex = (currentIndex - 1 + thumbnails.length) % thumbnails.length;
+            changeImage(thumbnails[currentIndex]);
+        }
+
+        function startAutoChange() {
+            interval = setInterval(autoChangeImage, 3000); // Change image every 3 seconds
+        }
+
+        function stopAutoChange() {
+            clearInterval(interval);
+        }
+
+        mainImage.addEventListener("mouseover", stopAutoChange);
+        mainImage.addEventListener("mouseout", startAutoChange);
+
+        startAutoChange(); // Start the interval when the page loads
+
+        // Fin carousel image
+       document.getElementById("orderTitle").innerText = document.title;
+
+const prices = {
+    "king 365 IPTV 12 Mois": 55.00,
+};
+
+const apkPricer = {
+    "Code Active": 0.00,
+    "Xtream Code": 0.00,
+    "M3U": 0.00,
+    "MAG": 0.00,
+    "Ibo Player": 5.00,
+    "BOB Player": 5.00,
+    "Duplex Player": 5.00,
+    "Set IPTV": 0.00,
+    "Bay IPTV": 0.00,
+    "Flix IPTV": 0.00,
+    "Smart IPTV": 0.00,
+    "Smartone IPTV": 0.00,
+    "Smarter Player lg & Samsung - TV WebOS": 2.00,
+    "Smarterspro Android": 0.00,
+    "Autre Application": 10.00,
+};
+const apkCategories = {
+    category0: ['Code Active'],  
+    category1: ['Ibo Player', 'BOB Player', 'Duplex Player'],
+    category2: ['Set IPTV', 'Bay IPTV', 'Flix IPTV', 'Smartone IPTV', 'Smart IPTV', 'MAG'],
+    category3: ['MAG'],
+    category4: ['Smarter Player lg & Samsung - TV WebOS', 'Smarterspro Android', 'Xtream Code'],
+    category5: ['M3U'],
+    category6: ['Autre Application'],
+};
+
+// Generate Plug options dynamically
+const plugSelect = document.getElementById("Plug");
+const placeholderOption = document.createElement("option");
+placeholderOption.value = "";
+placeholderOption.textContent = "Choisir un Server";
+placeholderOption.disabled = true;
+placeholderOption.selected = true;
+plugSelect.appendChild(placeholderOption);
+
+for (const plugType in prices) {
+    const option = document.createElement("option");
+    option.value = plugType;
+    option.textContent = plugType;
+    plugSelect.appendChild(option);
+}
+
+// Generate ApkDyn options dynamically
+const ApkSelect = document.getElementById("ApkDyn");
+const placeholderOption2 = document.createElement("option");
+placeholderOption2.value = "";
+placeholderOption2.textContent = "Choisir une application TV";
+placeholderOption2.disabled = true;
+placeholderOption2.selected = true;
+ApkSelect.appendChild(placeholderOption2);
+
+for (const ApkType in apkPricer) {
+    const option = document.createElement("option");
+    option.value = ApkType;
+    option.textContent = ApkType;
+    ApkSelect.appendChild(option);
+}
+
+// countryCode
+
+const customSelect = document.getElementById('customSelect');
+const customSelectTrigger = customSelect.querySelector('.custom-select-trigger');
+const customOptions = customSelect.querySelector('.custom-options');
+const selectedCountryCodeInput = document.getElementById('selectedCountryCode');     
+
+// Populate custom options
+countryCodes.forEach(country => {
+    const option = document.createElement('div');
+    option.classList.add('custom-option');
+    option.setAttribute('data-value', country.code);
+    option.innerHTML = `<img src="${country.flag}" alt="${country.name} flag"> ${country.name} (${country.code})`;
+    customOptions.appendChild(option);
+
+    option.addEventListener('click', () => {
+        customSelectTrigger.innerHTML = `<img src="${country.flag}" alt="${country.name} flag"><span class"indicatif"> ${country.code}</span>`;
+        selectedCountryCodeInput.value = country.code;  
+        customOptions.style.display = 'none';
+        customSelectTrigger.classList.remove('active');
+    });
+});
+
+// Toggle options display
+customSelectTrigger.addEventListener('click', () => {
+    customOptions.style.display = customOptions.style.display === 'none' ? 'block' : 'none';
+    customSelectTrigger.classList.toggle('active');
+});
+
+// Close options if clicked outside
+document.addEventListener('click', (event) => {
+    if (!customSelect.contains(event.target)) {
+        customSelectTrigger.classList.remove('active');
+    }
+});
+
+
+// Set initial price
+const initialPrice = 55.00;
+document.getElementById("productPrice").innerText = initialPrice.toFixed(2) + " EURO";
+document.getElementById("totalPrice").innerText = initialPrice.toFixed(2) + " EURO";
+document.getElementById("Oderprice").innerText = initialPrice.toFixed(2) + " EURO";
+
+document.getElementById("Plug").addEventListener("change", () => {
+    updatePrice();
+});
+document.getElementById("ApkDyn").addEventListener("change", () => {
+    updatePrice();
+    updateDeviceDetails();
+});
+
+// Listen for input changes to clear error messages
+document.addEventListener("input", (event) => {
+    if (document.getElementById("macAddressError")) {
+        document.getElementById("macAddressError").innerText = "";
+    }
+    if (document.getElementById("deviceKeyError")) {
+        document.getElementById("deviceKeyError").innerText = "";
+    }
+});
+
+function updateDeviceDetails() {
+    const ApkDyn = document.getElementById("ApkDyn").value;
+    const deviceDetails = document.getElementById("deviceDetails");
+    deviceDetails.innerHTML = "";
+
+    if (apkCategories.category1.includes(ApkDyn)) {
+        deviceDetails.innerHTML += `
+            <div class="form-ligne"><label class="form-ligne"><div class="form-ligne-fa"><i class="fa fa-regular fa-router"></i></div><input type="text" id="macAddress" placeholder="Adresse MAC : 00:aa:11:bb:22" required /></label><div id="macAddressError" class="error-message-f"></div></div>
+            <div class="form-ligne"><label class="form-ligne"><div class="form-ligne-fa"><i class="fa fa-regular fa-key"></i></div><input type="text" id="deviceKey" pattern="^\\d+$" placeholder="Exemple : 123456" required /></label><div id="deviceKeyError" class="error-message-f"></div></div>
+        `;
+    } else if (apkCategories.category2.includes(ApkDyn)) {
+        deviceDetails.innerHTML += `
+            <div class="form-ligne"><label class="form-ligne"><div class="form-ligne-fa"><i class="fa fa-regular fa-router"></i></div><input type="text" id="macAddress" placeholder="Adresse MAC : 00:aa:11:bb:22" required /></label><div id="macAddressError" class="error-message-f"></div></div>
+        `;
+        if (apkCategories.category3.includes(ApkDyn)) {
+            deviceDetails.innerHTML += `
+                <div class="form-ligne">
+                    <label class="form-ligne">
+                        <div class="form-ligne-fa">
+                            <i class="fa fa-solid fa-circle-info"></i>
+                        </div>
+                        <div class="button-Tuto">
+                            <a class="Tuto-btn" href="https://www.iptv-store.shop/p/tuto-activer-votre-abonnement-iptv-mag.html" target="_blank">Comment Installer votre abonnement IPTV MAG</a>
+                        </div>
+                    </label>
+                </div>
+            `;
+        }
+    } else if (apkCategories.category4.includes(ApkDyn)) {
+        deviceDetails.innerHTML += `
+            <div class="form-ligne">
+                <label class="form-ligne">
+                    <div class="form-ligne-fa">
+                        <i class="fa fa-brands fa-instalod"></i>
+                    </div>
+                    <div class="button-Tuto">
+                        <div class="Tuto-btn"> Username / Password / URL:Port</div>
+                    </div>
+                </label>
+            </div>
+        `;
+    } else if (apkCategories.category5.includes(ApkDyn)) {
+        deviceDetails.innerHTML += `
+            <div class="form-ligne">
+                <label class="form-ligne">
+                    <div class="form-ligne-fa">
+                        <i class="fa fa-solid fa-circle-info"></i>
+                    </div>
+                    <div class="button-Tuto">
+                        <a class="Tuto-btn" href="#" target="_blank">TUTO</a>
+                    </div>
+                </label>
+            </div>
+        `;
+    } else if (apkCategories.category6.includes(ApkDyn)) {
+        deviceDetails.innerHTML += `
+            <div class="form-ligne">
+                <label class="form-ligne">
+                    <div class="form-ligne-fa">
+                        <i class="fa fa-brands fa-codepen"></i>
+                    </div>
+                    <input type="text" id="otherApk" placeholder="Enter Votre Application ici" required />
+                </label>
+            </div>
+        `;
+    }
+     else if (apkCategories.category0.includes(ApkDyn)) {
+        deviceDetails.innerHTML += `
+           <div class="form-ligne">
+                    <label class="form-ligne">
+                        <div class="form-ligne-fa">
+                            <i class="fa fa-solid fa-download"></i>
+                        </div>
+                        <div class="button-Tuto">
+                            <a class="Tuto-btn" href="https://ironiptv.net/iron-max.apk
+" target="_blank">Telechargé l'application iron max</a>
+                        </div>
+                    </label>
+                </div>
+                 <div class="form-ligne">
+                    <label class="form-ligne">
+                        <div class="form-ligne-fa">
+                            <i class="fa fa-solid fa-desktop-arrow-down"></i>
+                        </div>
+                        <div class="button-Tuto">
+                            <a class="Tuto-btn" href="https://play.google.com/store/apps/details?id=com.esaba.downloader&hl=fr" target="_blank">Code downloader iron TV max  = 347824</a>
+                        </div>
+                    </label>
+                </div>
+        `;
+    }
+    updateTotalPrice();
+}
+
+// Quantity
+function increaseQuantity() {
+    const quantityInput = document.getElementById("quantity");
+    let quantity = parseInt(quantityInput.value);
+    quantity = isNaN(quantity) ? 0 : quantity;
+    quantityInput.value = quantity + 1;
+    updateTotalPrice();
+}
+
+function decreaseQuantity() {
+    const quantityInput = document.getElementById("quantity");
+    let quantity = parseInt(quantityInput.value);
+    quantity = isNaN(quantity) ? 0 : quantity;
+    if (quantity > 1) {
+        quantityInput.value = quantity - 1;
+    }
+    updateTotalPrice();
+}
+
+function updatePrice() {
+    const Plug = document.getElementById("Plug").value;
+    const ApkDyn = document.getElementById("ApkDyn").value;
+    const priceElement = document.getElementById("productPrice");
+    const price = prices[Plug] ? prices[Plug] : initialPrice;
+    document.getElementById("OderPlug").innerText = Plug;
+    document.getElementById("OderApk").innerText = ApkDyn;
+    document.getElementById("Oderprice").innerText = price.toFixed(2) + " EURO";
+    priceElement.innerText = price.toFixed(2) + " EURO";
+    updateTotalPrice();
+}
+
+function updateTotalPrice() {
+    const quantity = parseInt(document.getElementById("quantity").value);
+    const Plug = document.getElementById("Plug").value;
+    const ApkDyn = document.getElementById("ApkDyn").value;
+    const apkPrice = apkPricer[ApkDyn] ? apkPricer[ApkDyn] : 0;
+    const productPrice = prices[Plug] ? prices[Plug] : initialPrice;
+    let totalPrice = (productPrice + apkPrice) * quantity;
+    let discount = 0;
+    let discountPercent = 0;
+
+    // Apply discount based on quantity
+    if (quantity > 20) {
+        discountPercent = 10; // 10% discount
+        discount = totalPrice * 0.10;
+        totalPrice *= 0.90;
+    } else if (quantity > 10) {
+        discountPercent = 5; // 5% discount
+        discount = totalPrice * 0.05;
+        totalPrice *= 0.95;
+    }
+
+    document.getElementById("productPrice").innerText = productPrice.toFixed(2) + " EURO";
+    document.getElementById("apkPrice").innerText = apkPrice.toFixed(2) + " EURO";
+    document.getElementById("discount").innerText = "Eco :" + discount.toFixed(2) + " EURO";
+    document.getElementById("discountPercent").innerText ="-" + discountPercent + "%";
+    document.getElementById("totalPrice").innerText = totalPrice.toFixed(2) + " EURO";
+    document.getElementById("orderquantity").innerText = quantity;
+}
+
+        function generateOrderNumber() {
+            const date = new Date();
+            const components = [
+                date.getFullYear(),
+                ("0" + (date.getMonth() + 1)).slice(-2),
+                ("0" + date.getDate()).slice(-2),
+                ("0" + date.getHours()).slice(-2),
+                ("0" + date.getMinutes()).slice(-2),
+                ("0" + date.getSeconds()).slice(-2),
+                Math.floor(Math.random() * 1000), // Random 3-digit number
+            ];
+            return components.join("");
+        }
+        
+        // sendOrderByEmail
+
+      function sendOrderByEmail() {
+    clearErrors();
+
+    const quantity = parseInt(document.getElementById("quantity").value);
+    const Plug = document.getElementById("Plug").value;
+    const ApkDyn = document.getElementById("ApkDyn").value;
+    const macAddress = document.getElementById('macAddress') ? document.getElementById('macAddress').value : '';
+    const deviceKey = (apkCategories.category1.includes(ApkDyn)) ? document.getElementById('deviceKey').value : '';
+    const otherApk = (apkCategories.category6.includes(ApkDyn)) ? document.getElementById("otherApk").value : '';
+    const name = document.getElementById("name").value;
+    const countryCode = document.getElementById("selectedCountryCode").value;
+    const phone = document.getElementById("phone").value;
+    const email = document.getElementById("email").value;
+
+    let valid = true;
+    let firstErrorElement = null;
+
+    if (!name) {
+        const errorElement = document.getElementById("nameError");
+        errorElement.innerText = "Veuillez entrer votre nom.";
+        valid = false;
+        if (!firstErrorElement) firstErrorElement = errorElement;
+    }
+
+    if (!countryCode) {
+        const errorElement = document.getElementById("phoneError");
+        errorElement.innerText = "Veuillez choisir un indicatif de pays.";
+        valid = false;
+        if (!firstErrorElement) firstErrorElement = errorElement;
+    } else if (!phone) {
+        const errorElement = document.getElementById("phoneError");
+        errorElement.innerText = "Veuillez entrer un numéro de téléphone.";
+        valid = false;
+        if (!firstErrorElement) firstErrorElement = errorElement;
+    } else if (!/^[1-9]\d{8,13}$/.test(phone)) { // 9 to 14 digits for the phone number without the leading 0
+        const errorElement = document.getElementById("phoneError");
+        errorElement.innerText = "Numéro de téléphone incorrect. Le numéro doit être sans le 0 initial.";
+        valid = false;
+        if (!firstErrorElement) firstErrorElement = errorElement;
+    }
+
+    if (!email) {
+        const errorElement = document.getElementById("emailError");
+        errorElement.innerText = "Veuillez entrer votre email.";
+        valid = false;
+        if (!firstErrorElement) firstErrorElement = errorElement;
+    } else if (!/^([A-Za-z0-9_\-\.])+\@([A-Za-z0-9_\-\.])+\.([A-Za-z]{2,4})$/.test(email)) {
+        const errorElement = document.getElementById("emailError");
+        errorElement.innerText = "Email incorrect.";
+        valid = false;
+        if (!firstErrorElement) firstErrorElement = errorElement;
+    }
+
+    if (macAddress && !/^([0-9A-Za-z]{2}[:-]){5}([0-9A-Za-z]{2})$/.test(macAddress)) {
+        document.getElementById('macAddressError').innerText = 'Veuillez entrer une adresse MAC valide.';
+        valid = false;
+    }
+
+    if (deviceKey && !/^\d+$/.test(deviceKey)) {
+        document.getElementById('deviceKeyError').innerText = 'Veuillez entrer un Device Key valide.';
+        valid = false;
+    }
+
+    if (!valid) {
+        if (firstErrorElement) {
+            firstErrorElement.scrollIntoView();
+        }
+        return;
+    }
+
+    displayWaitingMessage(); // Afficher le message d'attente
+
+    // Utiliser setTimeout pour permettre l'affichage du message d'attente avant de continuer
+    setTimeout(() => {
+        const apkPrice = apkPricer[ApkDyn] ? apkPricer[ApkDyn] : 0;
+        const productPrice = prices[Plug] ? prices[Plug] : initialPrice;
+        let totalPrice = (productPrice + apkPrice) * quantity;
+        let discount = 0;
+        let discountPercent = 0;
+
+        // Apply discount based on quantity
+        if (quantity > 20) {
+            discountPercent = 10; // 10% discount
+            discount = totalPrice * 0.10;
+            totalPrice *= 0.90;
+        } else if (quantity > 10) {
+            discountPercent = 5; // 5% discount
+            discount = totalPrice * 0.05;
+            totalPrice *= 0.95;
+        }
+
+        const orderNumber = generateOrderNumber();
+        const message =
+            `Numéro de commande: ${orderNumber}<br>` +
+            `Produit: ${document.title}<br>` +
+            `Type de Server: ${Plug}<br>` +  
+            `Type de Application: ${ApkDyn}<br>` +
+            `Mac Adresse: ${macAddress}<br>` +
+            `Device Key: ${deviceKey}<br>` +
+            `otherApk: ${otherApk}<br>` +        
+            `Nom: ${name}<br>` +
+            `Numéro de WhatsApp: ${countryCode}${phone}<br>` +
+            `Email: ${email}<br>` +
+            `Prix Server: ${productPrice.toFixed(2)} EURO<br>` +
+            `Prix APK: ${apkPrice.toFixed(2)} EURO<br>` + 
+            `Quantité: ${quantity}<br>` +
+            `Réduction: ${discount.toFixed(2)} EURO (${discountPercent}%)<br>` +
+            `Total: ${totalPrice.toFixed(2)} EURO`;
+
+        const templateParams = {
+            orderNumber: orderNumber,
+            product: document.title,
+            Server: Plug,
+            ApkType: ApkDyn,
+            "Mac Adresse": macAddress,
+            "Device Key": deviceKey,
+            name: name,
+            phone: countryCode+phone,
+            email: email,
+            otherApk: otherApk,
+            price: productPrice.toFixed(2),
+            PrixAPK: apkPrice.toFixed(2),
+            quantity: quantity,
+            discount: discount.toFixed(2),
+            discountPercent: discountPercent,
+            totalPrice: totalPrice.toFixed(2),
+        };
+
+        emailjs.send("service_geh79gu", "template_vny80g3", templateParams).then(
+            function (response) {
+                hideWaitingMessage(); // Cacher le message d'attente
+                displayAlert(`<i class="fa fa-solid fa-circle-check" style=" font-size: 6em; "></i><br>Commande envoyée avec succès!<br>Numéro de commande: ${orderNumber}`, "success");
+            },
+            function (error) {
+                hideWaitingMessage(); // Cacher le message d'attente
+                displayAlert("Échec de l'envoi de la commande.", "error");
+            }
+        );
+    }, 100); // Attendre 100ms pour permettre l'affichage du message d'attente
+}
+
+
+function displayAlert(message, type) {
+    const alertContainer = document.getElementById("alertContainer");
+    alertContainer.innerHTML = `<div class="alert alert-${type}">${message}</div>`;
+    setTimeout(() => {
+        alertContainer.innerHTML = "";
+        location.reload(); // Recharger la page après que le message soit effacé
+    }, 10000); // Effacer le message après 10 secondes
+}
+
+function displayWaitingMessage() {
+    const waitingMessageContainer = document.getElementById("waitingMessageContainer");
+    waitingMessageContainer.innerHTML = `<div class="alert alert-info">Veuillez patienter, votre commande est en cours de traitement ... <i class="fa fa-solid fa-spinner"></i></div>`;
+}
+
+function hideWaitingMessage() {
+    const waitingMessageContainer = document.getElementById("waitingMessageContainer");
+    waitingMessageContainer.innerHTML = "";
+}
+      // fin sendOrderByEmail
+
+        // sendOrder By Whatsapp
+
+        function sendOrder() {
+    clearErrors();
+
+    const quantity = parseInt(document.getElementById("quantity").value);
+    const Plug = document.getElementById("Plug").value;
+    const ApkDyn = document.getElementById("ApkDyn").value;
+    const macAddress = document.getElementById('macAddress') ? document.getElementById('macAddress').value : '';
+    const deviceKey = (apkCategories.category1.includes(ApkDyn)) ? document.getElementById('deviceKey').value : '';
+    const otherApk = (apkCategories.category6.includes(ApkDyn)) ? document.getElementById("otherApk").value : '';
+    const name = document.getElementById("name").value;
+    const countryCode = document.getElementById("selectedCountryCode").value;
+    const phone = document.getElementById("phone").value;
+    const email = document.getElementById("email").value;
+
+    let valid = true;
+    let firstErrorElement = null;
+
+    if (!name) {
+        const errorElement = document.getElementById("nameError");
+        errorElement.innerText = "Veuillez entrer votre nom.";
+        valid = false;
+        if (!firstErrorElement) firstErrorElement = errorElement;
+    }
+
+    if (!countryCode) {
+        const errorElement = document.getElementById("phoneError");
+        errorElement.innerText = "Veuillez choisir un indicatif de pays.";
+        valid = false;
+        if (!firstErrorElement) firstErrorElement = errorElement;
+    } else if (!phone) {
+        const errorElement = document.getElementById("phoneError");
+        errorElement.innerText = "Veuillez entrer un numéro de téléphone.";
+        valid = false;
+        if (!firstErrorElement) firstErrorElement = errorElement;
+    } else if (!/^[1-9]\d{8,13}$/.test(phone)) { // 9 to 14 digits for the phone number without the leading 0
+        const errorElement = document.getElementById("phoneError");
+        errorElement.innerText = "Numéro de téléphone incorrect. Le numéro doit être sans le 0 initial.";
+        valid = false;
+        if (!firstErrorElement) firstErrorElement = errorElement;
+    }
+
+    if (!email) {
+        const errorElement = document.getElementById("emailError");
+        errorElement.innerText = "Veuillez entrer votre email.";
+        valid = false;
+        if (!firstErrorElement) firstErrorElement = errorElement;
+    } else if (!/^([A-Za-z0-9_\-\.])+\@([A-Za-z0-9_\-\.])+\.([A-Za-z]{2,4})$/.test(email)) {
+        const errorElement = document.getElementById("emailError");
+        errorElement.innerText = "Email incorrect.";
+        valid = false;
+        if (!firstErrorElement) firstErrorElement = errorElement;
+    }
+
+    if (macAddress && !/^([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2})$/.test(macAddress)) {
+        document.getElementById('macAddressError').innerText = 'Veuillez entrer une adresse MAC valide.';
+        valid = false;
+    }
+
+    if (deviceKey && !/^\d+$/.test(deviceKey)) {
+        document.getElementById('deviceKeyError').innerText = 'Veuillez entrer un Device Key valide.';
+        valid = false;
+    }
+
+    if (!valid) {
+        if (firstErrorElement) {
+            firstErrorElement.scrollIntoView();
+        }
+        return;
+    }
+
+    const apkPrice = apkPricer[ApkDyn] ? apkPricer[ApkDyn] : 0;
+    const productPrice = prices[Plug] ? prices[Plug] : initialPrice;
+    let totalPrice = (productPrice + apkPrice) * quantity;
+    let discount = 0;
+    let discountPercent = 0;
+
+    // Apply discount based on quantity
+    if (quantity > 20) {
+        discountPercent = 10; // 10% discount
+        discount = totalPrice * 0.10;
+        totalPrice *= 0.90;
+    } else if (quantity > 10) {
+        discountPercent = 5; // 5% discount
+        discount = totalPrice * 0.05;
+        totalPrice *= 0.95;
+    }
+
+    const orderNumber = generateOrderNumber();
+    const message =
+        `Numéro de commande: ${orderNumber}\n` +
+        `Produit: ${document.title}\n` +
+        `Type de Server: ${Plug}\n` +
+        `Type de Application: ${ApkDyn}\n` +
+        `Mac Adresse: ${macAddress}\n` +
+        `device Key: ${deviceKey}\n` +
+        `otherApk: ${otherApk}\n` +
+        `Nom: ${name}\n` +
+        `Numéro de WhatsApp: ${countryCode}${phone}\n` +
+        `Email: ${email}\n` +
+        `Prix Server: ${productPrice.toFixed(2)} EURO\n` +
+        `Prix APK: ${apkPrice.toFixed(2)} EURO\n` +
+        `Quantité: ${quantity}\n` +
+        `Réduction: ${discount.toFixed(2)} EURO (${discountPercent}%)\n` +
+        `Total: ${totalPrice.toFixed(2)} EURO`;
+
+    const whatsappUrl = `https://wa.me/213770759886?text=${encodeURIComponent(message)}`;
+    window.open(whatsappUrl, "_blank");
+}
+
+        // Fin sendOrder By Whatsapp
+
+     document.addEventListener("DOMContentLoaded", function () {
+    document.getElementById("orderTitle").innerText = document.title;
+    updatePrice();
+    updateDeviceDetails();
+    
+    // Initialize price and other functionalities
+    const contactInfoElements = document.querySelectorAll(".form-all input, .device-details input");
+    contactInfoElements.forEach((element) => {
+        element.addEventListener("input", function () {
+            if (this.id === "name" && this.value) {
+                document.getElementById("nameError").innerText = "";
+            }
+            if (this.id === "phone" && /^[1-9]\d{8,13}$/.test(this.value)) {
+                document.getElementById("phoneError").innerText = "";
+            }
+            if (this.id === "email" && /^([A-Za-z0-9_\-\.])+\@([A-Za-z0-9_\-\.])+\.([A-Za-z]{2,4})$/.test(this.value)) {
+                document.getElementById("emailError").innerText = "";
+            }
+        });
+    });
+});
+
+function clearErrors() {
+    document.getElementById("nameError").innerText = "";
+    document.getElementById("phoneError").innerText = "";
+    document.getElementById("emailError").innerText = ""; 
+}
+
+
+</script>
+</body>
