@@ -9,7 +9,22 @@ const prices = {
     "QHDTV": 30.00,
     "IBO": 35.00,
     "SMARTERS PLAYER": 30.00
-    // Keep only IPTV prices as per reverting to previous version
+};
+
+// This object defines the available server types for each product
+const productServerTypes = {
+    // KING 365 does not have "code active"
+    "KING 365": ["xtream", "m3u", "mag"],
+    
+    // Other products have all options (you can customize these as needed)
+    "IRON TV MAX": ["code active", "xtream", "m3u", "mag"],
+    "NEO4K": ["code active", "xtream", "m3u", "mag"],
+    "ATLAS PRO": ["code active", "xtream", "m3u", "mag"],
+    "FOSTO": ["code active", "xtream", "m3u", "mag"],
+    "LYNX": ["code active", "xtream", "m3u", "mag"],
+    "QHDTV": ["code active", "xtream", "m3u", "mag"],
+    "IBO": ["code active", "xtream", "m3u", "mag"],
+    "SMARTERS PLAYER": ["code active", "xtream", "m3u", "mag"]
 };
 
 let currentProductPrice = 0;
@@ -30,8 +45,8 @@ document.addEventListener('DOMContentLoaded', () => {
         console.error("EmailJS not initialized. Please ensure the EmailJS script is loaded and PUBLIC_KEY is set correctly.");
     }
     populateCountryCodes();
-    toggleServerFields(); // This will initialize server fields visibility
-    updateAllProductPrices(); // Update prices on all product cards
+    toggleServerFields();
+    updateAllProductPrices();
 });
 
 // Function to update prices on all product cards
@@ -39,10 +54,10 @@ function updateAllProductPrices() {
     const priceBadges = document.querySelectorAll('.price-badge');
     priceBadges.forEach(badge => {
         const productName = badge.dataset.priceId;
-        if (prices[productName] !== undefined) { // Check if price exists
+        if (prices[productName] !== undefined) {
             badge.innerText = `${prices[productName].toFixed(2)} €`;
         } else {
-            badge.innerText = 'N/A'; // Or hide the badge if price is not found
+            badge.innerText = 'N/A';
             console.warn(`Price not found for product: ${productName}`);
         }
     });
@@ -54,6 +69,24 @@ function openBuyPopup(productName, price, imagePath, description) {
     currentProductImage = imagePath;
     currentProductDescription = description;
 
+    const serverTypeSelect = document.getElementById('serverType');
+    // 1. Clear current options from the dropdown
+    serverTypeSelect.innerHTML = ''; 
+
+    // 2. Get the list of server types for the selected product
+    // If the product is not found, use a default list with all options
+    const defaultTypes = ["code active", "xtream", "m3u", "mag"];
+    const availableTypes = productServerTypes[productName] || defaultTypes;
+
+    // 3. Create and add the new options to the dropdown
+    availableTypes.forEach(type => {
+        const option = document.createElement('option');
+        option.value = type;
+        // Capitalize the first letter for display (e.g., Xtream)
+        option.innerText = type.charAt(0).toUpperCase() + type.slice(1).replace(' active', ' Active');
+        serverTypeSelect.appendChild(option);
+    });
+
     document.getElementById('popupImage').src = imagePath;
     document.getElementById('popupTitle').innerText = productName;
     
@@ -64,7 +97,7 @@ function openBuyPopup(productName, price, imagePath, description) {
     document.getElementById('popupDescription').innerText = description;
     
     document.getElementById('orderForm').reset();
-    toggleServerFields(); // Call to adjust server fields based on product
+    toggleServerFields(); // Call to adjust server fields based on the first available option
     
     document.getElementById('buyPopup').style.display = 'flex';
 }
@@ -79,7 +112,6 @@ function toggleServerFields() {
     const serverFields = document.getElementById('serverFields');
     serverFields.innerHTML = '';
     
-    // This logic assumes all products are IPTV, as per reverting
     if (serverType === "mag") {
         serverFields.innerHTML = `
             <div class="form-group">
@@ -102,7 +134,7 @@ function updateTotalPrice() {
     
     let totalCalculatedPrice = currentProductPrice * quantity;
     
-    // Apply discounts based on quantity (assuming it applies to all IPTV products here)
+    // Apply discounts based on quantity
     if (quantity > 20) {
         totalCalculatedPrice *= 0.90;
     } else if (quantity > 10) {
@@ -186,22 +218,21 @@ function sendOrder(method) {
     let valid = true;
     let firstErrorElement = null;
 
-    if (!name) { valid = false; document.getElementById("nameError").innerText = "Veuillez entrer votre nom."; if (!firstErrorElement) firstErrorElement = document.getElementById("nameError"); }
-    if (!phone) { valid = false; document.getElementById("phoneError").innerText = "Veuillez entrer un numéro de téléphone."; if (!firstErrorElement) firstErrorElement = document.getElementById("phoneError"); }
+    if (!name) { valid = false; document.getElementById("nameError").innerText = "Veuillez entrer votre nom."; if (!firstErrorElement) firstErrorElement = document.getElementById("name"); }
+    if (!phone) { valid = false; document.getElementById("phoneError").innerText = "Veuillez entrer un numéro de téléphone."; if (!firstErrorElement) firstErrorElement = document.getElementById("phone"); }
     if (phone && !/^\d{8,14}$/.test(phone)) {
-        valid = false; document.getElementById("phoneError").innerText = "Numéro de téléphone incorrect. Doit être entre 8 et 14 chiffres."; if (!firstErrorElement) firstErrorElement = document.getElementById("phoneError");
+        valid = false; document.getElementById("phoneError").innerText = "Numéro de téléphone incorrect. Doit être entre 8 et 14 chiffres."; if (!firstErrorElement) firstErrorElement = document.getElementById("phone");
     }
-    if (email && !/^([A-Za-z0-9_\-\.])+\@([A-Za-z0-9_\-\.])+\.([A-Za-z]{2,4})$/.test(email)) { valid = false; document.getElementById("emailError").innerText = "Email incorrect."; if (!firstErrorElement) firstErrorElement = document.getElementById("emailError"); }
+    if (email && !/^([A-Za-z0-9_\-\.])+\@([A-Za-z0-9_\-\.])+\.([A-Za-z]{2,4})$/.test(email)) { valid = false; document.getElementById("emailError").innerText = "Email incorrect."; if (!firstErrorElement) firstErrorElement = document.getElementById("email"); }
 
     // MAC address validation for MAG server type
     if (serverType === "mag") {
         if (!macAddress) {
             valid = false; document.getElementById('macAddressError').innerText = 'Veuillez entrer une adresse MAC.';
-            if (!firstErrorElement) firstErrorElement = document.getElementById('macAddressError');
-        }
-        if (macAddress && !/^([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2})$/.test(macAddress)) {
+            if (!firstErrorElement) firstErrorElement = document.getElementById('macAddress');
+        } else if (!/^([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2})$/.test(macAddress)) {
             valid = false; document.getElementById('macAddressError').innerText = 'Veuillez entrer une adresse MAC valide.';
-            if (!firstErrorElement) firstErrorElement = document.getElementById('macAddressError');
+            if (!firstErrorElement) firstErrorElement = document.getElementById('macAddress');
         }
     }
 
@@ -232,7 +263,7 @@ function sendOrder(method) {
     const fullPhoneNumber = `${countryCode}${phone}`;
 
     const formattedMessage =
-        `*Nouvelle commande!\n` +
+        `*Nouvelle commande!*\n` +
         `*Numéro de commande: ${orderNumber}\n` +
         `*Produit: ${currentProductName}\n` +
         `*Type de serveur: ${serverType}\n` + 
@@ -268,7 +299,7 @@ function sendOrder(method) {
             productDescription: currentProductDescription 
         };
         
-        emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, templateParams, EMAILJS_PUBLIC_KEY)
+        emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, templateParams)
             .then(() => {
                 hideWaitingMessage();
                 displayAlert(`<i class="fa fa-solid fa-circle-check" style="font-size: 4em;"></i><br>Commande envoyée avec succès!<br>Numéro de commande: ${orderNumber}`, "success");
