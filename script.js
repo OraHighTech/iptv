@@ -336,6 +336,8 @@ function sendOrder(method) {
     let valid = true;
     const name = document.getElementById("name").value.trim();
     const phone = document.getElementById("phone").value.trim();
+    
+    // Vérification des champs
     if (!name) {
         valid = false;
         document.getElementById("nameError").innerText = "Veuillez entrer votre nom.";
@@ -344,8 +346,23 @@ function sendOrder(method) {
         valid = false;
         document.getElementById("phoneError").innerText = "Veuillez entrer un numéro.";
     }
-    if (!valid) return;
 
+    // Si la validation échoue, on remonte la page et on arrête
+    if (!valid) {
+        // Trouve le tout premier message d'erreur affiché sur la page
+        const firstError = document.querySelector('.error-message:not(:empty)');
+        
+        if (firstError) {
+            // Fait défiler la vue jusqu'à cet élément
+            firstError.scrollIntoView({
+                behavior: 'smooth', // Défilement fluide
+                block: 'center'     // Centre l'erreur à l'écran
+            });
+        }
+        return; // Stoppe l'exécution de la fonction
+    }
+
+    // Le reste de la fonction ne s'exécute que si tout est valide
     displayWaitingMessage();
     const quantity = parseInt(document.getElementById("quantity").value);
     const totalPrice = parseFloat(document.getElementById('popupPrice').innerText);
@@ -368,6 +385,81 @@ function sendOrder(method) {
             .then(() => {
                 hideWaitingMessage();
                 displayAlert(`Commande envoyée!<br>Numéro: ${orderNumber}`);
+            }, () => {
+                hideWaitingMessage();
+                displayAlert("Échec de l'envoi. Veuillez réessayer.");
+            });
+    }
+}
+function sendOrder(method) {
+    clearErrors();
+    let valid = true;
+    const name = document.getElementById("name").value.trim();
+    const phone = document.getElementById("phone").value.trim();
+    const email = document.getElementById("email").value.trim();
+
+    // Regex pour la validation
+    const phoneRegex = /^\d{7,15}$/; // Accepte entre 7 et 15 chiffres
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/; // Format email standard
+
+    // 1. Vérification du Nom
+    if (!name) {
+        valid = false;
+        document.getElementById("nameError").innerText = "Veuillez entrer votre nom.";
+    }
+
+    // 2. Vérification du Numéro de Téléphone
+    if (!phone) {
+        valid = false;
+        document.getElementById("phoneError").innerText = "Veuillez entrer un numéro de téléphone.";
+    } else if (!phoneRegex.test(phone.replace(/[\s-()]/g, ''))) { // On teste après avoir enlevé les espaces/tirets
+        valid = false;
+        document.getElementById("phoneError").innerText = "Le format du numéro est invalide.";
+    }
+
+    // 3. Vérification de l'Email (uniquement si le champ est rempli)
+    if (email && !emailRegex.test(email)) {
+        valid = false;
+        document.getElementById("emailError").innerText = "Veuillez entrer une adresse email valide.";
+    }
+
+    // Si la validation échoue, on remonte la page jusqu'à la première erreur
+    if (!valid) {
+        const firstError = document.querySelector('.error-message:not(:empty)');
+        if (firstError) {
+            firstError.scrollIntoView({
+                behavior: 'smooth',
+                block: 'center'
+            });
+        }
+        return; // Stoppe l'exécution
+    }
+
+    // Le reste de la fonction s'exécute si tout est valide
+    displayWaitingMessage();
+    const quantity = parseInt(document.getElementById("quantity").value);
+    const totalPrice = parseFloat(document.getElementById('popupPrice').innerText);
+    const orderNumber = generateOrderNumber();
+    const fullPhoneNumber = `${document.getElementById("selectedCountryCode").value}${phone}`;
+    const macAddress = document.getElementById('macAddress')?.value.trim() || 'N/A';
+    const serverType = document.getElementById("serverType").value;
+    const finalEmail = email || 'N/A'; // Utilise l'email validé
+    const discount = (currentProductPrice * quantity) - totalPrice;
+    
+    const formattedMessage = `*Nouvelle commande!*\n*Numéro: ${orderNumber}\n*Produit: ${currentProductName}\n*Serveur: ${serverType}\n*MAC: ${macAddress}\n*Nom: ${name}\n*WhatsApp: ${fullPhoneNumber}\n*Email: ${finalEmail}\n*Prix unitaire: ${currentProductPrice.toFixed(2)} €\n*Quantité: ${quantity}\n*Réduction: ${discount.toFixed(2)} €\n*Total: ${totalPrice.toFixed(2)} €`;
+
+    if (method === 'whatsapp') {
+        window.open(`https://api.whatsapp.com/send?phone=213770759886&text=${encodeURIComponent(formattedMessage)}`, '_blank');
+        hideWaitingMessage();
+        displayAlert(`Redirection vers WhatsApp...`);
+        document.getElementById('orderForm').reset();
+    } else if (method === 'email') {
+        const templateParams = { orderNumber, product: currentProductName, serverType, macAddress, name, phone: fullPhoneNumber, email: finalEmail, productPrice: currentProductPrice.toFixed(2), quantity, discount: discount.toFixed(2), totalPrice: totalPrice.toFixed(2), productDescription: currentProductDescription };
+        emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, templateParams)
+            .then(() => {
+                hideWaitingMessage();
+                displayAlert(`Commande envoyée!<br>Numéro: ${orderNumber}`);
+                document.getElementById('orderForm').reset();
             }, () => {
                 hideWaitingMessage();
                 displayAlert("Échec de l'envoi. Veuillez réessayer.");
