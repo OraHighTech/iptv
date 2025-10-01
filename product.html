@@ -1,24 +1,10 @@
+<!DOCTYPE html>
+<html lang="fr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    
     <title>Détails du Produit - IPTV Store</title>
-    
     <link rel="icon" type="image/x-icon" href="favicon.ico">
-    
-    <meta id="meta-description" name="description" content="Découvrez nos offres IPTV de haute qualité.">
-    
-    <meta id="og-title" property="og:title" content="IPTV Store">
-    <meta id="og-description" property="og:description" content="Découvrez nos offres IPTV de haute qualité.">
-    <meta id="og-image" property="og:image" content="https://www.iptv-store.shop/social-image.png">
-    <meta id="og-url" property="og:url" content="https://www.iptv-store.shop">
-    <meta property="og:type" content="website">
-
-    <meta name="twitter:card" content="summary_large_image">
-    <meta id="twitter-title" name="twitter:title" content="IPTV Store">
-    <meta id="twitter-description" name="twitter:description" content="Découvrez nos offres IPTV de haute qualité.">
-    <meta id="twitter-image" name="twitter:image" content="https://www.iptv-store.shop/social-image.png">
-    
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Noto+Color+Emoji&display=swap" rel="stylesheet">
@@ -28,70 +14,45 @@
 <body>
     <div id="header-placeholder"></div>
 
-    <main class="product-page-container">
-        <div class="product-layout-grid">
-            
-            <div class="product-info-column">
-                <img id="product-image" src="" alt="Image du produit">
-                <h1 id="product-name" class="product-title-main">Chargement...</h1>
-                <p class="product-price-main" id="popupPrice"></p>
-                <p id="product-description" class="product-description-main"></p>
-            </div>
-
-            <div class="product-form-column">
-                <form id="orderForm" class="order-form-card">
-                    <h3 class="form-title">Passez votre commande</h3>
-                    <div class="form-group">
-                        <label for="serverType">Forma du serveur :</label>
-                        <select id="serverType" onchange="toggleServerFields(); updateTotalPrice()"></select>
-                    </div>
-                    <div id="serverFields" class="server-fields"></div>
-                    <div class="form-group">
-                        <label for="quantity">Quantité :</label>
-                        <input type="number" id="quantity" value="1" min="1" onchange="updateTotalPrice()">
-                    </div>
-                    <div class="form-group">
-                        <label for="name">Votre Nom : <span class="required">*</span></label>
-                        <input type="text" id="name" placeholder="John Doe">
-                        <p class="error-message" id="nameError"></p>
-                    </div>
-                    <div class="form-group">
-                        <label for="phone">Numéro WhatsApp : <span class="required">*</span></label>
-                        <div class="whatsapp-input-group">
-                            <select id="selectedCountryCode" class="country-code-select-standalone"></select>
-                            <input type="tel" id="phone" placeholder="Votre numéro">
-                        </div>
-                        <p class="error-message" id="phoneError"></p>
-                    </div>
-                    <div class="form-group">
-                        <label for="email">Adresse Email :</label>
-                        <input type="email" id="email" placeholder="john.doe@example.com">
-                        <p class="error-message" id="emailError"></p>
-                    </div>
-                    <div class="button-group">
-                        <button type="button" class="btn btn-whatsapp" onclick="sendOrder('whatsapp')">
-                            <i class="fab fa-whatsapp"></i> Commander via WhatsApp
-                        </button>
-                        <button type="button" class="btn btn-email" onclick="sendOrder('email')">
-                            <i class="fas fa-envelope"></i> Commander via Email
-                        </button>
-                    </div>
-                </form>
-            </div>
+    <main class="product-page-container-new">
+        
+       <section class="product-gallery-section">
+    <div class="image-gallery-horizontal">
+        <div class="main-image-container-fade">
+            <button class="carousel-button prev" aria-label="Image précédente">&#10094;</button>
+            <button class="carousel-button next" aria-label="Image suivante">&#10095;</button>
         </div>
+        <div id="thumbnail-container" class="thumbnail-container-horizontal">
+            </div>
+    </div>
+</section>
+
+        <section class="product-intro">
+            <h1 id="product-name" class="product-title-main">Chargement...</h1>
+            <p id="product-description" class="product-description-main"></p>
+        </section>
+
+        <section class="product-form-section">
+            <form id="orderForm" class="order-form-card">
+                <h3 class="form-title">Passez votre commande</h3>
+                <p class="product-price-main" id="popupPrice"></p>
+                <div class="form-group"><label for="serverType">Forma du serveur :</label><select id="serverType" onchange="toggleServerFields(); updateTotalPrice()"></select></div>
+                <div id="serverFields" class="server-fields"></div>
+                <div class="form-group"><label for="quantity">Quantité :</label><input type="number" id="quantity" value="1" min="1" onchange="updateTotalPrice()"></div>
+                <div class="form-group"><label for="name">Votre Nom : <span class="required">*</span></label><input type="text" id="name" placeholder="John Doe"><p class="error-message" id="nameError"></p></div>
+                <div class="form-group"><label for="phone">Numéro WhatsApp : <span class="required">*</span></label><div class="whatsapp-input-group"><select id="selectedCountryCode" class="country-code-select-standalone"></select><input type="tel" id="phone" placeholder="Votre numéro"></div><p class="error-message" id="phoneError"></p></div>
+                <div class="form-group"><label for="email">Adresse Email :</label><input type="email" id="email" placeholder="john.doe@example.com"><p class="error-message" id="emailError"></p></div>
+                <div class="button-group"><button type="button" class="btn btn-whatsapp" onclick="sendOrder('whatsapp')"><i class="fab fa-whatsapp"></i> Commander</button><button type="button" class="btn btn-email" onclick="sendOrder('email')"><i class="fas fa-envelope"></i> Commander par Email</button></div>
+            </form>
+        </section>
+
     </main>
     
     <div id="waitingMessage" class="waiting-message" style="display: none;"><i class="fas fa-spinner fa-spin"></i></div>
-    <div id="customAlert" class="custom-alert" style="display: none;">
-        <div class="alert-content">
-            <span class="close-btn" onclick="closeAlert()">&times;</span>
-            <p id="alertMessage"></p>
-            <button class="ok-btn" onclick="closeAlert()">OK</button>
-        </div>
-    </div>
+    <div id="customAlert" class="custom-alert" style="display: none;"><div class="alert-content"><span class="close-btn" onclick="closeAlert()">&times;</span><p id="alertMessage"></p><button class="ok-btn" onclick="closeAlert()">OK</button></div></div>
+    <div id="lightbox" class="lightbox-overlay"><span class="lightbox-close">&times;</span><img id="lightbox-image" class="lightbox-image" src=""></div>
 
     <div id="footer-placeholder"></div>
-
     <script src="products-db.js"></script>
     <script src="script.js"></script>
 </body>

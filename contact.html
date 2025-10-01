@@ -4,66 +4,31 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Contactez-Nous - IPTV Store</title>
-    
     <link rel="icon" type="image/x-icon" href="favicon.ico">
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Noto+Color+Emoji&display=swap" rel="stylesheet">
-    
     <script src="https://raw.githack.com/OraHighTech/OrderTvCode/main/indicatif.js"></script>
 </head>
 <body>
     <div id="header-placeholder"></div>
-
     <main class="container">
         <section id="contact" class="contact-section">
             <h2 class="section-title">Contactez-Nous</h2>
-            <p class="contact-subtitle">
-                Vous avez des questions ou besoin d'aide ? Remplissez le formulaire ci-dessous et nous vous répondrons dans les plus brefs délais.
-            </p>
+            <p class="contact-subtitle">Vous avez des questions ou besoin d'aide ? Remplissez le formulaire ci-dessous et nous vous répondrons dans les plus brefs délais.</p>
             <div class="contact-form-container">
                 <form id="contactForm" class="order-form">
-                    <div class="form-group">
-                        <label for="contactPhone">Numéro WhatsApp <span class="required">*</span></label>
-                        <div class="whatsapp-input-group">
-                            <select id="contactCountryCode" class="country-code-select-standalone"></select>
-                            <input type="tel" id="contactPhone" placeholder="Votre numéro">
-                        </div>
-                        <p class="error-message" id="contactPhoneError"></p>
-                    </div>
-                    <div class="form-group">
-                        <label for="contactSubject">Sujet <span class="required">*</span></label>
-                        <select id="contactSubject">
-                            <option value="Acheter un produit">Acheter un produit</option>
-                            <option value="Avoir des informations">Avoir des informations</option>
-                            <option value="Autre">Autre</option>
-                        </select>
-                        <p class="error-message" id="contactSubjectError"></p>
-                    </div>
-                    <div class="form-group">
-                        <label for="contactMessage">Message <span class="required">*</span></label>
-                        <textarea id="contactMessage" rows="6" placeholder="Bonjour, je voudrais..."></textarea>
-                        <p class="error-message" id="contactMessageError"></p>
-                    </div>
-                    <button type="button" class="btn btn-whatsapp" onclick="sendContactViaWhatsApp()">
-                        <i class="fab fa-whatsapp"></i> Envoyer via WhatsApp
-                    </button>
+                    <div class="form-group"><label for="contactPhone">Numéro WhatsApp <span class="required">*</span></label><div class="whatsapp-input-group"><select id="contactCountryCode" class="country-code-select-standalone"></select><input type="tel" id="contactPhone" placeholder="Votre numéro"></div><p class="error-message" id="contactPhoneError"></p></div>
+                    <div class="form-group"><label for="contactSubject">Sujet <span class="required">*</span></label><select id="contactSubject"><option value="Acheter un produit">Acheter un produit</option><option value="Avoir des informations">Avoir des informations</option><option value="Autre">Autre</option></select></div>
+                    <div class="form-group"><label for="contactMessage">Message <span class="required">*</span></label><textarea id="contactMessage" rows="6" placeholder="Bonjour, je voudrais..."></textarea><p class="error-message" id="contactMessageError"></p></div>
+                    <button type="button" class="btn btn-whatsapp" onclick="sendContactViaWhatsApp()"><i class="fab fa-whatsapp"></i> Envoyer via WhatsApp</button>
                 </form>
             </div>
         </section>
     </main>
-
-    <div id="customAlert" class="custom-alert" style="display: none;">
-        <div class="alert-content">
-            <span class="close-btn" onclick="closeAlert()">&times;</span>
-            <p id="alertMessage"></p>
-            <button class="ok-btn" onclick="closeAlert()">OK</button>
-        </div>
-    </div>
-
+    <div id="customAlert" class="custom-alert" style="display: none;"><div class="alert-content"><span class="close-btn" onclick="closeAlert()">&times;</span><p id="alertMessage"></p><button class="ok-btn" onclick="closeAlert()">OK</button></div></div>
     <div id="footer-placeholder"></div>
-
-   <script src="products-db.js"></script>
+    <script src="products-db.js"></script>
     <script src="script.js"></script>
 </body>
 </html>
