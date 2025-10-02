@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Générateur de Pages de Partage</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; margin: 0; background-color: #f0f2f5; display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 20px; box-sizing: border-box; }
+        .container { background-color: white; padding: 30px 40px; border-radius: 12px; box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08); max-width: 800px; width: 100%; }
+        h1 { color: #1c1e21; text-align: center; margin-bottom: 10px; }
+        p { text-align: center; color: #606770; margin-bottom: 30px; }
+        .header-actions { display: flex; justify-content: flex-end; padding-bottom: 15px; border-bottom: 1px solid #dddfe2; margin-bottom: 15px; }
+        .btn { color: white; padding: 10px 20px; border-radius: 6px; text-decoration: none; font-size: 15px; font-weight: 600; transition: background-color 0.2s; border: none; cursor: pointer; }
+        .btn-success { background-color: #198754; }
+        .btn-success:hover { background-color: #157347; }
+        .btn-success:disabled { background-color: #a0a0a0; cursor: not-allowed; }
+        #output { margin-top: 20px; }
+        .file-link { display: flex; justify-content: space-between; align-items: center; padding: 12px; background-color: #f7f8fa; border: 1px solid #dddfe2; border-radius: 6px; margin-bottom: 10px; }
+        .file-link span { font-weight: 500; color: #333; }
+        .download-btn { background-color: #0d6efd; color: white; padding: 8px 16px; border-radius: 6px; text-decoration: none; font-size: 14px; font-weight: 600; transition: background-color 0.2s; }
+        .download-btn:hover { background-color: #0b5ed7; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Générateur de Pages de Partage (avec redirection)</h1>
+        <p style="color: #d93025; font-weight: bold;">Attention : L'ajout d'une redirection automatique peut faire échouer le partage sur les réseaux sociaux.</p>
+        <div class="header-actions">
+            <button id="downloadAllBtn" class="btn btn-success">Tout Télécharger (.zip)</button>
+        </div>
+        <div id="output"></div>
+    </div>
+
+    <script src="products-db.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const outputContainer = document.getElementById('output');
+            const downloadAllBtn = document.getElementById('downloadAllBtn');
+
+            if (typeof products === 'undefined' || products.length === 0) {
+                outputContainer.innerHTML = '<p style="color: red; text-align: center;">Erreur : Impossible de trouver les produits.</p>';
+                downloadAllBtn.disabled = true;
+                return;
+            }
+            
+            const generateFileContent = (product) => {
+                const productNameSafe = product.name.replace(/"/g, '&quot;');
+                const productDescriptionSafe = product.description.substring(0, 155).replace(/"/g, '&quot;');
+                const formattedFileName = `${product.id}.html`;
+
+                return `<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>${productNameSafe} - www.iptv-store.shop</title>
+    <meta property="og:title" content="${productNameSafe}">
+    <meta property="og:site_name" content="www.iptv-store.shop">
+    <meta property="og:description" content="${productDescriptionSafe}">
+    <meta property="og:image" content="${product.images[0]}">
+    <meta property="og:type" content="product">
+    <meta property="og:url" content="https://www.iptv-store.shop/produits/${formattedFileName}">
+    
+    <script>
+        setTimeout(() => {
+            window.location.replace("../product.html?id=${product.id}");
+        }, 500); // Délai de 0.5 seconde
+    <\/script>
+    
+    <noscript>
+        <meta http-equiv="refresh" content="0;url=../product.html?id=${product.id}">
+    </noscript>
+</head>
+<body>
+    <p style="font-family: sans-serif; text-align: center; padding-top: 50px;">Redirection en cours vers le produit...</p>
+</body>
+</html>`;
+            };
+
+            products.forEach(product => {
+                const linkContainer = document.createElement('div');
+                linkContainer.className = 'file-link';
+                const fileName = document.createElement('span');
+                const formattedFileName = `${product.id}.html`;
+                fileName.textContent = formattedFileName;
+                const downloadLink = document.createElement('a');
+                downloadLink.href = URL.createObjectURL(new Blob([generateFileContent(product)], { type: 'text/html' }));
+                downloadLink.textContent = 'Télécharger';
+                downloadLink.className = 'download-btn';
+                downloadLink.download = formattedFileName;
+                linkContainer.appendChild(fileName);
+                linkContainer.appendChild(downloadLink);
+                outputContainer.appendChild(linkContainer);
+            });
+            
+            downloadAllBtn.addEventListener('click', () => {
+                const zip = new JSZip();
+                products.forEach(product => {
+                    const content = generateFileContent(product);
+                    const fileName = `${product.id}.html`;
+                    zip.file(fileName, content);
+                });
+                zip.generateAsync({ type: "blob" }).then(function(content) {
+                    const link = document.createElement('a');
+                    link.href = URL.createObjectURL(content);
+                    link.download = "fichiers-partage-produits.zip";
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                });
+            });
+        });
+    </script>
+</body>
+</html>
