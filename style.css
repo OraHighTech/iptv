@@ -89,6 +89,9 @@ a.product-card-link{text-decoration:none;flex-shrink:0;width:260px;display:flex}
 .lightbox-close{position:absolute;top:20px;right:30px;font-size:40px;color:#fff;cursor:pointer;transition:transform .2s}
 .lightbox-close:hover{transform:scale(1.2)}
 /* ✨ NOUVEAUX STYLES POUR LA PAGE PRODUIT ✨ */
+section.product-gallery-section {
+    max-width: 600px;
+}
 .product-page-container-new{max-width:800px;margin:40px auto;padding:20px}
 .product-intro{text-align:center;margin-bottom:30px}
 .product-title-main{font-family:var(--font-secondary);font-size:2.8em;color:var(--primary-color);margin-bottom:15px}
@@ -201,4 +204,56 @@ a.product-card-link{text-decoration:none;flex-shrink:0;width:260px;display:flex}
     background-color: #6c757d;
     border: none;
     cursor: pointer;
+}
+
+/* NOUVEAU : Styles pour les nouvelles sections de la page produit */
+
+/* Style pour l'extrait de description au-dessus du titre */
+.product-excerpt-main {
+    font-size: 1.1em;
+    color: var(--secondary-color);
+    text-align: center;
+    max-width: 700px;
+    margin: 0 auto 15px auto;
+}
+
+/* Style pour la section de description complète */
+.product-full-description {
+    background-color: var(--card-bg);
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0 8px 30px rgba(0,0,0,0.08);
+    margin-top: 40px;
+}
+
+/* Titre plus petit pour les sections secondaires */
+.section-title-small {
+    font-family: var(--font-secondary);
+    font-size: 1.8em;
+    color: var(--text-dark);
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+/* Style pour la section des modes de paiement */
+.payment-methods {
+    text-align: center;
+    margin-top: 40px;
+    padding: 30px;
+    background-color: var(--card-bg);
+    border-radius: 12px;
+}
+
+.payment-icons {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 30px; /* Espace entre les logos */
+    flex-wrap: wrap; /* Pour les petits écrans */
+}
+
+.payment-icons img {
+    height: 40px; /* Hauteur uniforme pour les logos */
+    max-width: 120px;
+    object-fit: contain;
 }

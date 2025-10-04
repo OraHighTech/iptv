@@ -128,11 +128,11 @@ function populateProductPage() {
     const product = products.find(p => p.id === new URLSearchParams(window.location.search).get('id'));
 
     if (product) {
-        // --- SEO ---
+        // --- SEO (ne change pas) ---
         document.title = `${product.name} - Abonnement IPTV | www.iptv-store.shop`;
         const metaDescription = document.querySelector('meta[name="description"]');
         if (metaDescription) {
-            metaDescription.setAttribute('content', product.description.substring(0, 155));
+            metaDescription.setAttribute('content', (product.description || '').substring(0, 155));
         }
         const schema = {
             "@context": "https://schema.org/", "@type": "Product", "name": product.name,
@@ -145,45 +145,50 @@ function populateProductPage() {
             schemaScript.textContent = JSON.stringify(schema);
         }
         
-        // --- Affichage des informations ---
+        // --- AFFICHAGE DES INFORMATIONS (CORRIGÉ) ---
         document.getElementById('product-name').innerText = product.name;
-        document.getElementById('product-description').innerText = product.description;
         
-        // --- Logique pour les boutons de partage ---
+        // 1. Remplit la description COMPLÈTE dans la section du bas
+        document.getElementById('product-description').innerText = product.description;
+
+        // 2. Crée et remplit l'EXTRAIT en se basant sur la PREMIÈRE LIGNE
+        const excerptElement = document.getElementById('product-excerpt');
+        if (excerptElement) {
+            const fullDescription = product.description || '';
+            
+            // On prend la première ligne en séparant le texte au premier retour à la ligne
+            let firstLine = fullDescription.split('\n')[0];
+            
+            // On s'assure que cette première ligne n'est pas trop longue (max 120 caractères)
+            let excerpt = firstLine.substring(0, 120);
+
+            // On ajoute "..." s'il y a plus de contenu que l'extrait affiché
+            if (fullDescription.length > excerpt.length) {
+                excerpt += '...';
+            }
+            excerptElement.innerText = excerpt;
+        }
+        
+        // --- Logique pour les boutons de partage (ne change pas) ---
         const shareFileName = `${product.id}.html`;
         const shareUrl = `https://www.iptv-store.shop/produits/${shareFileName}`;
         const shareText = `Découvrez ${product.name} sur IPTV Store !`;
 
         const facebookBtn = document.getElementById('share-facebook');
+        if(facebookBtn) { facebookBtn.href = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}`; }
         const twitterBtn = document.getElementById('share-twitter');
+        if(twitterBtn) { twitterBtn.href = `https://twitter.com/intent/tweet?url=${encodeURIComponent(shareUrl)}&text=${encodeURIComponent(shareText)}`; }
         const whatsappBtn = document.getElementById('share-whatsapp');
+        if(whatsappBtn) { whatsappBtn.href = `https://api.whatsapp.com/send?text=${encodeURIComponent(shareText + ' ' + shareUrl)}`; }
         const telegramBtn = document.getElementById('share-telegram');
+        if(telegramBtn) { telegramBtn.href = `https://t.me/share/url?url=${encodeURIComponent(shareUrl)}&text=${encodeURIComponent(shareText)}`; }
         const copyBtn = document.getElementById('copy-link');
-
-        if(facebookBtn) {
-            facebookBtn.href = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}`;
-        }
-        if(twitterBtn) {
-            twitterBtn.href = `https://twitter.com/intent/tweet?url=${encodeURIComponent(shareUrl)}&text=${encodeURIComponent(shareText)}`;
-        }
-        if(whatsappBtn) {
-            whatsappBtn.href = `https://api.whatsapp.com/send?text=${encodeURIComponent(shareText + ' ' + shareUrl)}`;
-        }
-        if(telegramBtn) {
-            telegramBtn.href = `https://t.me/share/url?url=${encodeURIComponent(shareUrl)}&text=${encodeURIComponent(shareText)}`;
-        }
         if(copyBtn) {
             copyBtn.addEventListener('click', () => {
                 navigator.clipboard.writeText(shareUrl).then(() => {
-                    // Feedback visuel pour l'utilisateur
                     copyBtn.innerHTML = '<i class="fas fa-check"></i>';
-                    setTimeout(() => {
-                        copyBtn.innerHTML = '<i class="fas fa-copy"></i>';
-                    }, 2000); // Revient à l'icône originale après 2 secondes
-                }).catch(err => {
-                    console.error('Erreur lors de la copie du lien : ', err);
-                    alert("Impossible de copier le lien.");
-                });
+                    setTimeout(() => { copyBtn.innerHTML = '<i class="fas fa-copy"></i>'; }, 2000);
+                }).catch(err => { console.error('Erreur de copie: ', err); });
             });
         }
 
