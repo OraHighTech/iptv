@@ -89,10 +89,7 @@ a.product-card-link{text-decoration:none;flex-shrink:0;width:260px;display:flex}
 .lightbox-close{position:absolute;top:20px;right:30px;font-size:40px;color:#fff;cursor:pointer;transition:transform .2s}
 .lightbox-close:hover{transform:scale(1.2)}
 /* ✨ NOUVEAUX STYLES POUR LA PAGE PRODUIT ✨ */
-section.product-gallery-section {
-    max-width: 600px;
-}
-.product-page-container-new{max-width:800px;margin:40px auto;padding:20px}
+.product-page-container-new{max-width:600px;margin:0 auto;padding:20px}
 .product-intro{text-align:center;margin-bottom:30px}
 .product-title-main{font-family:var(--font-secondary);font-size:2.8em;color:var(--primary-color);margin-bottom:15px}
 .product-description-main{font-size:1.1em;line-height:1.7;color:var(--secondary-color)}
@@ -256,4 +253,5 @@ section.product-gallery-section {
     height: 40px; /* Hauteur uniforme pour les logos */
     max-width: 120px;
     object-fit: contain;
+
 }
