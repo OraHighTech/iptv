@@ -1,0 +1,14 @@
+# S'applique à tous les robots d'exploration (Google, Bing, etc.)
+User-agent: *
+
+# Interdire l'accès aux fichiers et outils de gestion privés
+Disallow: /generateur.html
+Disallow: /generateur-script.js
+Disallow: /products-db.js
+
+# Interdire l'accès au dossier des pages de partage statiques
+# pour éviter le contenu dupliqué avec les vraies pages produits.
+Disallow: /produits/
+
+# Indiquer l'emplacement du plan du site (sitemap)
+Sitemap: https://www.iptv-store.shop/sitemap.xml
