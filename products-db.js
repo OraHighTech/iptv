@@ -26,7 +26,7 @@ const products = [
         "description": "Le choix idéal pour les amateurs de sport...\n\nPlus de 13500 Chaînes HD,FHD,UHD,4k\n\nPlus de 18000 VOD \n\nServeur 100% Stable\n\nService client 24/7\n\nCompatible Avec Tous les Appareils..",
         "serverTypes": [
             "code active",
-			"User - Pass",
+            "User - Pass",
             "xtream",
             "m3u",
             "mag"
@@ -156,6 +156,19 @@ const products = [
         "images": [
             "https://www.iptv-store.shop/img/SMARTERS-PLAYER.png",
             "https://bit.ly/4nycU72"
+        ]
+    },
+    {
+        "id": "GOGO",
+        "name": "GOGO",
+        "price": 30,
+        "description": "à travers son application officielle ET les appareils icone vous offre l’accès à la TV et à la VOD (séries et films) ainsi qu’au replay (rediffusion)",
+        "serverTypes": [
+            "code active"
+        ],
+        "category": "Haute Qualité",
+        "images": [
+            "https://www.iptv-store.shop/img/GOGO.png"
         ]
     }
 ];
