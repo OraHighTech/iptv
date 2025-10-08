@@ -171,7 +171,7 @@ function populateProductPage() {
         
         // --- Logique pour les boutons de partage (ne change pas) ---
         const shareFileName = `${product.id}.html`;
-        const shareUrl = `https://www.iptv-store.shop/produits/${shareFileName}`;
+        const shareUrl = `www.iptv-store.shop/produits/${shareFileName}`;
         const shareText = `Découvrez ${product.name} sur IPTV Store !`;
 
         const facebookBtn = document.getElementById('share-facebook');
@@ -598,4 +598,5 @@ function sendContactViaWhatsApp() {
     window.open(`https://api.whatsapp.com/send?phone=213770759886&text=${encodeURIComponent(formattedMessage)}`, '_blank');
     displayAlert(`Redirection vers WhatsApp...`);
     document.getElementById('contactForm')?.reset();
+
 }
