@@ -4,12 +4,12 @@ let masterCategories = [];
 
 document.addEventListener('DOMContentLoaded', () => {
     if (typeof products !== 'undefined') {
-        productsData = JSON.parse(JSON.stringify(products));
+        productsData = JSON.parse(JSON.stringify(products)); 
         loadConfig();
         renderAll();
         attachAllEventListeners();
     } else {
-        alert("Erreur: Le fichier products-db.js est introuvable ou vide. Assurez-vous qu'il est dans le même dossier que generateur.html.");
+        alert("Erreur : Le fichier products-db.js est introuvable ou vide.");
     }
 });
 
@@ -20,6 +20,8 @@ function attachAllEventListeners() {
     document.getElementById('saveDbBtn').addEventListener('click', saveDbFile);
     document.getElementById('server-type-form').addEventListener('submit', addServerType);
     document.getElementById('category-form').addEventListener('submit', addCategory);
+    document.getElementById('generateSitemapBtn').addEventListener('click', generateSitemap);
+    document.getElementById('downloadSitemapBtn').addEventListener('click', downloadSitemap);
     resetForm();
 }
 
@@ -72,13 +74,13 @@ function renderConfigUI() {
                 <span>${item}</span>
                 <div class="item-actions">
                     <button class="icon-btn" onclick="editConfigItem('${key}', ${index}, this)"><i class="fas fa-edit"></i></button>
-                    <button class="icon-btn" onclick="${deleteFn.name}('${key}', ${index})"><i class="fas fa-trash"></i></button>
+                    <button class="icon-btn" onclick="deleteConfigItem('${key}', ${index})"><i class="fas fa-trash"></i></button>
                 </div>`;
             container.appendChild(li);
         });
     };
-    renderList('serverTypes', 'server-types-list', deleteConfigItem, editConfigItem);
-    renderList('categories', 'categories-list', deleteConfigItem, editConfigItem);
+    renderList('serverTypes', 'server-types-list', deleteConfigItem);
+    renderList('categories', 'categories-list', deleteConfigItem);
 }
 
 function editConfigItem(key, index, button) {
@@ -95,90 +97,28 @@ function editConfigItem(key, index, button) {
     li.querySelector('input').focus();
 }
 
-// =========================================================================
-// MODIFIÉ : La fonction de sauvegarde met maintenant à jour les produits
-// =========================================================================
 function saveConfigItem(key, index, button) {
     const li = button.closest('li');
     const input = li.querySelector('input');
     const newValue = input.value.trim();
     
     if (newValue) {
+        const oldValue = key === 'serverTypes' ? masterServerTypes[index] : masterCategories[index];
         if (key === 'serverTypes') {
-            const oldValue = masterServerTypes[index];
             masterServerTypes[index] = newValue;
-            // Met à jour les produits qui utilisaient l'ancien type
-            productsData.forEach(product => {
-                const typeIndex = product.serverTypes.indexOf(oldValue);
-                if (typeIndex > -1) {
-                    product.serverTypes[typeIndex] = newValue;
-                }
-            });
+            productsData.forEach(p => { p.serverTypes = p.serverTypes.map(type => type === oldValue ? newValue : type); });
         } else {
-            const oldValue = masterCategories[index];
             masterCategories[index] = newValue;
-            // Met à jour les produits qui utilisaient l'ancienne catégorie
-            productsData.forEach(product => {
-                if (product.category === oldValue) {
-                    product.category = newValue;
-                }
-            });
-        }
-        saveConfig();
-        renderAll(); // Met à jour toute l'interface, y compris la liste des produits
-    }
-}
-
-function addServerType(e) {
-    e.preventDefault();
-    const input = document.getElementById('new-server-type');
-    if (input.value && !masterServerTypes.includes(input.value)) {
-        masterServerTypes.push(input.value);
-        masterServerTypes.sort();
-        saveConfig();
-        renderAll();
-    }
-    input.value = '';
-}
-
-function deleteConfigItem(key, index) {
-    const confirmMessage = `Êtes-vous sûr de vouloir supprimer cet élément ? Il sera aussi retiré de tous les produits qui l'utilisent.`;
-    if (confirm(confirmMessage)) {
-        if (key === 'serverTypes') {
-            const valueToRemove = masterServerTypes[index];
-            masterServerTypes.splice(index, 1);
-            productsData.forEach(product => {
-                product.serverTypes = product.serverTypes.filter(type => type !== valueToRemove);
-            });
-        } else {
-            const valueToRemove = masterCategories[index];
-            masterCategories.splice(index, 1);
-            // Note : un produit doit toujours avoir une catégorie. 
-            // On pourrait assigner une catégorie par défaut ici si besoin.
-            // Pour l'instant, on prévient juste que la catégorie sera vide.
-            productsData.forEach(product => {
-                if (product.category === valueToRemove) {
-                    product.category = ''; // Ou une catégorie par défaut
-                }
-            });
-            alert(`La catégorie "${valueToRemove}" a été supprimée. Les produits affectés n'ont plus de catégorie.`);
+            productsData.forEach(p => { if (p.category === oldValue) p.category = newValue; });
         }
         saveConfig();
         renderAll();
     }
 }
 
-function addCategory(e) {
-    e.preventDefault();
-    const input = document.getElementById('new-category');
-    if (input.value && !masterCategories.includes(input.value)) {
-        masterCategories.push(input.value);
-        masterCategories.sort();
-        saveConfig();
-        renderAll();
-    }
-    input.value = '';
-}
+function addServerType(e) { e.preventDefault(); const input = document.getElementById('new-server-type'); if (input.value && !masterServerTypes.includes(input.value)) { masterServerTypes.push(input.value); masterServerTypes.sort(); saveConfig(); renderAll(); } input.value = ''; }
+function addCategory(e) { e.preventDefault(); const input = document.getElementById('new-category'); if (input.value && !masterCategories.includes(input.value)) { masterCategories.push(input.value); masterCategories.sort(); saveConfig(); renderAll(); } input.value = ''; }
+function deleteConfigItem(key, index) { const confirmMessage = `Êtes-vous sûr de vouloir supprimer cet élément ? Il sera aussi retiré de tous les produits qui l'utilisent.`; if (confirm(confirmMessage)) { if (key === 'serverTypes') { const valueToRemove = masterServerTypes[index]; masterServerTypes.splice(index, 1); productsData.forEach(product => { product.serverTypes = (product.serverTypes || []).filter(type => type !== valueToRemove); }); } else if (key === 'categories') { const valueToRemove = masterCategories[index]; masterCategories.splice(index, 1); productsData.forEach(product => { if (product.category === valueToRemove) product.category = ''; }); alert(`La catégorie "${valueToRemove}" a été supprimée. Les produits affectés n'ont plus de catégorie.`); } else if (key === 'products') { if (confirm(`Êtes-vous sûr de vouloir supprimer le produit "${productsData[index].name}" ?`)) { productsData.splice(index, 1); } } saveConfig(); renderAll(); } }
 
 // --- PRODUCT MANAGEMENT LOGIC ---
 const productListContainer = document.getElementById('product-list');
@@ -190,19 +130,9 @@ function populateFormControls() { const serverContainer = document.getElementByI
 function renderProductList() { productListContainer.innerHTML = ''; productsData.forEach((product, index) => { const card = document.createElement('div'); card.className = 'product-card'; card.innerHTML = `<h3>${product.name} (<code>${product.id}</code>)</h3><p><strong>Prix:</strong> ${product.price} €</p><p><strong>Catégorie:</strong> ${product.category || '<i>Aucune</i>'}</p><div class="actions"><button class="btn btn-primary" onclick="editProduct(${index})">Modifier</button><button class="btn btn-danger" onclick="deleteConfigItem('products', ${index})">Supprimer</button></div>`; productListContainer.appendChild(card); }); }
 function handleFormSubmit(e) { e.preventDefault(); const index = document.getElementById('product-index').value; const images = Array.from(document.querySelectorAll('.image-url-input')).map(input => input.value.trim()).filter(Boolean); const selectedServerTypes = Array.from(document.querySelectorAll('input[name="serverType"]:checked')).map(cb => cb.value); const product = { id: document.getElementById('product-id').value.trim(), name: document.getElementById('product-name').value.trim(), price: parseFloat(document.getElementById('product-price').value), description: document.getElementById('product-description').value.trim(), serverTypes: selectedServerTypes, category: document.getElementById('product-category').value, images: images }; if (index !== '') { productsData[parseInt(index)] = product; } else { productsData.push(product); } renderProductList(); resetForm(); }
 function editProduct(index) { const product = productsData[index]; formTitle.textContent = 'Modifier un Produit'; document.getElementById('product-index').value = index; document.getElementById('product-id').value = product.id; document.getElementById('product-id').readOnly = true; document.getElementById('product-name').value = product.name; document.getElementById('product-price').value = product.price; document.getElementById('product-description').value = product.description; document.getElementById('product-category').value = product.category; document.querySelectorAll('input[name="serverType"]').forEach(cb => { cb.checked = (product.serverTypes || []).includes(cb.value); }); const imageContainer = document.getElementById('image-inputs'); imageContainer.innerHTML = ''; (product.images || []).forEach(url => imageContainer.appendChild(createImageInput(url))); if ((product.images || []).length === 0) { imageContainer.appendChild(createImageInput()); } previewAllImages(); cancelBtn.style.display = 'inline-block'; window.scrollTo({ top: 0, behavior: 'smooth' }); }
-function deleteConfigItem(key, index) { 
-    if(key === 'products'){
-        if (confirm(`Êtes-vous sûr de vouloir supprimer le produit "${productsData[index].name}" ?`)) { 
-            productsData.splice(index, 1); 
-            renderProductList(); 
-        }
-        return;
-    }
-    const confirmMessage = `Êtes-vous sûr de vouloir supprimer cet élément ? Il sera aussi retiré de tous les produits qui l'utilisent.`; if (confirm(confirmMessage)) { if (key === 'serverTypes') { const valueToRemove = masterServerTypes[index]; masterServerTypes.splice(index, 1); productsData.forEach(product => { product.serverTypes = (product.serverTypes || []).filter(type => type !== valueToRemove); }); } else { const valueToRemove = masterCategories[index]; masterCategories.splice(index, 1); productsData.forEach(product => { if (product.category === valueToRemove) { product.category = ''; } }); alert(`La catégorie "${valueToRemove}" a été supprimée. Les produits affectés n'ont plus de catégorie.`); } saveConfig(); renderAll(); } 
-}
 function resetForm() { form.reset(); formTitle.textContent = 'Ajouter un Produit'; document.getElementById('product-index').value = ''; document.getElementById('product-id').readOnly = false; cancelBtn.style.display = 'none'; document.getElementById('image-inputs').innerHTML = ''; document.getElementById('image-inputs').appendChild(createImageInput()); previewAllImages(); document.querySelectorAll('input[name="serverType"]').forEach(cb => cb.checked = false); }
 function createImageInput(value = '') { const group = document.createElement('div'); group.className = 'image-input-group'; group.innerHTML = `<input type="url" class="image-url-input" value="${value}" placeholder="https://..." oninput="previewImage(this)"><img src="${value}" alt="preview" class="image-preview">`; return group; }
-function previewImage(inputElement) { inputElement.nextElementSibling.src = inputElement.value; }
+function previewImage(inputElement) { if (inputElement && inputElement.nextElementSibling) { inputElement.nextElementSibling.src = inputElement.value; } }
 function previewAllImages() { document.querySelectorAll('.image-url-input').forEach(input => previewImage(input)); }
 function saveDbFile() { const fileContent = `const products = ${JSON.stringify(productsData, null, 4)};`; const blob = new Blob([fileContent], { type: 'application/javascript' }); const url = URL.createObjectURL(blob); const link = document.createElement('a'); link.href = url; link.download = 'products-db.js'; document.body.appendChild(link); link.click(); document.body.removeChild(link); }
 
@@ -214,13 +144,42 @@ function initializeShareGenerator() {
     if (!productsData || productsData.length === 0) { 
         downloadAllBtn.disabled = true; return; 
     } 
+    
+    // MODIFIÉ : Le code de la redirection est ajouté ici
     const generateFileContent = (product) => { 
         const productNameSafe = product.name.replace(/"/g, '&quot;'); 
         const productDescriptionSafe = (product.description || '').substring(0, 155).replace(/"/g, '&quot;'); 
         const formattedFileName = `${product.id}.html`; 
         const imageUrl = product.images?.[0] || '';
-        return `<!DOCTYPE html><html lang="fr"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>${productNameSafe} - www.iptv-store.shop</title><meta property="og:title" content="${productNameSafe}"><meta property="og:site_name" content="www.iptv-store.shop"><meta property="og:description" content="${productDescriptionSafe}"><meta property="og:image" content="${imageUrl}"><meta property="og:type" content="product"><meta property="og:url" content="https://www.iptv-store.shop/produits/${formattedFileName}"><style>body{font-family:sans-serif;margin:0;background-color:#f0f2f5;display:flex;justify-content:center;align-items:center;height:100vh;text-align:center}.card{background-color:#fff;border-radius:12px;box-shadow:0 4px 16px rgba(0,0,0,0.1);padding:40px;max-width:400px}img{max-width:100%;height:auto;border-radius:8px;margin-bottom:20px}h1{font-size:1.5em;color:#1c1e21;margin:0 0 20px 0}.button{display:inline-block;background-color:#0d6efd;color:white;padding:12px 24px;border-radius:6px;text-decoration:none;font-weight:bold}</style></head><body><div class="card"><img src="${imageUrl}" alt="Image de ${productNameSafe}"><h1>${productNameSafe}</h1><a href="../product.html?id=${product.id}" class="button">Voir le produit sur IPTV Store</a></div></body></html>`; 
+        return `<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>${productNameSafe} - www.iptv-store.shop</title>
+    <meta property="og:title" content="${productNameSafe}">
+    <meta property="og:site_name" content="www.iptv-store.shop">
+    <meta property="og:description" content="${productDescriptionSafe}">
+    <meta property="og:image" content="${imageUrl}">
+    <meta property="og:type" content="product">
+    <meta property="og:url" content="https://www.iptv-store.shop/produits/${formattedFileName}">
+    
+    <script>
+        setTimeout(() => {
+            window.location.replace("../product.html?id=${product.id}");
+        }, 500);
+    <\/script>
+    
+    <noscript>
+        <meta http-equiv="refresh" content="0;url=../product.html?id=${product.id}">
+    </noscript>
+</head>
+<body>
+    <p style="font-family: sans-serif; text-align: center; padding-top: 50px;">Redirection en cours vers le produit...</p>
+</body>
+</html>`; 
     }; 
+    
     productsData.forEach(product => { 
         const linkContainer = document.createElement('div'); 
         linkContainer.className = 'file-link'; 
@@ -236,6 +195,7 @@ function initializeShareGenerator() {
         linkContainer.appendChild(downloadLink); 
         outputContainer.appendChild(linkContainer); 
     }); 
+    
     downloadAllBtn.addEventListener('click', () => { 
         const zip = new JSZip(); 
         productsData.forEach(product => { 
@@ -252,4 +212,57 @@ function initializeShareGenerator() {
             document.body.removeChild(link); 
         }); 
     }); 
+}
+
+// --- SITEMAP GENERATOR LOGIC ---
+function generateSitemap() {
+    const sitemapOutput = document.getElementById('sitemapOutput');
+    const downloadSitemapBtn = document.getElementById('downloadSitemapBtn');
+    const today = new Date().toISOString().split('T')[0];
+    const baseUrl = "https://www.iptv-store.shop";
+
+    let xml = `<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url>
+    <loc>${baseUrl}/</loc>
+    <lastmod>${today}</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>1.0</priority>
+  </url>
+  <url>
+    <loc>${baseUrl}/contact.html</loc>
+    <lastmod>${today}</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+`;
+    productsData.forEach(product => {
+        xml += `  <url>
+    <loc>${baseUrl}/product.html?id=${product.id}</loc>
+    <lastmod>${today}</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>\n`;
+    });
+    xml += `</urlset>`;
+
+    sitemapOutput.value = xml;
+    downloadSitemapBtn.style.display = 'inline-block';
+    alert('Sitemap généré avec succès !');
+}
+
+function downloadSitemap() {
+    const sitemapContent = document.getElementById('sitemapOutput').value;
+    if (!sitemapContent) {
+        alert("Veuillez d'abord générer le sitemap.");
+        return;
+    }
+    const blob = new Blob([sitemapContent], { type: 'application/xml' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = 'sitemap.xml';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
 }
