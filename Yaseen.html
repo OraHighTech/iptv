@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lecteur Dynamique via XML</title>
+    <style>
+        /* Couleurs et styles généraux (inchangés) */
+        :root {
+            --primary-color: #4CAF50;
+            --secondary-color: #66BB6A;
+            --background-color: #e8f5e9;
+            --card-background: #ffffff;
+            --text-color: #333333;
+            --light-text-color: #666666;
+            --border-color: #e0e0e0;
+            --active-item-bg: #dcedc8;
+            --hover-item-bg: #f1f8e9;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: var(--background-color);
+            color: var(--text-color);
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            min-height: 100vh;
+        }
+        #audio-container {
+            max-width: 600px;
+            width: 100%;
+            padding: 25px;
+            background-color: var(--card-background);
+            border-radius: 12px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+        h1 {
+            color: var(--primary-color);
+            margin-top: 0;
+            margin-bottom: 20px;
+            font-size: 2em;
+        }
+        #current-track {
+            margin-bottom: 20px;
+            font-size: 1.3em;
+            font-weight: bold;
+            color: var(--text-color);
+            min-height: 1.5em; 
+        }
+        #status-message {
+            color: red;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        audio {
+            width: 100%;
+            margin-bottom: 20px;
+            outline: none;
+        }
+        .controls {
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+        }
+        .controls button {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-size: 1em;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        .controls button:hover {
+            background-color: var(--secondary-color);
+            transform: translateY(-2px);
+        }
+        .controls button:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+            box-shadow: none;
+            transform: none;
+        }
+        #playlist {
+            list-style: none;
+            padding: 0;
+            max-height: 400px;
+            overflow-y: auto;
+            border-top: 1px solid var(--border-color);
+            padding-top: 10px;
+            text-align: left;
+        }
+        #playlist li {
+            padding: 12px 15px;
+            cursor: pointer;
+            border-bottom: 1px solid var(--border-color);
+            transition: background-color 0.2s ease;
+            font-size: 1.05em;
+            color: var(--text-color);
+        }
+        #playlist li.active {
+            background-color: var(--active-item-bg);
+            color: var(--primary-color);
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="audio-container">
+        <h1>Lecteur Dynamique (Source XML)</h1>
+        <p id="current-track">Tentative de chargement via XML...</p>
+        <p id="status-message"></p>
+        
+        <audio controls id="audio-player"></audio>
+
+        <div class="controls">
+            <button id="prev-button" disabled>Précédent</button>
+            <button id="next-button" disabled>Suivant</button>
+        </div>
+
+        <p>Liste de lecture :</p>
+        <ul id="playlist">
+            </ul>
+    </div>
+
+    <script>
+        // --- Configuration (Base URL extraite du lien XML) ---
+        const XML_URL = "http://ia802805.us.archive.org/11/items/TvQuran.com__Yaseen/TvQuran.com__Yaseen_files.xml";
+        // La BASE_URL est le répertoire où se trouvent les MP3 (sans le nom du fichier XML)
+        const BASE_URL = XML_URL.substring(0, XML_URL.lastIndexOf('/') + 1);
+
+        // Références DOM
+        const PLAYER = document.getElementById('audio-player');
+        const PLAYLIST = document.getElementById('playlist');
+        const CURRENT_TRACK_DISPLAY = document.getElementById('current-track');
+        const PREV_BUTTON = document.getElementById('prev-button');
+        const NEXT_BUTTON = document.getElementById('next-button');
+        const STATUS_MESSAGE = document.getElementById('status-message');
+        
+        let FILE_NAMES = [];
+        let currentTrackIndex = -1;
+
+        // Fonction pour chercher et analyser le fichier XML
+        async function fetchAndParseTitles() {
+            STATUS_MESSAGE.textContent = "Tentative de récupération du fichier XML...";
+            
+            try {
+                // TENTATIVE DE RÉCUPÉRATION DU XML (CORS peut bloquer ici)
+                const response = await fetch(XML_URL);
+                
+                if (!response.ok) {
+                    STATUS_MESSAGE.textContent = "Erreur de chargement HTTP du XML. Vérifiez l'URL ou les restrictions CORS.";
+                    throw new Error(`Erreur HTTP: ${response.status}`);
+                }
+                
+                const xmlText = await response.text();
+                const parser = new DOMParser();
+                const xmlDoc = parser.parseFromString(xmlText, "application/xml");
+                
+                const extractedTracks = [];
+                const fileElements = xmlDoc.getElementsByTagName('file');
+                
+                for (const fileElement of fileElements) {
+                    const nameElement = fileElement.getElementsByTagName('name')[0];
+                    const titleElement = fileElement.getElementsByTagName('title')[0];
+
+                    // Extraction : Nom du fichier et Titre
+                    if (nameElement && nameElement.textContent.endsWith('.mp3') && titleElement) {
+                        extractedTracks.push({
+                            file: nameElement.textContent,
+                            title: titleElement.textContent.trim()
+                        });
+                    }
+                }
+                
+                if (extractedTracks.length > 0) {
+                    STATUS_MESSAGE.textContent = `Titres chargés (${extractedTracks.length} audios).`;
+                    return extractedTracks;
+                } else {
+                    STATUS_MESSAGE.textContent = "Aucun audio MP3 valide trouvé dans le XML.";
+                    return [];
+                }
+
+            } catch (error) {
+                console.error("Échec de la récupération ou de l'analyse du XML:", error);
+                STATUS_MESSAGE.textContent = "❌ ÉCHEC : Le navigateur a bloqué l'accès au fichier XML (CORS). Le script ne peut pas fonctionner.";
+                return [];
+            }
+        }
+
+        // Fonction pour construire la liste de lecture dans le DOM
+        function buildPlaylist() {
+            PLAYLIST.innerHTML = '';
+            
+            if (FILE_NAMES.length === 0) {
+                CURRENT_TRACK_DISPLAY.textContent = "Erreur : Aucune piste à charger.";
+                return;
+            }
+            
+            FILE_NAMES.forEach((track, index) => {
+                const listItem = document.createElement('li');
+                listItem.textContent = track.title; 
+                listItem.setAttribute('data-index', index);
+                
+                listItem.addEventListener('click', () => {
+                    playTrack(index);
+                });
+                
+                PLAYLIST.appendChild(listItem);
+            });
+
+            CURRENT_TRACK_DISPLAY.textContent = "Sélectionnez un audio pour commencer.";
+            updateNavigationButtons(); 
+        }
+
+        // --- Fonctions de lecture et de navigation (inchangées) ---
+        
+        function playTrack(index) {
+            if (index < 0 || index >= FILE_NAMES.length) return;
+
+            const track = FILE_NAMES[index];
+            const fullUrl = BASE_URL + track.file;
+
+            CURRENT_TRACK_DISPLAY.textContent = `Lecture en cours : ${track.title}`;
+            updateActiveTrack(index);
+
+            PLAYER.src = fullUrl;
+            PLAYER.load();
+            PLAYER.play().catch(error => {
+                console.error("Erreur de lecture : ", error);
+                // La lecture auto est souvent bloquée la première fois
+                alert(`Impossible de lancer la lecture automatique du fichier : ${track.title}. Veuillez cliquer sur le bouton "Play" du lecteur.`);
+            });
+            
+            currentTrackIndex = index;
+            updateNavigationButtons(); 
+        }
+
+        function updateActiveTrack(newIndex) {
+            const activeItem = PLAYLIST.querySelector('.active');
+            if (activeItem) activeItem.classList.remove('active');
+            
+            const newItem = PLAYLIST.querySelector(`li[data-index="${newIndex}"]`);
+            if (newItem) {
+                newItem.classList.add('active');
+                newItem.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            }
+        }
+        
+        function playNextTrack() {
+            if (currentTrackIndex < FILE_NAMES.length - 1) playTrack(currentTrackIndex + 1);
+        }
+
+        function playPreviousTrack() {
+            if (currentTrackIndex > 0) playTrack(currentTrackIndex - 1);
+        }
+
+        function updateNavigationButtons() {
+            PREV_BUTTON.disabled = (currentTrackIndex <= 0);
+            NEXT_BUTTON.disabled = (currentTrackIndex === -1 || currentTrackIndex >= FILE_NAMES.length - 1);
+        }
+
+        PLAYER.addEventListener('ended', () => {
+            const nextIndex = currentTrackIndex + 1;
+            if (nextIndex < FILE_NAMES.length) {
+                playTrack(nextIndex);
+            } else {
+                CURRENT_TRACK_DISPLAY.textContent = "Fin de la liste de lecture.";
+                updateActiveTrack(-1); 
+                currentTrackIndex = -1;
+                updateNavigationButtons();
+            }
+        });
+
+        // --- Lancement de l'application ---
+        document.addEventListener('DOMContentLoaded', async () => {
+            // 1. Lancer la récupération et l'analyse du XML
+            FILE_NAMES = await fetchAndParseTitles();
+            
+            // 2. Construire la playlist (même si vide)
+            buildPlaylist();
+            
+            // 3. Attacher les événements des boutons
+            PREV_BUTTON.addEventListener('click', playPreviousTrack);
+            NEXT_BUTTON.addEventListener('click', playNextTrack);
+        });
+
+    </script>
+
+</body>
+</html>
