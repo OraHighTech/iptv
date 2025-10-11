@@ -171,7 +171,7 @@ function populateProductPage() {
         
         // --- Logique pour les boutons de partage (ne change pas) ---
         const shareFileName = `${product.id}.html`;
-        const shareUrl = `www.iptv-store.shop/produits/${shareFileName}`;
+        const shareUrl = `https://www.iptv-store.shop/produits/${shareFileName}`;
         const shareText = `Découvrez ${product.name} sur IPTV Store !`;
 
         const facebookBtn = document.getElementById('share-facebook');
@@ -366,10 +366,9 @@ function toggleServerFields() {
 
     if (serverType === "mag") {
         // Crée le champ pour l'adresse MAC
-        serverFields.innerHTML = `<div class="form-group">
-                                      <label for="macAddress">Adresse MAC:</label>
+        serverFields.innerHTML = `<br><div class="form-group">
+                                      <i class="fas fa-envelope icon"></i>
                                       <input type="text" id="macAddress" placeholder="Ex: 00:1A:2B:3C:4D:5E" maxlength="17">
-                                      <p class="error-message" id="macAddressError"></p>
                                   </div>`;
         
         // Ajoute l'écouteur d'événement pour le formatage automatique
@@ -598,5 +597,4 @@ function sendContactViaWhatsApp() {
     window.open(`https://api.whatsapp.com/send?phone=213770759886&text=${encodeURIComponent(formattedMessage)}`, '_blank');
     displayAlert(`Redirection vers WhatsApp...`);
     document.getElementById('contactForm')?.reset();
-
 }
