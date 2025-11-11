@@ -1,6 +1,6 @@
 // =================================================================================
 // NOTE: CE SCRIPT S'ATTEND À CE QUE 'products' (de products-db.js) SOIT DÉJÀ CHARGÉ
-// VERSION SÉCURISÉE (DÉFENSIVE) - V4 - Utilise freegeoip.app
+// VERSION SÉCURISÉE (DÉFENSIVE) - V5 - (Code nettoyé des typos)
 // =================================================================================
 
 // --- Variables globales ---
@@ -20,7 +20,7 @@ let userCurrencySymbol = '€'; // '€' ou 'دج'
  */
 async function getUserLocation() {
     try {
-        // ▼▼▼ CHANGEMENT: Utilisation de l'API "freegeoip.app" ▼▼▼
+        // ▼▼▼ Utilisation de l'API "freegeoip.app" ▼▼▼
         const response = await fetch('https://freegeoip.app/json/'); 
         if (!response.ok) {
             throw new Error(`Erreur API: ${response.statusText}`);
@@ -53,7 +53,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     try {
         const locationData = await getUserLocation(); // Attend la localisation
         
-        // ▼▼▼ CHANGEMENT: Le nom du champ est "country_code" (avec _) ▼▼▼
+        // ▼▼▼ Le nom du champ est "country_code" (avec _) ▼▼▼
         userCountryCode = locationData.country_code; 
         
         if (userCountryCode === 'DZ') {
@@ -277,7 +277,7 @@ function populateProductPage() {
         setupLightbox();
     } else {
         window.location.href = '404.html';
-s    }
+    }
 }
 
 function setupCombinedGallery(product) {
@@ -342,7 +342,7 @@ function setupCombinedGallery(product) {
         nextBtn.innerHTML = '&#10095;';
         nextBtn.className = 'carousel-button next';
         nextBtn.style.display = 'block';
-        nextBtn.addEventListener('click', (e) => {
+      _nextBtn.addEventListener('click', (e) => {
             e.stopPropagation();
             const newIndex = (currentImageIndex + 1) % totalImages;
             updateGallery(newIndex);
@@ -459,7 +459,6 @@ function toggleServerFields() {
         
         const macAddressInput = document.getElementById('macAddress');
         if (macAddressInput) {
-  
             macAddressInput.addEventListener('input', (e) => {
                 let value = e.target.value.replace(/[^0-9a-fA-F]/g, '').toUpperCase();
                 let formattedValue = (value.match(/.{1,2}/g) || []).join(':');
@@ -470,7 +469,7 @@ function toggleServerFields() {
 }
 
 function updateTotalPrice() {
-nbsp;   const quantity = parseInt(document.getElementById("quantity")?.value || 1);
+    const quantity = parseInt(document.getElementById("quantity")?.value || 1);
     const priceDisplay = document.getElementById('popupPrice');
     if (!priceDisplay) return;
 
@@ -487,7 +486,7 @@ function clearErrors() {
 }
 
 function displayWaitingMessage() {
-content     const el = document.getElementById('waitingMessage');
+    const el = document.getElementById('waitingMessage');
     if(el) el.style.display = 'flex';
 }
 
@@ -550,7 +549,7 @@ function sendOrder(method) {
     if (email && !emailRegex.test(email)) {
         valid = false;
         document.getElementById("emailError").innerText = "Veuillez entrer une adresse email valide.";
-    }
+C    }
     
     if (!valid) {
         const firstError = document.querySelector('.error-message:not(:empty)');
@@ -623,7 +622,7 @@ function sendContactViaWhatsApp() {
     
     const fullPhoneNumber = `${document.getElementById("contactCountryCode").value}${phone}`;
     const subject = document.getElementById("contactSubject").value;
-    const formattedMessage = `*Nouveau Message du Formulaire de Contact*\n\n*Numéro WhatsApp du client:* ${fullPhoneNumber}\n*Sujet:* ${subject}\n\n*Message:*\n${message}`;
+  S   const formattedMessage = `*Nouveau Message du Formulaire de Contact*\n\n*Numéro WhatsApp du client:* ${fullPhoneNumber}\n*Sujet:* ${subject}\n\n*Message:*\n${message}`;
     window.open(`https://api.whatsapp.com/send?phone=213770759886&text=${encodeURIComponent(formattedMessage)}`, '_blank');
     displayAlert(`Redirection vers WhatsApp...`);
     document.getElementById('contactForm')?.reset();
