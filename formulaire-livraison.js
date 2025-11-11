@@ -1,8 +1,8 @@
 // formulaire-livraison.js
 let currentDeliveryProduct = null;
-let useDZD = false;
+let currentDeliveryUseDZD = false;
+let currentDeliveryType = 'domicile';
 
-// Données pour la livraison
 const deliveryZones = [
     null, // index 0 non utilisé
     { bureau: 300, domicile: 500 },
@@ -13,99 +13,177 @@ const deliveryZones = [
     { bureau: 1200, domicile: 1650 },
 ];
 
-const horsZoneCharges = {
-    1: 100,
-    2: 200,
-    3: 300,
-};
+const horsZoneCharges = { 1: 100, 2: 200, 3: 300 };
 
-// Initialisation du formulaire de livraison
-function initializeDeliveryForm(product) {
+// Créer le formulaire physique
+function createPhysicalForm(product, useDZD) {
     currentDeliveryProduct = product;
+    currentDeliveryUseDZD = useDZD;
     
-    // Vérifier si l'utilisateur est en Algérie
-    checkAlgeriaDelivery();
-    
-    // Mettre à jour le nom du produit
-    document.getElementById('delivery-product-name').textContent = product.name;
-    
-    // Initialiser les prix
-    updateDeliveryPrices();
-    
-    // Initialiser les wilayas
-    initializeWilayas();
-}
-
-// Vérifier si la livraison est disponible (Algérie seulement)
-async function checkAlgeriaDelivery() {
-    try {
-        const response = await fetch('https://api.ipdata.co/?api-key=916c6b6e4d160441313fb81c071aa9aadd988baa6e8e4361cfa6ad38');
-        const data = await response.json();
-        useDZD = (data.country_code === 'DZ');
-        
-        if (!useDZD) {
-            showDeliveryNotAvailable();
-        }
-    } catch (error) {
-        console.error('Erreur détection pays:', error);
-        useDZD = false;
-        showDeliveryNotAvailable();
-    }
-}
-
-function showDeliveryNotAvailable() {
-    const deliveryForm = document.querySelector('.delivery-form');
-    if (deliveryForm) {
-        deliveryForm.innerHTML = `
-            <div class="delivery-not-available">
-                <h3>🚚 Livraison non disponible</h3>
-                <p>La livraison physique est disponible uniquement en Algérie.</p>
-                <p>Pour les autres pays, veuillez nous contacter directement.</p>
-                <button class="btn btn-whatsapp" onclick="contactUs()">
-                    <i class="fab fa-whatsapp"></i> Nous contacter
-                </button>
-            </div>
-        `;
-    }
-}
-
-function contactUs() {
-    window.open('https://api.whatsapp.com/send?phone=213770759886&text=Bonjour, je souhaite commander un produit physique', '_blank');
-}
-
-// Mise à jour des prix
-function updateDeliveryPrices() {
-    if (!currentDeliveryProduct) return;
-    
-    const price = useDZD ? (currentDeliveryProduct.price_dzd || currentDeliveryProduct.price * 160) : currentDeliveryProduct.price;
+    const price = useDZD ? (product.price_dzd || product.price * 160) : product.price;
     const currency = useDZD ? ' DZD' : ' €';
     const priceFormatted = useDZD ? price.toFixed(0) : price.toFixed(2);
     
-    document.getElementById('productPrice').textContent = priceFormatted + currency;
-    document.getElementById('delivery-productPrice-display').textContent = priceFormatted + currency;
-    
-    updateDeliveryTotalPrice();
+    return `
+        <div class="product-details delivery-form">
+            <p class="price" id="productPriceDelivery">${priceFormatted}${currency}</p>
+            <div class="form-all">
+                <div class="form-ligne">
+                    <label class="form-ligne">
+                        <div class="form-ligne-fa">
+                            <i class="fa fa-user"></i>
+                        </div>
+                        <input id="delivery-name" placeholder="الإسم و اللقب" required type="text" />
+                    </label>
+                    <div class="error-message-f" id="deliveryNameError"></div>
+                </div>
+
+                <div class="form-ligne">
+                    <label class="form-ligne">
+                        <div class="form-ligne-fa">
+                            <i class="fa fa-phone"></i>
+                        </div>
+                        <input id="delivery-phone" placeholder="رقم الهاتف" required type="tel" />
+                    </label>
+                    <div class="error-message-f" id="deliveryPhoneError"></div>
+                </div>
+
+                <div class="form-ligne">
+                    <label class="form-ligne">
+                        <div class="form-ligne-fa">
+                            <i class="fa fa-light fa-truck-fast"></i>
+                        </div>
+                        <div class="button-shipping">
+                            <button class="delivery-btn" id="bureauBtn" type="button"><i class="fa fa-building"></i> توصيل الى المكتب</button>
+                            <button class="delivery-btn" id="domicileBtn" type="button"><i class="fa fa-solid fa-person-carry-box"></i> توصيل الى باب الدار</button>
+                        </div>
+                    </label>
+                </div>
+
+                <div class="form-ligne">
+                    <label class="form-ligne">
+                        <div class="form-ligne-fa">
+                            <i class="fa fa-road"></i>
+                        </div>
+                        <div class="select-city">
+                            <div class="wilaya">
+                                <select id="delivery-wilaya">
+                                    <option value="">الولاية</option>
+                                </select>
+                                <div class="error-message" id="wilayaError"></div>
+                            </div>
+                            <div class="commune">
+                                <select id="delivery-commune" disabled>
+                                    <option value="">البلدية</option>
+                                </select>
+                                <div class="error-message" id="communeError"></div>
+                            </div>
+                        </div>
+                    </label>
+                </div>
+
+                <div class="form-ligne">
+                    <label class="form-ligne">
+                        <div class="form-ligne-fa">
+                            <i class="fa fa-map"></i>
+                        </div>
+                        <input id="delivery-address" placeholder="العنوان" required type="text" />
+                    </label>
+                </div>
+
+                <div class="Order-Summary">
+                    <div class="Order-Summary-t"><i class="fa fa-shopping-basket"></i> ملخص الطلب</div>
+                    <div class="order-prod">
+                        <div class="order-prod-t-p-q">
+                            <p class="orderTitle">${product.name}</p>
+                            <div class="OderPrice">
+                                <p id="orderquantity">1</p>
+                                <p>x</p>
+                                <p id="Oderprice">${priceFormatted}${currency}</p>
+                            </div>
+                        </div>
+                        <div class="order-prod-d">
+                            <p>سعر التوصيل :</p>
+                            <p id="delivery-fee">0${useDZD ? ' دج' : ' €'}</p>
+                        </div>
+                        <div class="order-prod-P-t">
+                            <p>السعر الإجمالي :</p>
+                            <p class="total-price0" id="totalPrice">${priceFormatted}${currency}</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="b-order">
+                    <div class="quantity">
+                        <span class="button-Q" onclick="decreasePhysicalQuantity()">-</span>
+                        <input class="quantity-input" id="physical-quantity-input" type="text" value="1" readonly />
+                        <span class="button-Q" onclick="increasePhysicalQuantity()">+</span>
+                    </div>
+                    <button class="buy-button-w" onclick="sendPhysicalOrder()"><i class="fa fa-brands fa-whatsapp"></i></button>
+                    <button class="buy-button-emailjs" onclick="sendPhysicalOrder()">اضغط هنا لإتمام طلبك <i class="fa fa-shopping-cart"></i></button>
+                </div>
+            </div>
+        </div>
+    `;
 }
 
-// Initialisation des wilayas
-function initializeWilayas() {
+// Initialiser le formulaire de livraison
+function initializeDeliveryForm() {
+    console.log('Initialisation du formulaire de livraison...');
+    
+    // Vérifier si wilayasCommunes est disponible
+    if (typeof wilayasCommunes === 'undefined') {
+        console.error('wilayasCommunes non chargé');
+        return;
+    }
+    
     const wilayaSelect = document.getElementById('delivery-wilaya');
+    if (!wilayaSelect) {
+        console.error('Element delivery-wilaya non trouvé');
+        return;
+    }
+    
+    // Initialiser les wilayas
     wilayaSelect.innerHTML = '<option value="">الولاية</option>';
     
-    if (typeof wilayasCommunes !== 'undefined') {
-        for (const wilaya in wilayasCommunes) {
-            const option = document.createElement('option');
-            option.value = wilaya;
-            option.textContent = wilaya;
-            wilayaSelect.appendChild(option);
-        }
-        
-        wilayaSelect.addEventListener('change', updateDeliveryCommunes);
+    for (const wilaya in wilayasCommunes) {
+        const option = document.createElement('option');
+        option.value = wilaya;
+        option.textContent = wilaya;
+        wilayaSelect.appendChild(option);
     }
+    
+    wilayaSelect.addEventListener('change', updateCommunes);
+    
+    // Initialiser les boutons de livraison
+    const bureauBtn = document.getElementById('bureauBtn');
+    const domicileBtn = document.getElementById('domicileBtn');
+    
+    if (bureauBtn && domicileBtn) {
+        bureauBtn.addEventListener('click', () => selectDeliveryType('bureau'));
+        domicileBtn.addEventListener('click', () => selectDeliveryType('domicile'));
+        selectDeliveryType('domicile'); // Défaut
+    }
+    
+    console.log('Formulaire de livraison initialisé');
 }
 
-// Mise à jour des communes
-function updateDeliveryCommunes() {
+// Sélectionner le type de livraison
+function selectDeliveryType(type) {
+    currentDeliveryType = type;
+    document.querySelectorAll(".delivery-btn").forEach((btn) => btn.classList.remove("selected"));
+    
+    if (type === "bureau") {
+        document.getElementById("bureauBtn").classList.add("selected");
+    } else if (type === "domicile") {
+        document.getElementById("domicileBtn").classList.add("selected");
+    }
+    
+    updateDeliveryFee();
+}
+
+// Mettre à jour les communes
+function updateCommunes() {
     const selectedWilaya = document.getElementById('delivery-wilaya').value;
     const communeSelect = document.getElementById('delivery-commune');
     
@@ -129,7 +207,7 @@ function updateDeliveryCommunes() {
     updateDeliveryFee();
 }
 
-// Calcul des frais de livraison
+// Mettre à jour les frais de livraison
 function updateDeliveryFee() {
     const selectedWilaya = document.getElementById('delivery-wilaya').value;
     const selectedCommune = document.getElementById('delivery-commune').value;
@@ -137,106 +215,93 @@ function updateDeliveryFee() {
     
     if (selectedWilaya && selectedCommune && wilayasCommunes && wilayasCommunes[selectedWilaya]) {
         const zone = wilayasCommunes[selectedWilaya].zone;
-        const baseFee = deliveryZones[zone] ? deliveryZones[zone].domicile : 500;
+        const baseFee = deliveryZones[zone] ? deliveryZones[zone][currentDeliveryType] : 500;
         const horsZoneFee = wilayasCommunes[selectedWilaya].communes[selectedCommune].horsZone ? 
                            horsZoneCharges[wilayasCommunes[selectedWilaya].communes[selectedCommune].horsZone] || 0 : 0;
         deliveryFee = baseFee + horsZoneFee;
     }
     
-    document.getElementById('delivery-fee').textContent = deliveryFee + ' دج';
-    updateDeliveryTotalPrice();
+    document.getElementById('delivery-fee').textContent = deliveryFee + (currentDeliveryUseDZD ? ' دج' : ' €');
+    updatePhysicalTotalPrice();
 }
 
-// Gestion de la quantité
-function increaseDeliveryQuantity() {
-    const quantityInput = document.getElementById('delivery-quantity');
+// Fonctions pour la quantité
+function increasePhysicalQuantity() {
+    const quantityInput = document.getElementById('physical-quantity-input');
+    const quantityDisplay = document.getElementById('orderquantity');
     let quantity = parseInt(quantityInput.value) || 1;
     quantityInput.value = quantity + 1;
-    document.getElementById('delivery-quantity-display').textContent = quantity + 1;
-    updateDeliveryTotalPrice();
+    quantityDisplay.textContent = quantity + 1;
+    updatePhysicalTotalPrice();
 }
 
-function decreaseDeliveryQuantity() {
-    const quantityInput = document.getElementById('delivery-quantity');
+function decreasePhysicalQuantity() {
+    const quantityInput = document.getElementById('physical-quantity-input');
+    const quantityDisplay = document.getElementById('orderquantity');
     let quantity = parseInt(quantityInput.value) || 1;
     if (quantity > 1) {
         quantityInput.value = quantity - 1;
-        document.getElementById('delivery-quantity-display').textContent = quantity - 1;
-        updateDeliveryTotalPrice();
+        quantityDisplay.textContent = quantity - 1;
+        updatePhysicalTotalPrice();
     }
 }
 
-// Mise à jour du prix total
-function updateDeliveryTotalPrice() {
+function updatePhysicalTotalPrice() {
     if (!currentDeliveryProduct) return;
     
-    const quantity = parseInt(document.getElementById('delivery-quantity').value) || 1;
-    const productPrice = useDZD ? (currentDeliveryProduct.price_dzd || currentDeliveryProduct.price * 160) : currentDeliveryProduct.price;
-    const deliveryFee = parseInt(document.getElementById('delivery-fee').textContent.replace(/[^\d]/g, '')) || 0;
+    const quantity = parseInt(document.getElementById('physical-quantity-input').value) || 1;
+    const price = currentDeliveryUseDZD ? (currentDeliveryProduct.price_dzd || currentDeliveryProduct.price * 160) : currentDeliveryProduct.price;
+    const deliveryFeeElement = document.getElementById('delivery-fee');
+    const deliveryFee = deliveryFeeElement ? parseInt(deliveryFeeElement.textContent) || 0 : 0;
     
-    const totalPrice = (productPrice * quantity) + deliveryFee;
-    const currency = useDZD ? ' دج' : ' €';
-    const decimals = useDZD ? 0 : 2;
+    const totalPrice = (price * quantity) + deliveryFee;
+    const currency = currentDeliveryUseDZD ? ' دج' : ' €';
+    const decimals = currentDeliveryUseDZD ? 0 : 2;
     
-    document.getElementById('delivery-totalPrice').textContent = totalPrice.toFixed(decimals) + currency;
+    document.getElementById('totalPrice').textContent = totalPrice.toFixed(decimals) + currency;
 }
 
-// Validation du formulaire
-function validateDeliveryForm() {
+// Envoyer commande physique
+function sendPhysicalOrder() {
     const name = document.getElementById('delivery-name').value.trim();
     const phone = document.getElementById('delivery-phone').value.trim();
     const wilaya = document.getElementById('delivery-wilaya').value;
     const commune = document.getElementById('delivery-commune').value;
     const address = document.getElementById('delivery-address').value.trim();
-    
-    let isValid = true;
-    
-    // Clear previous errors
-    document.querySelectorAll('.error-message-f, .error-message').forEach(el => el.textContent = '');
-    
+    const quantity = document.getElementById('physical-quantity-input').value;
+
+    // Validation
+    let valid = true;
+    document.querySelectorAll('.error-message, .error-message-f').forEach(el => el.textContent = '');
+
     if (!name) {
         document.getElementById('deliveryNameError').textContent = 'الرجاء إدخال الاسم';
-        isValid = false;
+        valid = false;
     }
-    
     if (!phone) {
         document.getElementById('deliveryPhoneError').textContent = 'الرجاء إدخال رقم الهاتف';
-        isValid = false;
+        valid = false;
     }
-    
     if (!wilaya) {
         document.getElementById('wilayaError').textContent = 'الرجاء اختيار الولاية';
-        isValid = false;
+        valid = false;
     }
-    
     if (!commune) {
         document.getElementById('communeError').textContent = 'الرجاء اختيار البلدية';
-        isValid = false;
+        valid = false;
     }
-    
     if (!address) {
-        document.getElementById('deliveryAddressError').textContent = 'الرجاء إدخال العنوان';
-        isValid = false;
+        alert('الرجاء إدخال العنوان');
+        valid = false;
     }
-    
-    return isValid;
-}
 
-// Envoi de commande WhatsApp
-function sendDeliveryOrder() {
-    if (!validateDeliveryForm()) return;
-    
-    const name = document.getElementById('delivery-name').value.trim();
-    const phone = document.getElementById('delivery-phone').value.trim();
-    const wilaya = document.getElementById('delivery-wilaya').value;
-    const commune = document.getElementById('delivery-commune').value;
-    const address = document.getElementById('delivery-address').value.trim();
-    const quantity = document.getElementById('delivery-quantity').value;
-    
-    const productPrice = document.getElementById('delivery-productPrice-display').textContent;
-    const deliveryFee = document.getElementById('delivery-fee').textContent;
-    const totalPrice = document.getElementById('delivery-totalPrice').textContent;
-    
+    if (!valid) return;
+
+    const price = currentDeliveryUseDZD ? (currentDeliveryProduct.price_dzd || currentDeliveryProduct.price * 160) : currentDeliveryProduct.price;
+    const deliveryFee = parseInt(document.getElementById('delivery-fee').textContent) || 0;
+    const totalPrice = (price * quantity) + deliveryFee;
+    const currency = currentDeliveryUseDZD ? 'DZD' : 'EUR';
+
     const message = `🎯 **طلب جديد للشحن** 🎯
 
 📦 المنتج: ${currentDeliveryProduct.name}
@@ -245,13 +310,25 @@ function sendDeliveryOrder() {
 📍 الولاية: ${wilaya}
 🏘️ البلدية: ${commune}
 📮 العنوان: ${address}
+🚚 نوع التوصيل: ${currentDeliveryType === 'bureau' ? 'إلى المكتب' : 'إلى المنزل'}
 🔢 الكمية: ${quantity}
-💰 سعر المنتج: ${productPrice}
-🚚 مصاريف التوصيل: ${deliveryFee}
-💵 السعر الإجمالي: ${totalPrice}
+💰 سعر المنتج: ${currentDeliveryUseDZD ? price.toFixed(0) : price.toFixed(2)} ${currency}
+🚚 مصاريف التوصيل: ${deliveryFee} ${currentDeliveryUseDZD ? 'دج' : '€'}
+💵 السعر الإجمالي: ${currentDeliveryUseDZD ? totalPrice.toFixed(0) : totalPrice.toFixed(2)} ${currency}
 
 شكرا لثقتكم! 🚀`;
-    
+
     const whatsappUrl = `https://api.whatsapp.com/send?phone=213770759886&text=${encodeURIComponent(message)}`;
     window.open(whatsappUrl, '_blank');
 }
+
+// Exposer les fonctions globalement
+window.createPhysicalForm = createPhysicalForm;
+window.initializeDeliveryForm = initializeDeliveryForm;
+window.increasePhysicalQuantity = increasePhysicalQuantity;
+window.decreasePhysicalQuantity = decreasePhysicalQuantity;
+window.sendPhysicalOrder = sendPhysicalOrder;
+window.selectDeliveryType = selectDeliveryType;
+window.updateCommunes = updateCommunes;
+window.updateDeliveryFee = updateDeliveryFee;
+window.updatePhysicalTotalPrice = updatePhysicalTotalPrice;
