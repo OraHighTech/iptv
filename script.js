@@ -1,6 +1,6 @@
 // =================================================================================
 // NOTE: CE SCRIPT S'ATTEND À CE QUE 'products' (de products-db.js) SOIT DÉJÀ CHARGÉ
-// VERSION SÉCURISÉE (DÉFENSIVE) - V9 - Utilise ipdata.co avec une clé API
+// VERSION SÉCURISÉE (DÉFENSIVE) - V10 - Nettoyage final de TOUS les typos
 // =================================================================================
 
 // --- Variables globales ---
@@ -451,8 +451,6 @@ function populateCountryCodes(selectId) {
     }
 }
 
-// (ابحث عن هذه الدالة في script.js واستبدلها)
-
 function toggleServerFields() {
     const serverType = document.getElementById("serverType")?.value;
     const serverFields = document.getElementById('serverFields');
@@ -476,6 +474,7 @@ function toggleServerFields() {
         }
     }
 }
+
 function updateTotalPrice() {
     const quantity = parseInt(document.getElementById("quantity")?.value || 1);
     const priceDisplay = document.getElementById('popupPrice');
@@ -572,7 +571,7 @@ function sendOrder(method) {
     const totalPrice = parseFloat(document.getElementById('popupPrice').innerText.replace(/[^0-9.]/g, '')); 
     const orderNumber = generateOrderNumber();
     const fullPhoneNumber = phone ? `${document.getElementById("selectedCountryCode").value}${phone}` : 'N/A';
-source     const macAddress = document.getElementById('macAddress')?.value.trim() || 'N/A';
+    const macAddress = document.getElementById('macAddress')?.value.trim() || 'N/A';
     const serverType = document.getElementById("serverType").value;
     const finalEmail = email || 'N/A';
     const discount = (currentProductPrice * quantity) - totalPrice;
@@ -603,7 +602,7 @@ source     const macAddress = document.getElementById('macAddress')?.value.tri
         emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, templateParams)
             .then(() => {
                 hideWaitingMessage();
-E               displayAlert(`Commande envoyée!<br>Numéro: ${orderNumber}`);
+                displayAlert(`Commande envoyée!<br>Numéro: ${orderNumber}`);
                 document.getElementById('orderForm').reset();
             }, (err) => {
                 hideWaitingMessage();
@@ -630,11 +629,10 @@ function sendContactViaWhatsApp() {
     
     const fullPhoneNumber = `${document.getElementById("contactCountryCode").value}${phone}`;
     const subject = document.getElementById("contactSubject").value;
-  S   const formattedMessage = `*Nouveau Message du Formulaire de Contact*\n\n*Numéro WhatsApp du client:* ${fullPhoneNumber}\n*Sujet:* ${subject}\n\n*Message:*\n${message}`;
+    const formattedMessage = `*Nouveau Message du Formulaire de Contact*\n\n*Numéro WhatsApp du client:* ${fullPhoneNumber}\n*Sujet:* ${subject}\n\n*Message:*\n${message}`;
     
     window.open(`https://api.whatsapp.com/send?phone=213770759886&text=${encodeURIComponent(formattedMessage)}`, '_blank');
     
     displayAlert(`Redirection vers WhatsApp...`);
     document.getElementById('contactForm')?.reset();
 }
-
