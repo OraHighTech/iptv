@@ -41,6 +41,20 @@
         border: 2px solid #28a745;
         background: rgba(40, 167, 69, 0.05);
       }
+
+      /* Correction pour l'affichage des images */
+      .main-image-container-fade img {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+        position: absolute;
+        top: 0;
+        left: 0;
+      }
+
+      .main-image-container-fade img:not(:first-child) {
+        display: none;
+      }
     </style>
   </head>
   <body>
@@ -49,7 +63,9 @@
     <main class="product-page-container-new">
       <section class="product-gallery-section">
         <div class="image-gallery-horizontal">
-          <div class="main-image-container-fade"></div>
+          <div class="main-image-container-fade">
+            <!-- Les images seront ajoutées ici par JavaScript -->
+          </div>
           <div id="thumbnail-container" class="thumbnail-container-horizontal"></div>
         </div>
       </section>
@@ -157,6 +173,159 @@
         selectElement.value = "+213";
       }
 
+      // CORRECTION : Formulaire physique COMPLET avec livraison
+      function createPhysicalForm(product) {
+        const price = useDZD ? (product.price_dzd || product.price * 160) : product.price;
+        const currency = useDZD ? ' DZD' : ' €';
+        const priceFormatted = useDZD ? price.toFixed(0) : price.toFixed(2);
+        
+        return `
+          <div class="delivery-form">
+            <h3 style="text-align: center; margin-bottom: 20px; color: #28a745;">📦 Commande avec Livraison</h3>
+            
+            <div class="form-all" style="direction: rtl;">
+              <div class="form-ligne">
+                <label class="form-ligne">
+                  <div class="form-ligne-fa"><i class="fa fa-user"></i></div>
+                  <input id="delivery-name" placeholder="الإسم و اللقب" required type="text" />
+                </label>
+                <div class="error-message-f" id="deliveryNameError"></div>
+              </div>
+
+              <div class="form-ligne">
+                <label class="form-ligne">
+                  <div class="form-ligne-fa"><i class="fa fa-phone"></i></div>
+                  <input id="delivery-phone" placeholder="رقم الهاتف" required type="tel" />
+                </label>
+                <div class="error-message-f" id="deliveryPhoneError"></div>
+              </div>
+
+              <div class="form-ligne">
+                <label class="form-ligne">
+                  <div class="form-ligne-fa"><i class="fa fa-map-marker-alt"></i></div>
+                  <input id="delivery-address" placeholder="العنوان الكامل" required type="text" />
+                </label>
+                <div class="error-message-f" id="deliveryAddressError"></div>
+              </div>
+
+              <!-- Order Summary -->
+              <div class="Order-Summary">
+                <div class="Order-Summary-t"><i class="fa fa-shopping-basket"></i> ملخص الطلب</div>
+                <div class="order-prod">
+                  <div class="order-prod-t-p-q">
+                    <p style="font-weight: bold;">${product.name}</p>
+                    <div class="OderPrice">
+                      <p id="physical-quantity">1</p>
+                      <p>x</p>
+                      <p>${priceFormatted}${currency}</p>
+                    </div>
+                  </div>
+                  <div class="order-prod-d">
+                    <p>سعر التوصيل :</p>
+                    <p>500 دج</p>
+                  </div>
+                  <div class="order-prod-P-t">
+                    <p>السعر الإجمالي :</p>
+                    <p class="total-price0">${useDZD ? (price + 500).toFixed(0) : (price + 3).toFixed(2)} ${useDZD ? 'دج' : '€'}</p>
+                  </div>
+                </div>
+              </div>
+
+              <div class="b-order">
+                <div class="quantity">
+                  <span class="button-Q" onclick="decreasePhysicalQuantity()">-</span>
+                  <input class="quantity" id="physical-quantity-input" type="text" value="1" readonly />
+                  <span class="button-Q" onclick="increasePhysicalQuantity()">+</span>
+                </div>
+                <button class="buy-button-w" onclick="sendPhysicalOrder()">
+                  <i class="fa fa-brands fa-whatsapp"></i>
+                </button>
+                <button class="buy-button-emailjs" onclick="sendPhysicalOrder()">
+                  تأكيد الطلب <i class="fa fa-shopping-cart"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+        `;
+      }
+
+      // Fonctions pour la quantité des produits physiques
+      function increasePhysicalQuantity() {
+        const quantityInput = document.getElementById('physical-quantity-input');
+        const quantityDisplay = document.getElementById('physical-quantity');
+        let quantity = parseInt(quantityInput.value) || 1;
+        quantityInput.value = quantity + 1;
+        quantityDisplay.textContent = quantity + 1;
+        updatePhysicalTotalPrice();
+      }
+
+      function decreasePhysicalQuantity() {
+        const quantityInput = document.getElementById('physical-quantity-input');
+        const quantityDisplay = document.getElementById('physical-quantity');
+        let quantity = parseInt(quantityInput.value) || 1;
+        if (quantity > 1) {
+          quantityInput.value = quantity - 1;
+          quantityDisplay.textContent = quantity - 1;
+          updatePhysicalTotalPrice();
+        }
+      }
+
+      function updatePhysicalTotalPrice() {
+        if (!currentProduct) return;
+        
+        const quantity = parseInt(document.getElementById('physical-quantity-input').value) || 1;
+        const price = useDZD ? (currentProduct.price_dzd || currentProduct.price * 160) : currentProduct.price;
+        const deliveryFee = useDZD ? 500 : 3; // Frais de livraison
+        const totalPrice = (price * quantity) + deliveryFee;
+        const currency = useDZD ? ' دج' : ' €';
+        const decimals = useDZD ? 0 : 2;
+        
+        document.querySelector('.total-price0').textContent = totalPrice.toFixed(decimals) + currency;
+      }
+
+      // Envoyer commande physique
+      function sendPhysicalOrder() {
+        const name = document.getElementById('delivery-name').value.trim();
+        const phone = document.getElementById('delivery-phone').value.trim();
+        const address = document.getElementById('delivery-address').value.trim();
+        const quantity = document.getElementById('physical-quantity-input').value;
+
+        // Validation
+        if (!name) {
+          document.getElementById('deliveryNameError').textContent = 'الرجاء إدخال الاسم';
+          return;
+        }
+        if (!phone) {
+          document.getElementById('deliveryPhoneError').textContent = 'الرجاء إدخال رقم الهاتف';
+          return;
+        }
+        if (!address) {
+          document.getElementById('deliveryAddressError').textContent = 'الرجاء إدخال العنوان';
+          return;
+        }
+
+        const price = useDZD ? (currentProduct.price_dzd || currentProduct.price * 160) : currentProduct.price;
+        const deliveryFee = useDZD ? 500 : 3;
+        const totalPrice = (price * quantity) + deliveryFee;
+        const currency = useDZD ? 'DZD' : 'EUR';
+
+        const message = `🎯 **طلب جديد للشحن** 🎯
+
+📦 المنتج: ${currentProduct.name}
+👤 الاسم: ${name}
+📞 الهاتف: ${phone}
+📍 العنوان: ${address}
+🔢 الكمية: ${quantity}
+💰 سعر المنتج: ${useDZD ? price.toFixed(0) : price.toFixed(2)} ${currency}
+🚚 مصاريف التوصيل: ${deliveryFee} ${useDZD ? 'دج' : '€'}
+💵 السعر الإجمالي: ${useDZD ? totalPrice.toFixed(0) : totalPrice.toFixed(2)} ${currency}
+
+شكرا لثقتكم! 🚀`;
+
+        const whatsappUrl = `https://api.whatsapp.com/send?phone=213770759886&text=${encodeURIComponent(message)}`;
+        window.open(whatsappUrl, '_blank');
+      }
+
       // Fonction pour créer le formulaire virtuel
       function createVirtualForm(product) {
         const price = useDZD ? (product.price_dzd || product.price * 160) : product.price;
@@ -171,7 +340,7 @@
 
               <div class="form-group">
                 <i class="fas fa-server icon"></i>
-                <select id="serverType" onchange="window.toggleServerFields(); window.updateTotalPrice();">
+                <select id="serverType" onchange="toggleServerFields(); updateTotalPrice();">
                   ${(product.serverTypes || []).map(type => 
                     `<option value="${type}">${type}</option>`
                   ).join('')}
@@ -181,7 +350,7 @@
               
               <div class="form-group">
                 <i class="fas fa-cubes icon"></i>
-                <input type="number" id="quantity" value="1" min="1" onchange="window.updateTotalPrice()" placeholder="Quantité" />
+                <input type="number" id="quantity" value="1" min="1" onchange="updateTotalPrice()" placeholder="Quantité" />
               </div>
               
               <div class="form-group">
@@ -205,39 +374,15 @@
               <p class="error-message" id="emailError"></p>
 
               <div class="button-group">
-                <button type="button" class="btn btn-whatsapp" onclick="window.sendVirtualOrder('whatsapp')">
+                <button type="button" class="btn btn-whatsapp" onclick="sendVirtualOrder('whatsapp')">
                   <i class="fab fa-whatsapp"></i> Commander via WhatsApp
                 </button>
-                <button type="button" class="btn btn-email" onclick="window.sendVirtualOrder('email')">
+                <button type="button" class="btn btn-email" onclick="sendVirtualOrder('email')">
                   <i class="fas fa-envelope"></i> Commander par Email
                 </button>
               </div>
             </form>
           </section>
-        `;
-      }
-
-      // Fonction pour créer le formulaire physique
-      function createPhysicalForm(product) {
-        const price = useDZD ? (product.price_dzd || product.price * 160) : product.price;
-        const currency = useDZD ? ' DZD' : ' €';
-        const priceFormatted = useDZD ? price.toFixed(0) : price.toFixed(2);
-        
-        return `
-          <div class="delivery-form">
-            <h3 style="text-align: center; margin-bottom: 20px;">📦 Produit Physique</h3>
-            <p class="price" style="font-size: 2em; text-align: center; color: var(--primary-color); font-weight: bold;">
-              ${priceFormatted}${currency}
-            </p>
-            <p style="text-align: center; margin-bottom: 20px;">
-              Pour commander ce produit physique avec livraison, contactez-nous directement sur WhatsApp :
-            </p>
-            <div style="text-align: center;">
-              <button class="btn btn-whatsapp" onclick="window.contactForPhysicalProduct()" style="padding: 15px 30px; font-size: 1.2em;">
-                <i class="fab fa-whatsapp"></i> Commander sur WhatsApp
-              </button>
-            </div>
-          </div>
         `;
       }
 
@@ -341,20 +486,130 @@
         }
       }
 
-      // Contact pour produit physique
-      function contactForPhysicalProduct() {
-        const price = useDZD ? (currentProduct.price_dzd || currentProduct.price * 160) : currentProduct.price;
-        const currency = useDZD ? 'DZD' : 'EUR';
-        const priceFormatted = useDZD ? price.toFixed(0) : price.toFixed(2);
+      // CORRECTION : Setup de la galerie - version simple qui fonctionne
+      function setupCombinedGallery(product) {
+        const mainImageContainer = document.querySelector('.main-image-container-fade');
+        const thumbnailContainer = document.getElementById('thumbnail-container');
         
-        const message = `Bonjour, je souhaite commander le produit physique :\n\n` +
-                       `*Produit :* ${currentProduct.name}\n` +
-                       `*Prix :* ${priceFormatted} ${currency}\n` +
-                       `*Lien :* ${window.location.href}\n\n` +
-                       `Je suis intéressé par la livraison en Algérie.`;
+        if (!mainImageContainer || !thumbnailContainer || !product.images || product.images.length === 0) {
+          console.error('Galerie: éléments manquants ou pas d\'images');
+          return;
+        }
+
+        // Vider les conteneurs
+        mainImageContainer.innerHTML = '';
+        thumbnailContainer.innerHTML = '';
+
+        console.log('Chargement des images:', product.images);
+
+        // Ajouter la première image comme image principale
+        if (product.images[0]) {
+          const mainImg = document.createElement('img');
+          mainImg.src = product.images[0];
+          mainImg.alt = `Image de ${product.name}`;
+          mainImg.style.width = '100%';
+          mainImg.style.height = '100%';
+          mainImg.style.objectFit = 'contain';
+          mainImg.style.display = 'block';
+          mainImageContainer.appendChild(mainImg);
+          console.log('Image principale chargée:', product.images[0]);
+        }
+
+        // Ajouter les miniatures
+        product.images.forEach((imageUrl, index) => {
+          const thumb = document.createElement('img');
+          thumb.src = imageUrl;
+          thumb.alt = `Miniature de ${product.name}`;
+          thumb.style.cursor = 'pointer';
+          thumb.style.width = '80px';
+          thumb.style.height = '80px';
+          thumb.style.objectFit = 'cover';
+          thumb.style.border = index === 0 ? '2px solid var(--primary-color)' : '2px solid transparent';
+          thumb.style.borderRadius = '8px';
+          thumb.style.margin = '5px';
+          
+          thumb.addEventListener('click', () => {
+            // Mettre à jour l'image principale
+            const mainImg = mainImageContainer.querySelector('img');
+            if (mainImg) {
+              mainImg.src = imageUrl;
+            }
+            
+            // Mettre à jour les bordures des miniatures
+            thumbnailContainer.querySelectorAll('img').forEach((thumbImg, thumbIndex) => {
+              thumbImg.style.border = thumbIndex === index ? '2px solid var(--primary-color)' : '2px solid transparent';
+            });
+          });
+          
+          thumbnailContainer.appendChild(thumb);
+        });
+
+        console.log('Galerie initialisée avec', product.images.length, 'images');
+      }
+
+      // Setup lightbox
+      function setupLightbox(product) {
+        const mainImageContainer = document.querySelector('.main-image-container-fade');
+        const lightbox = document.getElementById('lightbox');
+        const lightboxImage = document.getElementById('lightbox-image');
+        const lightboxClose = document.querySelector('.lightbox-close');
         
-        const whatsappUrl = `https://api.whatsapp.com/send?phone=213770759886&text=${encodeURIComponent(message)}`;
-        window.open(whatsappUrl, '_blank');
+        if (!mainImageContainer || !lightbox || !lightboxImage || !lightboxClose) return;
+
+        mainImageContainer.style.cursor = 'zoom-in';
+        mainImageContainer.addEventListener('click', (e) => {
+          if (e.target.tagName === 'IMG') {
+            const mainImg = mainImageContainer.querySelector('img');
+            if (mainImg) {
+              lightboxImage.src = mainImg.src;
+              lightbox.style.display = 'flex';
+            }
+          }
+        });
+        
+        lightboxClose.addEventListener('click', () => { 
+          lightbox.style.display = 'none';
+        });
+        
+        lightbox.addEventListener('click', (e) => { 
+          if (e.target === lightbox) lightbox.style.display = 'none'; 
+        });
+      }
+
+      // Setup des boutons de partage
+      function setupShareButtons(product) {
+        const shareUrl = window.location.href;
+        const shareText = `Découvrez ${product.name} sur IPTV Store !`;
+
+        const facebookBtn = document.getElementById('share-facebook');
+        if(facebookBtn) { 
+          facebookBtn.href = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}`; 
+        }
+        
+        const twitterBtn = document.getElementById('share-twitter');
+        if(twitterBtn) { 
+          twitterBtn.href = `https://twitter.com/intent/tweet?url=${encodeURIComponent(shareUrl)}&text=${encodeURIComponent(shareText)}`; 
+        }
+        
+        const whatsappBtn = document.getElementById('share-whatsapp');
+        if(whatsappBtn) { 
+          whatsappBtn.href = `https://api.whatsapp.com/send?text=${encodeURIComponent(shareText + ' ' + shareUrl)}`; 
+        }
+        
+        const telegramBtn = document.getElementById('share-telegram');
+        if(telegramBtn) { 
+          telegramBtn.href = `https://t.me/share/url?url=${encodeURIComponent(shareUrl)}&text=${encodeURIComponent(shareText)}`; 
+        }
+        
+        const copyBtn = document.getElementById('copy-link');
+        if(copyBtn) {
+          copyBtn.addEventListener('click', () => {
+            navigator.clipboard.writeText(shareUrl).then(() => {
+              copyBtn.innerHTML = '<i class="fas fa-check"></i>';
+              setTimeout(() => { copyBtn.innerHTML = '<i class="fas fa-copy"></i>'; }, 2000);
+            }).catch(err => { console.error('Erreur de copie: ', err); });
+          });
+        }
       }
 
       // Fonctions utilitaires
@@ -432,113 +687,6 @@
         }
       }
 
-      // Setup de la galerie
-      function setupCombinedGallery(product) {
-        const mainImageContainer = document.querySelector('.main-image-container-fade');
-        const thumbnailContainer = document.getElementById('thumbnail-container');
-        
-        if (!mainImageContainer || !thumbnailContainer || !product.images || product.images.length === 0) return;
-
-        mainImageContainer.innerHTML = '';
-        thumbnailContainer.innerHTML = '';
-
-        product.images.forEach((imageUrl, index) => {
-          const mainImg = document.createElement('img');
-          mainImg.src = imageUrl;
-          mainImg.alt = `Image de ${product.name}`;
-          mainImg.style.display = index === 0 ? 'block' : 'none';
-          mainImageContainer.appendChild(mainImg);
-
-          const thumb = document.createElement('img');
-          thumb.src = imageUrl;
-          thumb.alt = `Miniature de ${product.name}`;
-          thumb.style.cursor = 'pointer';
-          thumb.style.width = '80px';
-          thumb.style.height = '80px';
-          thumb.style.objectFit = 'cover';
-          thumb.style.border = index === 0 ? '2px solid var(--primary-color)' : '2px solid transparent';
-          thumb.style.borderRadius = '8px';
-          thumb.addEventListener('click', () => {
-            // Cacher toutes les images principales
-            mainImageContainer.querySelectorAll('img').forEach(img => {
-              img.style.display = 'none';
-            });
-            // Afficher l'image correspondante
-            mainImageContainer.querySelectorAll('img')[index].style.display = 'block';
-            // Mettre à jour les bordures des miniatures
-            thumbnailContainer.querySelectorAll('img').forEach((thumb, thumbIndex) => {
-              thumb.style.border = thumbIndex === index ? '2px solid var(--primary-color)' : '2px solid transparent';
-            });
-          });
-          thumbnailContainer.appendChild(thumb);
-        });
-      }
-
-      // Setup lightbox
-      function setupLightbox(product) {
-        const mainImageContainer = document.querySelector('.main-image-container-fade');
-        const lightbox = document.getElementById('lightbox');
-        const lightboxImage = document.getElementById('lightbox-image');
-        const lightboxClose = document.querySelector('.lightbox-close');
-        
-        if (!mainImageContainer || !lightbox || !lightboxImage || !lightboxClose) return;
-
-        mainImageContainer.style.cursor = 'zoom-in';
-        mainImageContainer.addEventListener('click', (e) => {
-          if (e.target.tagName === 'IMG') {
-            const activeImg = mainImageContainer.querySelector('img[style*="display: block"]');
-            if (activeImg) {
-              lightboxImage.src = activeImg.src;
-              lightbox.style.display = 'flex';
-            }
-          }
-        });
-        
-        lightboxClose.addEventListener('click', () => { 
-          lightbox.style.display = 'none';
-        });
-        
-        lightbox.addEventListener('click', (e) => { 
-          if (e.target === lightbox) lightbox.style.display = 'none'; 
-        });
-      }
-
-      // Setup des boutons de partage
-      function setupShareButtons(product) {
-        const shareUrl = window.location.href;
-        const shareText = `Découvrez ${product.name} sur IPTV Store !`;
-
-        const facebookBtn = document.getElementById('share-facebook');
-        if(facebookBtn) { 
-          facebookBtn.href = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}`; 
-        }
-        
-        const twitterBtn = document.getElementById('share-twitter');
-        if(twitterBtn) { 
-          twitterBtn.href = `https://twitter.com/intent/tweet?url=${encodeURIComponent(shareUrl)}&text=${encodeURIComponent(shareText)}`; 
-        }
-        
-        const whatsappBtn = document.getElementById('share-whatsapp');
-        if(whatsappBtn) { 
-          whatsappBtn.href = `https://api.whatsapp.com/send?text=${encodeURIComponent(shareText + ' ' + shareUrl)}`; 
-        }
-        
-        const telegramBtn = document.getElementById('share-telegram');
-        if(telegramBtn) { 
-          telegramBtn.href = `https://t.me/share/url?url=${encodeURIComponent(shareUrl)}&text=${encodeURIComponent(shareText)}`; 
-        }
-        
-        const copyBtn = document.getElementById('copy-link');
-        if(copyBtn) {
-          copyBtn.addEventListener('click', () => {
-            navigator.clipboard.writeText(shareUrl).then(() => {
-              copyBtn.innerHTML = '<i class="fas fa-check"></i>';
-              setTimeout(() => { copyBtn.innerHTML = '<i class="fas fa-copy"></i>'; }, 2000);
-            }).catch(err => { console.error('Erreur de copie: ', err); });
-          });
-        }
-      }
-
       // Fonction principale d'initialisation
       async function initializeProductPage() {
         const productId = getProductIdFromURL();
@@ -555,6 +703,8 @@
           window.location.href = '404.html';
           return;
         }
+
+        console.log('Produit trouvé:', currentProduct);
 
         // Détecter le pays
         await detectUserCountry();
@@ -577,7 +727,7 @@
           excerptElement.textContent = excerpt;
         }
 
-        // Initialiser la galerie
+        // CORRECTION : Initialiser la galerie IMMÉDIATEMENT
         setupCombinedGallery(currentProduct);
 
         // Initialiser le lightbox
@@ -586,17 +736,19 @@
         // Initialiser les boutons de partage
         setupShareButtons(currentProduct);
 
-        // Charger le bon formulaire
+        // CORRECTION : Charger le bon formulaire IMMÉDIATEMENT
         const formContainer = document.getElementById('form-container');
         
         if (currentProduct.product_type === 'physical') {
           formContainer.innerHTML = createPhysicalForm(currentProduct);
+          console.log('Formulaire PHYSIQUE chargé');
         } else {
           formContainer.innerHTML = createVirtualForm(currentProduct);
           // Initialiser les codes pays
           populateCountryCodes('selectedCountryCode');
           // Initialiser les champs serveur
           setTimeout(() => toggleServerFields(), 100);
+          console.log('Formulaire VIRTUEL chargé');
         }
 
         // Mettre à jour le schema SEO
@@ -637,7 +789,9 @@
 
       // Exposer les fonctions globalement
       window.sendVirtualOrder = sendVirtualOrder;
-      window.contactForPhysicalProduct = contactForPhysicalProduct;
+      window.sendPhysicalOrder = sendPhysicalOrder;
+      window.increasePhysicalQuantity = increasePhysicalQuantity;
+      window.decreasePhysicalQuantity = decreasePhysicalQuantity;
       window.updateTotalPrice = updateTotalPrice;
       window.toggleServerFields = toggleServerFields;
       window.closeAlert = closeAlert;
