@@ -20,51 +20,26 @@
     <script type="application/ld+json" id="product-schema"></script>
     
     <style>
-      /* Styles pour les formulaires */
-      .virtual-form {
-        border: 2px solid var(--primary-color);
-        background: rgba(90, 71, 251, 0.05);
+      .loading-form {
+        text-align: center;
+        padding: 40px;
+        color: var(--secondary-color);
+      }
+      
+      .virtual-form, .delivery-form {
         border-radius: 12px;
         padding: 20px;
         margin-bottom: 30px;
+      }
+      
+      .virtual-form {
+        border: 2px solid var(--primary-color);
+        background: rgba(90, 71, 251, 0.05);
       }
 
       .delivery-form {
         border: 2px solid #28a745;
         background: rgba(40, 167, 69, 0.05);
-        border-radius: 12px;
-        padding: 20px;
-        margin-bottom: 30px;
-      }
-
-      .delivery-not-available {
-        text-align: center;
-        padding: 40px;
-        background: #fff3cd;
-        border: 1px solid #ffeaa7;
-        border-radius: 8px;
-        margin: 20px 0;
-        color: #856404;
-      }
-
-      .product-type-badge {
-        display: inline-block;
-        padding: 4px 12px;
-        border-radius: 20px;
-        font-size: 0.8em;
-        font-weight: 600;
-        margin-left: 10px;
-        vertical-align: middle;
-      }
-
-      .badge-virtual {
-        background: var(--primary-color);
-        color: white;
-      }
-
-      .badge-physical {
-        background: #28a745;
-        color: white;
       }
     </style>
   </head>
@@ -86,7 +61,9 @@
 
       <!-- Section du formulaire dynamique -->
       <div id="form-container">
-        <div class="loading-form">Chargement du formulaire...</div>
+        <div class="loading-form">
+          <i class="fas fa-spinner fa-spin"></i> Chargement du formulaire...
+        </div>
       </div>
 
       <section class="product-full-description">
@@ -139,25 +116,15 @@
     <div id="footer-placeholder"></div>
     
     <script src="products-db.js"></script>
-    <script src="script.js"></script>
-    
     <script>
-      // Variables globales pour cette page
+      // ===== CODE PRINCIPAL =====
       let currentProduct = null;
       let useDZD = false;
 
-      // Fonction pour récupérer l'ID du produit depuis l'URL
+      // Fonction pour récupérer l'ID du produit
       function getProductIdFromURL() {
         const urlParams = new URLSearchParams(window.location.search);
         return urlParams.get('id');
-      }
-
-      // Fonction pour trouver le produit dans la base de données
-      function findProductById(productId) {
-        if (typeof products !== 'undefined') {
-          return products.find(p => p.id === productId);
-        }
-        return null;
       }
 
       // Détection du pays
@@ -175,6 +142,21 @@
         }
       }
 
+      // Initialiser les codes pays
+      function populateCountryCodes(selectId) {
+        const selectElement = document.getElementById(selectId);
+        if (!selectElement || typeof countryCodes === 'undefined') return;
+        
+        selectElement.innerHTML = '';
+        countryCodes.forEach(country => {
+          const option = document.createElement("option");
+          option.value = country.code;
+          option.textContent = `${country.name} (${country.code})`;
+          selectElement.appendChild(option);
+        });
+        selectElement.value = "+213";
+      }
+
       // Fonction pour créer le formulaire virtuel
       function createVirtualForm(product) {
         const price = useDZD ? (product.price_dzd || product.price * 160) : product.price;
@@ -189,7 +171,7 @@
 
               <div class="form-group">
                 <i class="fas fa-server icon"></i>
-                <select id="serverType" onchange="toggleServerFields(); updateTotalPrice()">
+                <select id="serverType" onchange="window.toggleServerFields(); window.updateTotalPrice();">
                   ${(product.serverTypes || []).map(type => 
                     `<option value="${type}">${type}</option>`
                   ).join('')}
@@ -199,7 +181,7 @@
               
               <div class="form-group">
                 <i class="fas fa-cubes icon"></i>
-                <input type="number" id="quantity" value="1" min="1" onchange="updateTotalPrice()" placeholder="Quantité" />
+                <input type="number" id="quantity" value="1" min="1" onchange="window.updateTotalPrice()" placeholder="Quantité" />
               </div>
               
               <div class="form-group">
@@ -223,15 +205,39 @@
               <p class="error-message" id="emailError"></p>
 
               <div class="button-group">
-                <button type="button" class="btn btn-whatsapp" onclick="sendVirtualOrder('whatsapp')">
+                <button type="button" class="btn btn-whatsapp" onclick="window.sendVirtualOrder('whatsapp')">
                   <i class="fab fa-whatsapp"></i> Commander via WhatsApp
                 </button>
-                <button type="button" class="btn btn-email" onclick="sendVirtualOrder('email')">
+                <button type="button" class="btn btn-email" onclick="window.sendVirtualOrder('email')">
                   <i class="fas fa-envelope"></i> Commander par Email
                 </button>
               </div>
             </form>
           </section>
+        `;
+      }
+
+      // Fonction pour créer le formulaire physique
+      function createPhysicalForm(product) {
+        const price = useDZD ? (product.price_dzd || product.price * 160) : product.price;
+        const currency = useDZD ? ' DZD' : ' €';
+        const priceFormatted = useDZD ? price.toFixed(0) : price.toFixed(2);
+        
+        return `
+          <div class="delivery-form">
+            <h3 style="text-align: center; margin-bottom: 20px;">📦 Produit Physique</h3>
+            <p class="price" style="font-size: 2em; text-align: center; color: var(--primary-color); font-weight: bold;">
+              ${priceFormatted}${currency}
+            </p>
+            <p style="text-align: center; margin-bottom: 20px;">
+              Pour commander ce produit physique avec livraison, contactez-nous directement sur WhatsApp :
+            </p>
+            <div style="text-align: center;">
+              <button class="btn btn-whatsapp" onclick="window.contactForPhysicalProduct()" style="padding: 15px 30px; font-size: 1.2em;">
+                <i class="fab fa-whatsapp"></i> Commander sur WhatsApp
+              </button>
+            </div>
+          </div>
         `;
       }
 
@@ -335,6 +341,22 @@
         }
       }
 
+      // Contact pour produit physique
+      function contactForPhysicalProduct() {
+        const price = useDZD ? (currentProduct.price_dzd || currentProduct.price * 160) : currentProduct.price;
+        const currency = useDZD ? 'DZD' : 'EUR';
+        const priceFormatted = useDZD ? price.toFixed(0) : price.toFixed(2);
+        
+        const message = `Bonjour, je souhaite commander le produit physique :\n\n` +
+                       `*Produit :* ${currentProduct.name}\n` +
+                       `*Prix :* ${priceFormatted} ${currency}\n` +
+                       `*Lien :* ${window.location.href}\n\n` +
+                       `Je suis intéressé par la livraison en Algérie.`;
+        
+        const whatsappUrl = `https://api.whatsapp.com/send?phone=213770759886&text=${encodeURIComponent(message)}`;
+        window.open(whatsappUrl, '_blank');
+      }
+
       // Fonctions utilitaires
       function clearErrors() {
         document.querySelectorAll(".error-message").forEach(el => el.innerText = '');
@@ -410,10 +432,124 @@
         }
       }
 
-      // Fonction pour initialiser la page produit
+      // Setup de la galerie
+      function setupCombinedGallery(product) {
+        const mainImageContainer = document.querySelector('.main-image-container-fade');
+        const thumbnailContainer = document.getElementById('thumbnail-container');
+        
+        if (!mainImageContainer || !thumbnailContainer || !product.images || product.images.length === 0) return;
+
+        mainImageContainer.innerHTML = '';
+        thumbnailContainer.innerHTML = '';
+
+        product.images.forEach((imageUrl, index) => {
+          const mainImg = document.createElement('img');
+          mainImg.src = imageUrl;
+          mainImg.alt = `Image de ${product.name}`;
+          mainImg.style.display = index === 0 ? 'block' : 'none';
+          mainImageContainer.appendChild(mainImg);
+
+          const thumb = document.createElement('img');
+          thumb.src = imageUrl;
+          thumb.alt = `Miniature de ${product.name}`;
+          thumb.style.cursor = 'pointer';
+          thumb.style.width = '80px';
+          thumb.style.height = '80px';
+          thumb.style.objectFit = 'cover';
+          thumb.style.border = index === 0 ? '2px solid var(--primary-color)' : '2px solid transparent';
+          thumb.style.borderRadius = '8px';
+          thumb.addEventListener('click', () => {
+            // Cacher toutes les images principales
+            mainImageContainer.querySelectorAll('img').forEach(img => {
+              img.style.display = 'none';
+            });
+            // Afficher l'image correspondante
+            mainImageContainer.querySelectorAll('img')[index].style.display = 'block';
+            // Mettre à jour les bordures des miniatures
+            thumbnailContainer.querySelectorAll('img').forEach((thumb, thumbIndex) => {
+              thumb.style.border = thumbIndex === index ? '2px solid var(--primary-color)' : '2px solid transparent';
+            });
+          });
+          thumbnailContainer.appendChild(thumb);
+        });
+      }
+
+      // Setup lightbox
+      function setupLightbox(product) {
+        const mainImageContainer = document.querySelector('.main-image-container-fade');
+        const lightbox = document.getElementById('lightbox');
+        const lightboxImage = document.getElementById('lightbox-image');
+        const lightboxClose = document.querySelector('.lightbox-close');
+        
+        if (!mainImageContainer || !lightbox || !lightboxImage || !lightboxClose) return;
+
+        mainImageContainer.style.cursor = 'zoom-in';
+        mainImageContainer.addEventListener('click', (e) => {
+          if (e.target.tagName === 'IMG') {
+            const activeImg = mainImageContainer.querySelector('img[style*="display: block"]');
+            if (activeImg) {
+              lightboxImage.src = activeImg.src;
+              lightbox.style.display = 'flex';
+            }
+          }
+        });
+        
+        lightboxClose.addEventListener('click', () => { 
+          lightbox.style.display = 'none';
+        });
+        
+        lightbox.addEventListener('click', (e) => { 
+          if (e.target === lightbox) lightbox.style.display = 'none'; 
+        });
+      }
+
+      // Setup des boutons de partage
+      function setupShareButtons(product) {
+        const shareUrl = window.location.href;
+        const shareText = `Découvrez ${product.name} sur IPTV Store !`;
+
+        const facebookBtn = document.getElementById('share-facebook');
+        if(facebookBtn) { 
+          facebookBtn.href = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}`; 
+        }
+        
+        const twitterBtn = document.getElementById('share-twitter');
+        if(twitterBtn) { 
+          twitterBtn.href = `https://twitter.com/intent/tweet?url=${encodeURIComponent(shareUrl)}&text=${encodeURIComponent(shareText)}`; 
+        }
+        
+        const whatsappBtn = document.getElementById('share-whatsapp');
+        if(whatsappBtn) { 
+          whatsappBtn.href = `https://api.whatsapp.com/send?text=${encodeURIComponent(shareText + ' ' + shareUrl)}`; 
+        }
+        
+        const telegramBtn = document.getElementById('share-telegram');
+        if(telegramBtn) { 
+          telegramBtn.href = `https://t.me/share/url?url=${encodeURIComponent(shareUrl)}&text=${encodeURIComponent(shareText)}`; 
+        }
+        
+        const copyBtn = document.getElementById('copy-link');
+        if(copyBtn) {
+          copyBtn.addEventListener('click', () => {
+            navigator.clipboard.writeText(shareUrl).then(() => {
+              copyBtn.innerHTML = '<i class="fas fa-check"></i>';
+              setTimeout(() => { copyBtn.innerHTML = '<i class="fas fa-copy"></i>'; }, 2000);
+            }).catch(err => { console.error('Erreur de copie: ', err); });
+          });
+        }
+      }
+
+      // Fonction principale d'initialisation
       async function initializeProductPage() {
         const productId = getProductIdFromURL();
-        currentProduct = findProductById(productId);
+        
+        // Vérifier si products est chargé
+        if (typeof products === 'undefined') {
+          document.getElementById('form-container').innerHTML = '<div class="error-message">Erreur: Produits non chargés</div>';
+          return;
+        }
+        
+        currentProduct = products.find(p => p.id === productId);
         
         if (!currentProduct) {
           window.location.href = '404.html';
@@ -426,10 +562,11 @@
         // Mettre à jour les informations du produit
         document.getElementById('product-name').textContent = currentProduct.name;
         
-        // Description et extrait
+        // Description
         const fullDescription = currentProduct.description || '';
         document.getElementById('product-description').textContent = fullDescription;
         
+        // Extrait
         const excerptElement = document.getElementById('product-excerpt');
         if (excerptElement) {
           let firstLine = fullDescription.split('\n')[0];
@@ -453,53 +590,20 @@
         const formContainer = document.getElementById('form-container');
         
         if (currentProduct.product_type === 'physical') {
-          // Pour les produits physiques, on va créer un formulaire simple
-          const price = useDZD ? (currentProduct.price_dzd || currentProduct.price * 160) : currentProduct.price;
-          const currency = useDZD ? ' DZD' : ' €';
-          const priceFormatted = useDZD ? price.toFixed(0) : price.toFixed(2);
-          
-          formContainer.innerHTML = `
-            <div class="delivery-form">
-              <h3>Produit Physique - Livraison Algérie</h3>
-              <p class="price">${priceFormatted}${currency}</p>
-              <p>Pour commander ce produit physique, contactez-nous directement sur WhatsApp :</p>
-              <button class="btn btn-whatsapp" onclick="contactForPhysicalProduct()" style="margin-top: 20px;">
-                <i class="fab fa-whatsapp"></i> Commander sur WhatsApp
-              </button>
-            </div>
-          `;
+          formContainer.innerHTML = createPhysicalForm(currentProduct);
         } else {
-          // Produit virtuel
           formContainer.innerHTML = createVirtualForm(currentProduct);
-          
           // Initialiser les codes pays
-          if (typeof countryCodes !== 'undefined') {
-            populateCountryCodes('selectedCountryCode');
-          }
-          
+          populateCountryCodes('selectedCountryCode');
           // Initialiser les champs serveur
-          toggleServerFields();
+          setTimeout(() => toggleServerFields(), 100);
         }
 
         // Mettre à jour le schema SEO
         updateProductSchema(currentProduct);
       }
 
-      function contactForPhysicalProduct() {
-        const price = useDZD ? (currentProduct.price_dzd || currentProduct.price * 160) : currentProduct.price;
-        const currency = useDZD ? 'DZD' : 'EUR';
-        const priceFormatted = useDZD ? price.toFixed(0) : price.toFixed(2);
-        
-        const message = `Bonjour, je souhaite commander le produit physique :\n\n` +
-                       `*Produit :* ${currentProduct.name}\n` +
-                       `*Prix :* ${priceFormatted} ${currency}\n` +
-                       `*Lien :* ${window.location.href}`;
-        
-        const whatsappUrl = `https://api.whatsapp.com/send?phone=213770759886&text=${encodeURIComponent(message)}`;
-        window.open(whatsappUrl, '_blank');
-      }
-
-      // Fonction pour mettre à jour le schema SEO
+      // Mettre à jour le schema SEO
       function updateProductSchema(product) {
         const price = useDZD ? (product.price_dzd || product.price * 160) : product.price;
         const currency = useDZD ? "DZD" : "EUR";
@@ -531,10 +635,14 @@
         }
       }
 
-      // Initialiser EmailJS
-      emailjs.init("WNOIpj1FX2dDPSQMS");
+      // Exposer les fonctions globalement
+      window.sendVirtualOrder = sendVirtualOrder;
+      window.contactForPhysicalProduct = contactForPhysicalProduct;
+      window.updateTotalPrice = updateTotalPrice;
+      window.toggleServerFields = toggleServerFields;
+      window.closeAlert = closeAlert;
 
-      // Charger les composants header/footer
+      // Charger les composants
       function loadComponent(url, elementId) {
         fetch(url)
           .then(response => response.text())
@@ -545,10 +653,16 @@
           .catch(error => console.error(`Error loading component ${url}:`, error));
       }
 
-      // Initialiser la page au chargement
+      // Initialisation au chargement
       document.addEventListener('DOMContentLoaded', function() {
+        // Initialiser EmailJS
+        emailjs.init("WNOIpj1FX2dDPSQMS");
+        
+        // Charger header et footer
         loadComponent('header.html', 'header-placeholder');
         loadComponent('footer.html', 'footer-placeholder');
+        
+        // Initialiser la page produit
         initializeProductPage();
       });
     </script>
