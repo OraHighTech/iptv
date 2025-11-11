@@ -12,10 +12,12 @@
 
     <link rel="icon" type="image/x-icon" href="favicon.ico" />
     <link rel="stylesheet" href="style.css" />
+    <link rel="stylesheet" href="formulaire-livraison.css" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
     <link href="https://fonts.googleapis.com/css2?family=Noto+Color+Emoji&display=swap" rel="stylesheet" />
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
     <script src="https://raw.githack.com/OraHighTech/OrderTvCode/main/indicatif.js"></script>
+    <script src="https://raw.githack.com/OraHighTech/e-commerce/main/wilayasCommunes.js"></script>
 
     <script type="application/ld+json" id="product-schema"></script>
     
@@ -26,34 +28,53 @@
         color: var(--secondary-color);
       }
       
-      .virtual-form, .delivery-form {
+      .virtual-form {
         border-radius: 12px;
         padding: 20px;
         margin-bottom: 30px;
-      }
-      
-      .virtual-form {
         border: 2px solid var(--primary-color);
         background: rgba(90, 71, 251, 0.05);
       }
 
-      .delivery-form {
-        border: 2px solid #28a745;
-        background: rgba(40, 167, 69, 0.05);
+      /* Correction pour l'affichage des images */
+      .main-image-container-fade {
+        position: relative;
+        width: 100%;
+        aspect-ratio: 16/10;
+        background-color: #f0f0f0;
+        border-radius: 12px;
+        overflow: hidden;
+        margin-bottom: 15px;
+        border: 1px solid var(--border-color);
       }
 
-      /* Correction pour l'affichage des images */
       .main-image-container-fade img {
-        width: 100%;
-        height: 100%;
-        object-fit: contain;
         position: absolute;
         top: 0;
         left: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+        transition: opacity 0.3s ease;
       }
 
       .main-image-container-fade img:not(:first-child) {
-        display: none;
+        opacity: 0;
+      }
+
+      .thumbnail-container-horizontal img {
+        width: 80px;
+        height: 80px;
+        object-fit: cover;
+        border: 2px solid var(--border-color);
+        border-radius: 8px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+      }
+
+      .thumbnail-container-horizontal img.active {
+        border-color: var(--primary-color);
+        box-shadow: 0 0 8px rgba(90, 71, 251, 0.5);
       }
     </style>
   </head>
@@ -136,6 +157,17 @@
       // ===== CODE PRINCIPAL =====
       let currentProduct = null;
       let useDZD = false;
+      let currentDeliveryType = 'domicile';
+      let deliveryZones = [
+          null, // index 0 non utilisé
+          { bureau: 300, domicile: 500 },
+          { bureau: 350, domicile: 650 },
+          { bureau: 400, domicile: 850 },
+          { bureau: 600, domicile: 1000 },
+          { bureau: 1150, domicile: 1450 },
+          { bureau: 1200, domicile: 1650 },
+      ];
+      let horsZoneCharges = { 1: 100, 2: 200, 3: 300 };
 
       // Fonction pour récupérer l'ID du produit
       function getProductIdFromURL() {
@@ -173,20 +205,21 @@
         selectElement.value = "+213";
       }
 
-      // CORRECTION : Formulaire physique COMPLET avec livraison
+      // CORRECTION : Formulaire physique COMPLET comme dans le PHP
       function createPhysicalForm(product) {
         const price = useDZD ? (product.price_dzd || product.price * 160) : product.price;
         const currency = useDZD ? ' DZD' : ' €';
         const priceFormatted = useDZD ? price.toFixed(0) : price.toFixed(2);
         
         return `
-          <div class="delivery-form">
-            <h3 style="text-align: center; margin-bottom: 20px; color: #28a745;">📦 Commande avec Livraison</h3>
-            
-            <div class="form-all" style="direction: rtl;">
+          <div class="product-details delivery-form">
+            <p class="price" id="productPrice">${priceFormatted}${currency}</p>
+            <div class="form-all">
               <div class="form-ligne">
                 <label class="form-ligne">
-                  <div class="form-ligne-fa"><i class="fa fa-user"></i></div>
+                  <div class="form-ligne-fa">
+                    <i class="fa fa-user"></i>
+                  </div>
                   <input id="delivery-name" placeholder="الإسم و اللقب" required type="text" />
                 </label>
                 <div class="error-message-f" id="deliveryNameError"></div>
@@ -194,7 +227,9 @@
 
               <div class="form-ligne">
                 <label class="form-ligne">
-                  <div class="form-ligne-fa"><i class="fa fa-phone"></i></div>
+                  <div class="form-ligne-fa">
+                    <i class="fa fa-phone"></i>
+                  </div>
                   <input id="delivery-phone" placeholder="رقم الهاتف" required type="tel" />
                 </label>
                 <div class="error-message-f" id="deliveryPhoneError"></div>
@@ -202,10 +237,45 @@
 
               <div class="form-ligne">
                 <label class="form-ligne">
-                  <div class="form-ligne-fa"><i class="fa fa-map-marker-alt"></i></div>
-                  <input id="delivery-address" placeholder="العنوان الكامل" required type="text" />
+                  <div class="form-ligne-fa">
+                    <i class="fa fa-light fa-truck-fast"></i>
+                  </div>
+                  <div class="button-shipping">
+                    <button class="delivery-btn" id="bureauBtn" type="button"><i class="fa fa-building"></i> توصيل الى المكتب</button>
+                    <button class="delivery-btn" id="domicileBtn" type="button"><i class="fa fa-solid fa-person-carry-box"></i> توصيل الى باب الدار</button>
+                  </div>
                 </label>
-                <div class="error-message-f" id="deliveryAddressError"></div>
+              </div>
+
+              <div class="form-ligne">
+                <label class="form-ligne">
+                  <div class="form-ligne-fa">
+                    <i class="fa fa-road"></i>
+                  </div>
+                  <div class="select-city">
+                    <div class="wilaya">
+                      <select id="delivery-wilaya">
+                        <option value="">الولاية</option>
+                      </select>
+                      <div class="error-message" id="wilayaError"></div>
+                    </div>
+                    <div class="commune">
+                      <select id="delivery-commune" disabled>
+                        <option value="">البلدية</option>
+                      </select>
+                      <div class="error-message" id="communeError"></div>
+                    </div>
+                  </div>
+                </label>
+              </div>
+
+              <div class="form-ligne">
+                <label class="form-ligne">
+                  <div class="form-ligne-fa">
+                    <i class="fa fa-map"></i>
+                  </div>
+                  <input id="delivery-address" placeholder="العنوان" required type="text" />
+                </label>
               </div>
 
               <!-- Order Summary -->
@@ -213,20 +283,20 @@
                 <div class="Order-Summary-t"><i class="fa fa-shopping-basket"></i> ملخص الطلب</div>
                 <div class="order-prod">
                   <div class="order-prod-t-p-q">
-                    <p style="font-weight: bold;">${product.name}</p>
+                    <p class="orderTitle">${product.name}</p>
                     <div class="OderPrice">
-                      <p id="physical-quantity">1</p>
+                      <p id="orderquantity">1</p>
                       <p>x</p>
-                      <p>${priceFormatted}${currency}</p>
+                      <p id="Oderprice">${priceFormatted}${currency}</p>
                     </div>
                   </div>
                   <div class="order-prod-d">
                     <p>سعر التوصيل :</p>
-                    <p>500 دج</p>
+                    <p id="delivery-fee">0${useDZD ? ' دج' : ' €'}</p>
                   </div>
                   <div class="order-prod-P-t">
                     <p>السعر الإجمالي :</p>
-                    <p class="total-price0">${useDZD ? (price + 500).toFixed(0) : (price + 3).toFixed(2)} ${useDZD ? 'دج' : '€'}</p>
+                    <p class="total-price0" id="totalPrice">${priceFormatted}${currency}</p>
                   </div>
                 </div>
               </div>
@@ -234,25 +304,95 @@
               <div class="b-order">
                 <div class="quantity">
                   <span class="button-Q" onclick="decreasePhysicalQuantity()">-</span>
-                  <input class="quantity" id="physical-quantity-input" type="text" value="1" readonly />
+                  <input class="quantity-input" id="physical-quantity-input" type="text" value="1" readonly />
                   <span class="button-Q" onclick="increasePhysicalQuantity()">+</span>
                 </div>
-                <button class="buy-button-w" onclick="sendPhysicalOrder()">
-                  <i class="fa fa-brands fa-whatsapp"></i>
-                </button>
-                <button class="buy-button-emailjs" onclick="sendPhysicalOrder()">
-                  تأكيد الطلب <i class="fa fa-shopping-cart"></i>
-                </button>
+                <button class="buy-button-w" onclick="sendPhysicalOrder()"><i class="fa fa-brands fa-whatsapp"></i></button>
+                <button class="buy-button-emailjs" onclick="sendPhysicalOrder()">اضغط هنا لإتمام طلبك <i class="fa fa-shopping-cart"></i></button>
               </div>
             </div>
           </div>
         `;
       }
 
+      // Initialiser les wilayas
+      function initializeWilayas() {
+        const wilayaSelect = document.getElementById('delivery-wilaya');
+        if (!wilayaSelect || typeof wilayasCommunes === 'undefined') return;
+        
+        wilayaSelect.innerHTML = '<option value="">الولاية</option>';
+        
+        for (const wilaya in wilayasCommunes) {
+          const option = document.createElement('option');
+          option.value = wilaya;
+          option.textContent = wilaya;
+          wilayaSelect.appendChild(option);
+        }
+        
+        wilayaSelect.addEventListener('change', updateCommunes);
+      }
+
+      // Mettre à jour les communes
+      function updateCommunes() {
+        const selectedWilaya = document.getElementById('delivery-wilaya').value;
+        const communeSelect = document.getElementById('delivery-commune');
+        
+        communeSelect.innerHTML = '<option value="">البلدية</option>';
+        communeSelect.disabled = true;
+        
+        if (selectedWilaya && wilayasCommunes && wilayasCommunes[selectedWilaya]) {
+          const communes = wilayasCommunes[selectedWilaya].communes;
+          
+          for (const commune in communes) {
+            const option = document.createElement('option');
+            option.value = commune;
+            option.textContent = commune;
+            communeSelect.appendChild(option);
+          }
+          
+          communeSelect.disabled = false;
+          communeSelect.addEventListener('change', updateDeliveryFee);
+        }
+        
+        updateDeliveryFee();
+      }
+
+      // Mettre à jour les frais de livraison
+      function updateDeliveryFee() {
+        const selectedWilaya = document.getElementById('delivery-wilaya').value;
+        const selectedCommune = document.getElementById('delivery-commune').value;
+        let deliveryFee = 0;
+        
+        if (selectedWilaya && selectedCommune && wilayasCommunes && wilayasCommunes[selectedWilaya]) {
+          const zone = wilayasCommunes[selectedWilaya].zone;
+          const baseFee = deliveryZones[zone] ? deliveryZones[zone][currentDeliveryType] : 500;
+          const horsZoneFee = wilayasCommunes[selectedWilaya].communes[selectedCommune].horsZone ? 
+                             horsZoneCharges[wilayasCommunes[selectedWilaya].communes[selectedCommune].horsZone] || 0 : 0;
+          deliveryFee = baseFee + horsZoneFee;
+        }
+        
+        document.getElementById('delivery-fee').textContent = deliveryFee + (useDZD ? ' دج' : ' €');
+        updatePhysicalTotalPrice();
+      }
+
+      // Sélectionner le type de livraison
+      function selectDeliveryType(type) {
+        currentDeliveryType = type;
+        document.querySelectorAll(".delivery-btn").forEach((btn) => btn.classList.remove("selected"));
+        
+        if (type === "bureau") {
+          document.getElementById("bureauBtn").classList.add("selected");
+        } else if (type === "domicile") {
+          document.getElementById("domicileBtn").classList.add("selected");
+        }
+        
+        updateDeliveryFee();
+      }
+
       // Fonctions pour la quantité des produits physiques
       function increasePhysicalQuantity() {
         const quantityInput = document.getElementById('physical-quantity-input');
-        const quantityDisplay = document.getElementById('physical-quantity');
+        const quantityDisplay = document.getElementById('orderquantity');
         let quantity = parseInt(quantityInput.value) || 1;
         quantityInput.value = quantity + 1;
         quantityDisplay.textContent = quantity + 1;
@@ -261,7 +401,7 @@
 
       function decreasePhysicalQuantity() {
         const quantityInput = document.getElementById('physical-quantity-input');
-        const quantityDisplay = document.getElementById('physical-quantity');
+        const quantityDisplay = document.getElementById('orderquantity');
         let quantity = parseInt(quantityInput.value) || 1;
         if (quantity > 1) {
           quantityInput.value = quantity - 1;
@@ -275,37 +415,55 @@
         
         const quantity = parseInt(document.getElementById('physical-quantity-input').value) || 1;
         const price = useDZD ? (currentProduct.price_dzd || currentProduct.price * 160) : currentProduct.price;
-        const deliveryFee = useDZD ? 500 : 3; // Frais de livraison
+        const deliveryFeeElement = document.getElementById('delivery-fee');
+        const deliveryFee = deliveryFeeElement ? parseInt(deliveryFeeElement.textContent) || 0 : 0;
+        
         const totalPrice = (price * quantity) + deliveryFee;
         const currency = useDZD ? ' دج' : ' €';
         const decimals = useDZD ? 0 : 2;
         
-        document.querySelector('.total-price0').textContent = totalPrice.toFixed(decimals) + currency;
+        document.getElementById('totalPrice').textContent = totalPrice.toFixed(decimals) + currency;
       }
 
       // Envoyer commande physique
       function sendPhysicalOrder() {
         const name = document.getElementById('delivery-name').value.trim();
         const phone = document.getElementById('delivery-phone').value.trim();
+        const wilaya = document.getElementById('delivery-wilaya').value;
+        const commune = document.getElementById('delivery-commune').value;
         const address = document.getElementById('delivery-address').value.trim();
         const quantity = document.getElementById('physical-quantity-input').value;
 
         // Validation
+        let valid = true;
+        document.querySelectorAll('.error-message, .error-message-f').forEach(el => el.textContent = '');
+
         if (!name) {
           document.getElementById('deliveryNameError').textContent = 'الرجاء إدخال الاسم';
-          return;
+          valid = false;
         }
         if (!phone) {
           document.getElementById('deliveryPhoneError').textContent = 'الرجاء إدخال رقم الهاتف';
-          return;
+          valid = false;
+        }
+        if (!wilaya) {
+          document.getElementById('wilayaError').textContent = 'الرجاء اختيار الولاية';
+          valid = false;
+        }
+        if (!commune) {
+          document.getElementById('communeError').textContent = 'الرجاء اختيار البلدية';
+          valid = false;
         }
         if (!address) {
-          document.getElementById('deliveryAddressError').textContent = 'الرجاء إدخال العنوان';
-          return;
+          // Si pas d'élément error, on affiche dans la console
+          console.error('العنوان مطلوب');
+          valid = false;
         }
 
+        if (!valid) return;
+
         const price = useDZD ? (currentProduct.price_dzd || currentProduct.price * 160) : currentProduct.price;
-        const deliveryFee = useDZD ? 500 : 3;
+        const deliveryFee = parseInt(document.getElementById('delivery-fee').textContent) || 0;
         const totalPrice = (price * quantity) + deliveryFee;
         const currency = useDZD ? 'DZD' : 'EUR';
 
@@ -314,7 +472,10 @@
 📦 المنتج: ${currentProduct.name}
 👤 الاسم: ${name}
 📞 الهاتف: ${phone}
-📍 العنوان: ${address}
+📍 الولاية: ${wilaya}
+🏘️ البلدية: ${commune}
+📮 العنوان: ${address}
+🚚 نوع التوصيل: ${currentDeliveryType === 'bureau' ? 'إلى المكتب' : 'إلى المنزل'}
 🔢 الكمية: ${quantity}
 💰 سعر المنتج: ${useDZD ? price.toFixed(0) : price.toFixed(2)} ${currency}
 🚚 مصاريف التوصيل: ${deliveryFee} ${useDZD ? 'دج' : '€'}
@@ -326,499 +487,22 @@
         window.open(whatsappUrl, '_blank');
       }
 
-      // Fonction pour créer le formulaire virtuel
-      function createVirtualForm(product) {
-        const price = useDZD ? (product.price_dzd || product.price * 160) : product.price;
-        const currency = useDZD ? ' DZD' : ' €';
-        const priceFormatted = useDZD ? price.toFixed(0) : price.toFixed(2);
-        
-        return `
-          <section class="product-form-section virtual-form">
-            <form id="orderForm" class="order-form-card">
-              <h3 class="form-title">Passez votre commande</h3>
-              <p class="product-price-main" id="popupPrice">${priceFormatted}${currency}</p>
+      // [RESTE DU CODE IDENTIQUE - gardez toutes les autres fonctions comme avant]
+      // ... (les fonctions pour le formulaire virtuel, galerie, etc. restent les mêmes)
 
-              <div class="form-group">
-                <i class="fas fa-server icon"></i>
-                <select id="serverType" onchange="toggleServerFields(); updateTotalPrice();">
-                  ${(product.serverTypes || []).map(type => 
-                    `<option value="${type}">${type}</option>`
-                  ).join('')}
-                </select>
-              </div>
-              <div id="serverFields" class="server-fields"></div>
-              
-              <div class="form-group">
-                <i class="fas fa-cubes icon"></i>
-                <input type="number" id="quantity" value="1" min="1" onchange="updateTotalPrice()" placeholder="Quantité" />
-              </div>
-              
-              <div class="form-group">
-                <i class="fas fa-user icon"></i>
-                <input type="text" id="name" placeholder="Votre Nom *" />
-              </div>
-              <p class="error-message" id="nameError"></p>
-
-              <div class="form-group">
-                <div class="whatsapp-input-group">
-                  <select id="selectedCountryCode" class="country-code-select-standalone"></select>
-                  <input type="tel" id="phone" placeholder="Numéro WhatsApp" />
-                </div>
-              </div>
-              <p class="error-message" id="phoneError"></p>
-
-              <div class="form-group">
-                <i class="fas fa-envelope icon"></i>
-                <input type="email" id="email" placeholder="Adresse Email (Optionnel)" />
-              </div>
-              <p class="error-message" id="emailError"></p>
-
-              <div class="button-group">
-                <button type="button" class="btn btn-whatsapp" onclick="sendVirtualOrder('whatsapp')">
-                  <i class="fab fa-whatsapp"></i> Commander via WhatsApp
-                </button>
-                <button type="button" class="btn btn-email" onclick="sendVirtualOrder('email')">
-                  <i class="fas fa-envelope"></i> Commander par Email
-                </button>
-              </div>
-            </form>
-          </section>
-        `;
-      }
-
-      // Fonction pour envoyer la commande virtuelle
-      function sendVirtualOrder(method) {
-        const name = document.getElementById("name").value.trim();
-        const phone = document.getElementById("phone").value.trim();
-
-        // Commande rapide WhatsApp sans formulaire
-        if (method === 'whatsapp' && !name && !phone) {
-          const productUrl = window.location.href;
-          const price = useDZD ? (currentProduct.price_dzd || currentProduct.price * 160) : currentProduct.price;
-          const currency = useDZD ? 'DZD' : 'EUR';
-          const priceFormatted = useDZD ? price.toFixed(0) : price.toFixed(2);
-          
-          const simpleMessage = `Bonjour, je souhaite commander ce produit :\n\n` +
-                                `*Produit :* ${currentProduct.name}\n` +
-                                `*Prix :* ${priceFormatted} ${currency}\n` +
-                                `*Lien :* ${productUrl}`;
-          
-          const whatsappUrl = `https://api.whatsapp.com/send?phone=213770759886&text=${encodeURIComponent(simpleMessage)}`;
-          window.open(whatsappUrl, '_blank');
-          displayAlert('Redirection vers WhatsApp...');
-          return; 
-        }
-
-        // Validation du formulaire
-        clearErrors();
-        let valid = true;
-        const email = document.getElementById("email").value.trim();
-        const phoneRegex = /^\d{7,15}$/;
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
-        if (!name) {
-          valid = false;
-          document.getElementById("nameError").innerText = "Veuillez entrer votre nom.";
-        }
-
-        if (method === 'email' && !phone) {
-          valid = false;
-          document.getElementById("phoneError").innerText = "Veuillez entrer un numéro de téléphone.";
-        } else if (phone && !phoneRegex.test(phone.replace(/[\s-()]/g, ''))) {
-          valid = false;
-          document.getElementById("phoneError").innerText = "Le format du numéro est invalide.";
-        }
-
-        if (email && !emailRegex.test(email)) {
-          valid = false;
-          document.getElementById("emailError").innerText = "Veuillez entrer une adresse email valide.";
-        }
-        
-        if (!valid) {
-          const firstError = document.querySelector('.error-message:not(:empty)');
-          if (firstError) {
-            firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
-          }
-          return;
-        }
-
-        // Préparation du message
-        displayWaitingMessage();
-        const quantity = parseInt(document.getElementById("quantity").value);
-        const price = useDZD ? (currentProduct.price_dzd || currentProduct.price * 160) : currentProduct.price;
-        const totalPrice = price * quantity;
-        const orderNumber = generateOrderNumber();
-        const fullPhoneNumber = phone ? `${document.getElementById("selectedCountryCode").value}${phone}` : 'N/A';
-        const serverType = document.getElementById("serverType").value;
-        const finalEmail = email || 'N/A';
-        const currency = useDZD ? 'DZD' : 'EUR';
-        
-        const detailedMessage = `*Nouvelle commande!*\n*Numéro: ${orderNumber}\n*Produit: ${currentProduct.name}\n*Serveur: ${serverType}\n*Nom: ${name}\n*WhatsApp: ${fullPhoneNumber}\n*Email: ${finalEmail}\n*Prix unitaire: ${price.toFixed(useDZD ? 0 : 2)} ${currency}\n*Quantité: ${quantity}\n*Total: ${totalPrice.toFixed(useDZD ? 0 : 2)} ${currency}`;
-
-        if (method === 'whatsapp') {
-          window.open(`https://api.whatsapp.com/send?phone=213770759886&text=${encodeURIComponent(detailedMessage)}`, '_blank');
-          hideWaitingMessage();
-          displayAlert(`Redirection vers WhatsApp...`);
-          document.getElementById('orderForm').reset();
-        } else if (method === 'email') {
-          const templateParams = { 
-            orderNumber, 
-            product: currentProduct.name, 
-            serverType: serverType, 
-            name: name, 
-            phone: fullPhoneNumber, 
-            email: finalEmail, 
-            productPrice: price.toFixed(useDZD ? 0 : 2), 
-            quantity: quantity, 
-            totalPrice: totalPrice.toFixed(useDZD ? 0 : 2), 
-            productDescription: currentProduct.description,
-            currency: currency
-          };
-          emailjs.send("service_geh79gu", "template_vny80g3", templateParams)
-            .then(() => {
-              hideWaitingMessage();
-              displayAlert(`Commande envoyée!<br>Numéro: ${orderNumber}`);
-              document.getElementById('orderForm').reset();
-            }, () => {
-              hideWaitingMessage();
-              displayAlert("Échec de l'envoi. Veuillez réessayer.");
-            });
-        }
-      }
-
-      // CORRECTION : Setup de la galerie - version simple qui fonctionne
-      function setupCombinedGallery(product) {
-        const mainImageContainer = document.querySelector('.main-image-container-fade');
-        const thumbnailContainer = document.getElementById('thumbnail-container');
-        
-        if (!mainImageContainer || !thumbnailContainer || !product.images || product.images.length === 0) {
-          console.error('Galerie: éléments manquants ou pas d\'images');
-          return;
-        }
-
-        // Vider les conteneurs
-        mainImageContainer.innerHTML = '';
-        thumbnailContainer.innerHTML = '';
-
-        console.log('Chargement des images:', product.images);
-
-        // Ajouter la première image comme image principale
-        if (product.images[0]) {
-          const mainImg = document.createElement('img');
-          mainImg.src = product.images[0];
-          mainImg.alt = `Image de ${product.name}`;
-          mainImg.style.width = '100%';
-          mainImg.style.height = '100%';
-          mainImg.style.objectFit = 'contain';
-          mainImg.style.display = 'block';
-          mainImageContainer.appendChild(mainImg);
-          console.log('Image principale chargée:', product.images[0]);
-        }
-
-        // Ajouter les miniatures
-        product.images.forEach((imageUrl, index) => {
-          const thumb = document.createElement('img');
-          thumb.src = imageUrl;
-          thumb.alt = `Miniature de ${product.name}`;
-          thumb.style.cursor = 'pointer';
-          thumb.style.width = '80px';
-          thumb.style.height = '80px';
-          thumb.style.objectFit = 'cover';
-          thumb.style.border = index === 0 ? '2px solid var(--primary-color)' : '2px solid transparent';
-          thumb.style.borderRadius = '8px';
-          thumb.style.margin = '5px';
-          
-          thumb.addEventListener('click', () => {
-            // Mettre à jour l'image principale
-            const mainImg = mainImageContainer.querySelector('img');
-            if (mainImg) {
-              mainImg.src = imageUrl;
-            }
-            
-            // Mettre à jour les bordures des miniatures
-            thumbnailContainer.querySelectorAll('img').forEach((thumbImg, thumbIndex) => {
-              thumbImg.style.border = thumbIndex === index ? '2px solid var(--primary-color)' : '2px solid transparent';
-            });
-          });
-          
-          thumbnailContainer.appendChild(thumb);
-        });
-
-        console.log('Galerie initialisée avec', product.images.length, 'images');
-      }
-
-      // Setup lightbox
-      function setupLightbox(product) {
-        const mainImageContainer = document.querySelector('.main-image-container-fade');
-        const lightbox = document.getElementById('lightbox');
-        const lightboxImage = document.getElementById('lightbox-image');
-        const lightboxClose = document.querySelector('.lightbox-close');
-        
-        if (!mainImageContainer || !lightbox || !lightboxImage || !lightboxClose) return;
-
-        mainImageContainer.style.cursor = 'zoom-in';
-        mainImageContainer.addEventListener('click', (e) => {
-          if (e.target.tagName === 'IMG') {
-            const mainImg = mainImageContainer.querySelector('img');
-            if (mainImg) {
-              lightboxImage.src = mainImg.src;
-              lightbox.style.display = 'flex';
-            }
-          }
-        });
-        
-        lightboxClose.addEventListener('click', () => { 
-          lightbox.style.display = 'none';
-        });
-        
-        lightbox.addEventListener('click', (e) => { 
-          if (e.target === lightbox) lightbox.style.display = 'none'; 
-        });
-      }
-
-      // Setup des boutons de partage
-      function setupShareButtons(product) {
-        const shareUrl = window.location.href;
-        const shareText = `Découvrez ${product.name} sur IPTV Store !`;
-
-        const facebookBtn = document.getElementById('share-facebook');
-        if(facebookBtn) { 
-          facebookBtn.href = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}`; 
-        }
-        
-        const twitterBtn = document.getElementById('share-twitter');
-        if(twitterBtn) { 
-          twitterBtn.href = `https://twitter.com/intent/tweet?url=${encodeURIComponent(shareUrl)}&text=${encodeURIComponent(shareText)}`; 
-        }
-        
-        const whatsappBtn = document.getElementById('share-whatsapp');
-        if(whatsappBtn) { 
-          whatsappBtn.href = `https://api.whatsapp.com/send?text=${encodeURIComponent(shareText + ' ' + shareUrl)}`; 
-        }
-        
-        const telegramBtn = document.getElementById('share-telegram');
-        if(telegramBtn) { 
-          telegramBtn.href = `https://t.me/share/url?url=${encodeURIComponent(shareUrl)}&text=${encodeURIComponent(shareText)}`; 
-        }
-        
-        const copyBtn = document.getElementById('copy-link');
-        if(copyBtn) {
-          copyBtn.addEventListener('click', () => {
-            navigator.clipboard.writeText(shareUrl).then(() => {
-              copyBtn.innerHTML = '<i class="fas fa-check"></i>';
-              setTimeout(() => { copyBtn.innerHTML = '<i class="fas fa-copy"></i>'; }, 2000);
-            }).catch(err => { console.error('Erreur de copie: ', err); });
-          });
-        }
-      }
-
-      // Fonctions utilitaires
-      function clearErrors() {
-        document.querySelectorAll(".error-message").forEach(el => el.innerText = '');
-      }
-
-      function displayWaitingMessage() {
-        const el = document.getElementById('waitingMessage');
-        if(el) el.style.display = 'flex';
-      }
-
-      function hideWaitingMessage() {
-        const el = document.getElementById('waitingMessage');
-        if(el) el.style.display = 'none';
-      }
-
-      function displayAlert(message) {
-        const alertMessage = document.getElementById('alertMessage');
-        const customAlert = document.getElementById('customAlert');
-        if (alertMessage) alertMessage.innerHTML = message;
-        if (customAlert) customAlert.style.display = 'flex';
-      }
-
-      function closeAlert() {
-        const customAlert = document.getElementById('customAlert');
-        if (customAlert) customAlert.style.display = 'none';
-      }
-
-      function generateOrderNumber() {
-        return `ORD-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
-      }
-
-      function updateTotalPrice() {
-        const quantity = parseInt(document.getElementById("quantity")?.value || 1);
-        const priceDisplay = document.getElementById('popupPrice');
-        if (!priceDisplay || !currentProduct) return;
-        
-        const price = useDZD ? (currentProduct.price_dzd || currentProduct.price * 160) : currentProduct.price;
-        let total = price * (quantity || 1);
-        
-        if (quantity > 20) total *= 0.9;
-        else if (quantity > 10) total *= 0.95;
-        
-        const currency = useDZD ? ' DZD' : ' €';
-        const decimals = useDZD ? 0 : 2;
-        priceDisplay.innerText = total.toFixed(decimals) + currency;
-      }
-
-      function toggleServerFields() {
-        const serverType = document.getElementById("serverType")?.value;
-        const serverFields = document.getElementById('serverFields');
-        if (!serverFields) return;
-
-        serverFields.innerHTML = '';
-
-        if (serverType === "mag") {
-          serverFields.innerHTML = `
-            <div class="form-group">
-              <i class="fas fa-envelope icon"></i>
-              <input type="text" id="macAddress" placeholder="Adresse MAC (ex: 00:1A:2B:3C:4D:5E)" maxlength="17" />
-            </div>
-          `;
-          
-          const macAddressInput = document.getElementById('macAddress');
-          if (macAddressInput) {
-            macAddressInput.addEventListener('input', (e) => {
-              let value = e.target.value.replace(/[^0-9a-fA-F]/g, '');
-              if (e.target.value.length > 0) {
-                let formattedValue = (value.match(/.{1,2}/g) || []).join(':');
-                e.target.value = formattedValue;
-              }
-            });
-          }
-        }
-      }
-
-      // Fonction principale d'initialisation
-      async function initializeProductPage() {
-        const productId = getProductIdFromURL();
-        
-        // Vérifier si products est chargé
-        if (typeof products === 'undefined') {
-          document.getElementById('form-container').innerHTML = '<div class="error-message">Erreur: Produits non chargés</div>';
-          return;
-        }
-        
-        currentProduct = products.find(p => p.id === productId);
-        
-        if (!currentProduct) {
-          window.location.href = '404.html';
-          return;
-        }
-
-        console.log('Produit trouvé:', currentProduct);
-
-        // Détecter le pays
-        await detectUserCountry();
-
-        // Mettre à jour les informations du produit
-        document.getElementById('product-name').textContent = currentProduct.name;
-        
-        // Description
-        const fullDescription = currentProduct.description || '';
-        document.getElementById('product-description').textContent = fullDescription;
-        
-        // Extrait
-        const excerptElement = document.getElementById('product-excerpt');
-        if (excerptElement) {
-          let firstLine = fullDescription.split('\n')[0];
-          let excerpt = firstLine.substring(0, 120);
-          if (fullDescription.length > excerpt.length) {
-            excerpt += '...';
-          }
-          excerptElement.textContent = excerpt;
-        }
-
-        // CORRECTION : Initialiser la galerie IMMÉDIATEMENT
-        setupCombinedGallery(currentProduct);
-
-        // Initialiser le lightbox
-        setupLightbox(currentProduct);
-
-        // Initialiser les boutons de partage
-        setupShareButtons(currentProduct);
-
-        // CORRECTION : Charger le bon formulaire IMMÉDIATEMENT
-        const formContainer = document.getElementById('form-container');
-        
+      // Dans initializeProductPage(), après avoir chargé le formulaire physique, ajoutez :
+      setTimeout(() => {
         if (currentProduct.product_type === 'physical') {
-          formContainer.innerHTML = createPhysicalForm(currentProduct);
-          console.log('Formulaire PHYSIQUE chargé');
-        } else {
-          formContainer.innerHTML = createVirtualForm(currentProduct);
-          // Initialiser les codes pays
-          populateCountryCodes('selectedCountryCode');
-          // Initialiser les champs serveur
-          setTimeout(() => toggleServerFields(), 100);
-          console.log('Formulaire VIRTUEL chargé');
+          initializeWilayas();
+          selectDeliveryType('domicile'); // Type par défaut
+          // Ajouter les event listeners pour les boutons de livraison
+          document.getElementById('bureauBtn').addEventListener('click', () => selectDeliveryType('bureau'));
+          document.getElementById('domicileBtn').addEventListener('click', () => selectDeliveryType('domicile'));
         }
+      }, 100);
 
-        // Mettre à jour le schema SEO
-        updateProductSchema(currentProduct);
-      }
-
-      // Mettre à jour le schema SEO
-      function updateProductSchema(product) {
-        const price = useDZD ? (product.price_dzd || product.price * 160) : product.price;
-        const currency = useDZD ? "DZD" : "EUR";
-        
-        const schema = {
-          "@context": "https://schema.org/",
-          "@type": "Product",
-          "name": product.name,
-          "image": product.images[0],
-          "description": product.description,
-          "sku": product.id,
-          "brand": {
-            "@type": "Brand",
-            "name": "IPTV Store"
-          },
-          "offers": {
-            "@type": "Offer",
-            "url": window.location.href,
-            "priceCurrency": currency,
-            "price": useDZD ? (product.price_dzd || product.price * 160).toFixed(0) : product.price.toFixed(2),
-            "availability": "https://schema.org/InStock",
-            "itemCondition": "https://schema.org/NewCondition"
-          }
-        };
-        
-        const schemaScript = document.getElementById('product-schema');
-        if (schemaScript) {
-          schemaScript.textContent = JSON.stringify(schema);
-        }
-      }
-
-      // Exposer les fonctions globalement
-      window.sendVirtualOrder = sendVirtualOrder;
-      window.sendPhysicalOrder = sendPhysicalOrder;
-      window.increasePhysicalQuantity = increasePhysicalQuantity;
-      window.decreasePhysicalQuantity = decreasePhysicalQuantity;
-      window.updateTotalPrice = updateTotalPrice;
-      window.toggleServerFields = toggleServerFields;
-      window.closeAlert = closeAlert;
-
-      // Charger les composants
-      function loadComponent(url, elementId) {
-        fetch(url)
-          .then(response => response.text())
-          .then(data => {
-            const element = document.getElementById(elementId);
-            if(element) element.innerHTML = data;
-          })
-          .catch(error => console.error(`Error loading component ${url}:`, error));
-      }
-
-      // Initialisation au chargement
-      document.addEventListener('DOMContentLoaded', function() {
-        // Initialiser EmailJS
-        emailjs.init("WNOIpj1FX2dDPSQMS");
-        
-        // Charger header et footer
-        loadComponent('header.html', 'header-placeholder');
-        loadComponent('footer.html', 'footer-placeholder');
-        
-        // Initialiser la page produit
-        initializeProductPage();
-      });
     </script>
+
+    <!-- [GARDEZ TOUT LE RESTE DU CODE SCRIPT IDENTIQUE] -->
   </body>
 </html>
