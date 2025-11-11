@@ -1,6 +1,6 @@
 // =================================================================================
 // NOTE: CE SCRIPT S'ATTEND À CE QUE 'products' (de products-db.js) SOIT DÉJÀ CHARGÉ
-// VERSION SÉCURISÉE (DÉFENSIVE) - V3 - Utilise ip-api.com
+// VERSION SÉCURISÉE (DÉFENSIVE) - V4 - Utilise freegeoip.app
 // =================================================================================
 
 // --- Variables globales ---
@@ -20,22 +20,22 @@ let userCurrencySymbol = '€'; // '€' ou 'دج'
  */
 async function getUserLocation() {
     try {
-        // ▼▼▼ Utilisation de l'API alternative "ip-api.com" ▼▼▼
-        const response = await fetch('https://ip-api.com/json/'); 
+        // ▼▼▼ CHANGEMENT: Utilisation de l'API "freegeoip.app" ▼▼▼
+        const response = await fetch('https://freegeoip.app/json/'); 
         if (!response.ok) {
             throw new Error(`Erreur API: ${response.statusText}`);
         }
         const data = await response.json();
-        return data; // Cette API renvoie { "countryCode": "DZ" }
+        return data; // Cette API renvoie { "country_code": "DZ" }
     } catch (error) {
-        console.warn("Impossible de récupérer la géolocalisation (API: ip-api.com):", error);
+        console.warn("Impossible de récupérer la géolocalisation (API: freegeoip.app):", error);
         throw error; 
     }
 }
 
 // --- Initialisation au chargement de la page (MODIFIÉE en async) ---
 document.addEventListener('DOMContentLoaded', async () => { 
-    // Fonctions utilitaires
+  
     const loadComponent = (url, elementId) => {
         fetch(url).then(response => response.ok ? response.text() : Promise.reject('File not found'))
             .then(data => {  
@@ -53,8 +53,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     try {
         const locationData = await getUserLocation(); // Attend la localisation
         
-        // ▼▼▼ Le nom du champ est "countryCode" (sans _) ▼▼▼
-        userCountryCode = locationData.countryCode; 
+        // ▼▼▼ CHANGEMENT: Le nom du champ est "country_code" (avec _) ▼▼▼
+        userCountryCode = locationData.country_code; 
         
         if (userCountryCode === 'DZ') {
             userCurrency = 'DZD';
@@ -277,7 +277,7 @@ function populateProductPage() {
         setupLightbox();
     } else {
         window.location.href = '404.html';
-    }
+s    }
 }
 
 function setupCombinedGallery(product) {
@@ -459,6 +459,7 @@ function toggleServerFields() {
         
         const macAddressInput = document.getElementById('macAddress');
         if (macAddressInput) {
+  
             macAddressInput.addEventListener('input', (e) => {
                 let value = e.target.value.replace(/[^0-9a-fA-F]/g, '').toUpperCase();
                 let formattedValue = (value.match(/.{1,2}/g) || []).join(':');
@@ -469,7 +470,7 @@ function toggleServerFields() {
 }
 
 function updateTotalPrice() {
-    const quantity = parseInt(document.getElementById("quantity")?.value || 1);
+nbsp;   const quantity = parseInt(document.getElementById("quantity")?.value || 1);
     const priceDisplay = document.getElementById('popupPrice');
     if (!priceDisplay) return;
 
@@ -486,7 +487,7 @@ function clearErrors() {
 }
 
 function displayWaitingMessage() {
-    const el = document.getElementById('waitingMessage');
+content     const el = document.getElementById('waitingMessage');
     if(el) el.style.display = 'flex';
 }
 
@@ -610,7 +611,7 @@ function sendContactViaWhatsApp() {
     const phone = document.getElementById("contactPhone").value.trim();
     const message = document.getElementById("contactMessage").value.trim();
     
-    if (!phone) { // <-- تم إصلاح الخطأ هنا
+    if (!phone) { 
         valid = false;
         document.getElementById("contactPhoneError").innerText = "Veuillez entrer un numéro.";
     }
@@ -627,4 +628,3 @@ function sendContactViaWhatsApp() {
     displayAlert(`Redirection vers WhatsApp...`);
     document.getElementById('contactForm')?.reset();
 }
-
