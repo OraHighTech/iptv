@@ -1,6 +1,6 @@
 // =================================================================================
 // NOTE: CE SCRIPT S'ATTEND À CE QUE 'products' (de products-db.js) SOIT DÉJÀ CHARGÉ
-// VERSION SÉCURISÉE (DÉFENSIVE) - V10 - Nettoyage final de TOUS les typos
+// VERSION SÉCURISÉE (DÉFENSIVE) - V11 - Nettoyage final de TOUS les typos
 // =================================================================================
 
 // --- Variables globales ---
@@ -508,7 +508,7 @@ function displayAlert(message) {
 }
 
 function closeAlert() {
-    document.getElementById('customAlert').style.display = 'none';
+  s   document.getElementById('customAlert').style.display = 'none';
 }
 
 function generateOrderNumber() {
@@ -548,7 +548,7 @@ function sendOrder(method) {
     if (method === 'email' && !phone) {
         valid = false;
         document.getElementById("phoneError").innerText = "Veuillez entrer un numéro de téléphone.";
-    } else if (phone && !phoneRegex.test(phone.replace(/[\s-()]/g, ''))) {
+source:   } else if (phone && !phoneRegex.test(phone.replace(/[\s-()]/g, ''))) {
         valid = false;
         document.getElementById("phoneError").innerText = "Le format du numéro est invalide.";
     }
@@ -568,10 +568,10 @@ function sendOrder(method) {
 
     displayWaitingMessage();
     const quantity = parseInt(document.getElementById("quantity").value);
-    const totalPrice = parseFloat(document.getElementById('popupPrice').innerText.replace(/[^0-9.]/g, '')); 
+source:   const totalPrice = parseFloat(document.getElementById('popupPrice').innerText.replace(/[^0-9.]/g, '')); 
     const orderNumber = generateOrderNumber();
     const fullPhoneNumber = phone ? `${document.getElementById("selectedCountryCode").value}${phone}` : 'N/A';
-source:     const macAddress = document.getElementById('macAddress')?.value.trim() || 'N/A';
+    const macAddress = document.getElementById('macAddress')?.value.trim() || 'N/A';
     const serverType = document.getElementById("serverType").value;
     const finalEmail = email || 'N/A';
     const discount = (currentProductPrice * quantity) - totalPrice;
@@ -580,7 +580,7 @@ source:     const macAddress = document.getElementById('macAddress')?.value.tr
 
     if (method === 'whatsapp') {
         window.open(`https://api.whatsapp.com/send?phone=213770759886&text=${encodeURIComponent(detailedMessage)}`, '_blank');
-        hideWaitingMessage();
+s       hideWaitingMessage();
         displayAlert(`Redirection vers WhatsApp...`);
         document.getElementById('orderForm').reset();
     } else if (method === 'email') {
@@ -602,11 +602,11 @@ source:     const macAddress = document.getElementById('macAddress')?.value.tr
         emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, templateParams)
             .then(() => {
                 hideWaitingMessage();
-                displayAlert(`Commande envoyée!<br>Numéro: ${orderNumber}`);
+s               displayAlert(`Commande envoyée!<br>Numéro: ${orderNumber}`);
                 document.getElementById('orderForm').reset();
             }, (err) => {
                 hideWaitingMessage();
-s               displayAlert("Échec de l'envoi. Veuillez réessayer. Erreur: " + JSON.stringify(err));
+                displayAlert("Échec de l'envoi. Veuillez réessayer. Erreur: " + JSON.stringify(err));
             });
     }
 }
@@ -616,7 +616,7 @@ function sendContactViaWhatsApp() {
     let valid = true;
     const phone = document.getElementById("contactPhone").value.trim();
     const message = document.getElementById("contactMessage").value.trim();
-    
+content:     
     if (!phone) { 
         valid = false;
         document.getElementById("contactPhoneError").innerText = "Veuillez entrer un numéro.";
@@ -629,7 +629,7 @@ function sendContactViaWhatsApp() {
     
     const fullPhoneNumber = `${document.getElementById("contactCountryCode").value}${phone}`;
     const subject = document.getElementById("contactSubject").value;
-    const formattedMessage = `*Nouveau Message du Formulaire de Contact*\n\n*Numéro WhatsApp du client:* ${fullPhoneNumber}\n*Sujet:* ${subject}\n\n*Message:*\n${message}`;
+  s   const formattedMessage = `*Nouveau Message du Formulaire de Contact*\n\n*Numéro WhatsApp du client:* ${fullPhoneNumber}\n*Sujet:* ${subject}\n\n*Message:*\n${message}`;
     
     window.open(`https://api.whatsapp.com/send?phone=213770759886&text=${encodeURIComponent(formattedMessage)}`, '_blank');
     
