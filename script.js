@@ -609,7 +609,8 @@ function sendContactViaWhatsApp() {
     let valid = true;
     const phone = document.getElementById("contactPhone").value.trim();
     const message = document.getElementById("contactMessage").value.trim();
-a    if (!phone) {
+    
+    if (!phone) { // <-- تم إصلاح الخطأ هنا
         valid = false;
         document.getElementById("contactPhoneError").innerText = "Veuillez entrer un numéro.";
     }
@@ -626,3 +627,4 @@ a    if (!phone) {
     displayAlert(`Redirection vers WhatsApp...`);
     document.getElementById('contactForm')?.reset();
 }
+
