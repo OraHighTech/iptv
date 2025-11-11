@@ -1,6 +1,6 @@
 // =================================================================================
 // NOTE: CE SCRIPT S'ATTEND À CE QUE 'products' (de products-db.js) SOIT DÉJÀ CHARGÉ
-// VERSION SÉCURISÉE (DÉFENSIVE) - V5 - (Code nettoyé des typos)
+// VERSION SÉCURISÉE (DÉFENSIVE) - V6 - Nettoyage final des typos
 // =================================================================================
 
 // --- Variables globales ---
@@ -291,7 +291,7 @@ function setupCombinedGallery(product) {
 
     product.images.forEach(imageUrl => {
         const mainImg = document.createElement('img');
-        mainImg.src = imageUrl;
+  _       mainImg.src = imageUrl;
         mainImg.alt = `Image de ${product.name}`;
         mainImageContainer.appendChild(mainImg);
 
@@ -342,7 +342,7 @@ function setupCombinedGallery(product) {
         nextBtn.innerHTML = '&#10095;';
         nextBtn.className = 'carousel-button next';
         nextBtn.style.display = 'block';
-      _nextBtn.addEventListener('click', (e) => {
+        nextBtn.addEventListener('click', (e) => {
             e.stopPropagation();
             const newIndex = (currentImageIndex + 1) % totalImages;
             updateGallery(newIndex);
@@ -549,7 +549,7 @@ function sendOrder(method) {
     if (email && !emailRegex.test(email)) {
         valid = false;
         document.getElementById("emailError").innerText = "Veuillez entrer une adresse email valide.";
-C    }
+    }
     
     if (!valid) {
         const firstError = document.querySelector('.error-message:not(:empty)');
@@ -576,7 +576,7 @@ C    }
         hideWaitingMessage();
         displayAlert(`Redirection vers WhatsApp...`);
         document.getElementById('orderForm').reset();
-    } else if (method === 'email') {
+s    } else if (method === 'email') {
         const templateParams = { 
             orderNumber, 
             product: currentProductName, 
@@ -622,7 +622,7 @@ function sendContactViaWhatsApp() {
     
     const fullPhoneNumber = `${document.getElementById("contactCountryCode").value}${phone}`;
     const subject = document.getElementById("contactSubject").value;
-  S   const formattedMessage = `*Nouveau Message du Formulaire de Contact*\n\n*Numéro WhatsApp du client:* ${fullPhoneNumber}\n*Sujet:* ${subject}\n\n*Message:*\n${message}`;
+    const formattedMessage = `*Nouveau Message du Formulaire de Contact*\n\n*Numéro WhatsApp du client:* ${fullPhoneNumber}\n*Sujet:* ${subject}\n\n*Message:*\n${message}`;
     window.open(`https://api.whatsapp.com/send?phone=213770759886&text=${encodeURIComponent(formattedMessage)}`, '_blank');
     displayAlert(`Redirection vers WhatsApp...`);
     document.getElementById('contactForm')?.reset();
