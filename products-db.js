@@ -190,7 +190,7 @@ const products = [
         "images": [
             "https://www.iptv-store.shop/img/GOGO.png"
         ]
-    }
+    },
 	{
         "id": "DECODEUR_TV",
         "name": "Décodeur TV", 
