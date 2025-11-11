@@ -1,6 +1,6 @@
 // =================================================================================
 // NOTE: CE SCRIPT S'ATTEND À CE QUE 'products' (de products-db.js) SOIT DÉJÀ CHARGÉ
-// VERSION SÉCURISÉE (DÉFENSIVE) - V8 - Nettoyage final de tous les typos
+// VERSION SÉCURISÉE (DÉFENSIVE) - V9 - Utilise ipdata.co avec une clé API
 // =================================================================================
 
 // --- Variables globales ---
@@ -9,6 +9,9 @@ const EMAILJS_SERVICE_ID = "service_geh79gu", EMAILJS_TEMPLATE_ID = "template_vn
 let currentPage = 1, productsPerPage = 8, currentCategory = 'All';
 let currentImageIndex = 0; 
 let galleryInterval = null; 
+
+// --- ▼▼▼ (1) ضع مفتاح API الخاص بك هنا ▼▼▼ ---
+const IPDATA_API_KEY = "YOUR_API_KEY_HERE"; // <-- الصق مفتاحك من موقع ipdata.co هنا
 
 // --- Variables Géo-Prix ---
 let userCountryCode = null; // "DZ", "FR", etc.
@@ -20,15 +23,19 @@ let userCurrencySymbol = '€'; // '€' ou 'دج'
  */
 async function getUserLocation() {
     try {
-        // ▼▼▼ Utilisation de l'API "freegeoip.app" ▼▼▼
-        const response = await fetch('https://freegeoip.app/json/'); 
+        // ▼▼▼ (2) استخدام API جديد مع المفتاح ▼▼▼
+        if (!IPDATA_API_KEY || IPDATA_API_KEY === "YOUR_API_KEY_HERE") {
+            throw new Error("Clé API ipdata.co manquante.");
+        }
+        const response = await fetch('https://api.ipdata.co?api-key=' + IPDATA_API_KEY); 
+        
         if (!response.ok) {
             throw new Error(`Erreur API: ${response.statusText}`);
         }
         const data = await response.json();
         return data; // Cette API renvoie { "country_code": "DZ" }
     } catch (error) {
-        console.warn("Impossible de récupérer la géolocalisation (API: freegeoip.app):", error);
+        console.warn("Impossible de récupérer la géolocalisation (API: ipdata.co):", error);
         throw error; 
     }
 }
@@ -53,7 +60,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     try {
         const locationData = await getUserLocation(); // Attend la localisation
         
-        // ▼▼▼ Le nom du champ est "country_code" (avec _) ▼▼▼
+        // ▼▼▼ (3) اسم الحقل هو "country_code" (يعمل مع ipdata) ▼▼▼
         userCountryCode = locationData.country_code; 
         
         if (userCountryCode === 'DZ') {
@@ -267,7 +274,7 @@ function populateProductPage() {
                 navigator.clipboard.writeText(shareUrl).then(() => {
                     copyBtn.innerHTML = '<i class="fas fa-check"></i>';
                     setTimeout(() => { copyBtn.innerHTML = '<i class="fas fa-copy"></i>'; }, 2000);
-                }).catch(err => { console.error('Erreur de copie: ', err); });
+D               }).catch(err => { console.error('Erreur de copie: ', err); });
             });
         }
 
@@ -454,7 +461,7 @@ function toggleServerFields() {
     if (serverType === "mag") {
         serverFields.innerHTML = `<br><div class="form-group">
                                       <i class="fas fa-network-wired icon"></i>
-                                      <input type="text" id="macAddress" placeholder="Ex: 00:1A:2B:3C:4D:5E" maxlength="17">
+nbsp;                               <input type="text" id="macAddress" placeholder="Ex: 00:1A:2B:3C:4D:5E" maxlength="17">
                                   </div>`;
         
         const macAddressInput = document.getElementById('macAddress');
@@ -622,9 +629,9 @@ function sendContactViaWhatsApp() {
     
     const fullPhoneNumber = `${document.getElementById("contactCountryCode").value}${phone}`;
     const subject = document.getElementById("contactSubject").value;
-    const formattedMessage = `*Nouveau Message du Formulaire de Contact*\n\n*Numéro WhatsApp du client:* ${fullPhoneNumber}\n*Sujet:* ${subject}\n\n*Message:*\n${message}`;
-    
-    // ▼▼▼ هذا هو السطر الذي تم إصلاحه (تمت إزالة الحرف 'S') ▼▼▼
+  s   const formattedMessage = `*Nouveau Message du Formulaire de Contact*\n\n*Numéro WhatsApp du client:* ${fullPhoneNumber}\n*Sujet:* ${subject}\n\n*Message:*\n${message}`;
+    
+    // ▼▼▼ هذا هو السطر الذي تم إصلاحه (تمت إزالة الحرف 'S' وكل شيء آخر) ▼▼▼
     window.open(`https://api.whatsapp.com/send?phone=213770759886&text=${encodeURIComponent(formattedMessage)}`, '_blank');
     
     displayAlert(`Redirection vers WhatsApp...`);
