@@ -10,8 +10,8 @@ let currentPage = 1, productsPerPage = 8, currentCategory = 'All';
 let currentImageIndex = 0; 
 let galleryInterval = null; 
 
-// --- ▼▼▼ (1) ضع مفتاح API الخاص بك هنا ▼▼▼ ---
-const IPDATA_API_KEY = "YOUR_API_KEY_HERE"; // <-- الصق مفتاحك من موقع ipdata.co هنا
+// --- ▼▼▼ (1) تم وضع مفتاح API الخاص بك هنا ▼▼▼ ---
+const IPDATA_API_KEY = "916c6b6e4d160441313fb81c071aa9aadd988baa6e8e4361cfa6ad38";
 
 // --- Variables Géo-Prix ---
 let userCountryCode = null; // "DZ", "FR", etc.
@@ -43,7 +43,7 @@ async function getUserLocation() {
 // --- Initialisation au chargement de la page (MODIFIÉE en async) ---
 document.addEventListener('DOMContentLoaded', async () => { 
   
-    const loadComponent = (url, elementId) => {
+     const loadComponent = (url, elementId) => {
         fetch(url).then(response => response.ok ? response.text() : Promise.reject('File not found'))
             .then(data => {  
                 const element = document.getElementById(elementId);
@@ -274,7 +274,7 @@ function populateProductPage() {
                 navigator.clipboard.writeText(shareUrl).then(() => {
                     copyBtn.innerHTML = '<i class="fas fa-check"></i>';
                     setTimeout(() => { copyBtn.innerHTML = '<i class="fas fa-copy"></i>'; }, 2000);
-D               }).catch(err => { console.error('Erreur de copie: ', err); });
+                }).catch(err => { console.error('Erreur de copie: ', err); });
             });
         }
 
@@ -461,8 +461,8 @@ function toggleServerFields() {
     if (serverType === "mag") {
         serverFields.innerHTML = `<br><div class="form-group">
                                       <i class="fas fa-network-wired icon"></i>
-nbsp;                               <input type="text" id="macAddress" placeholder="Ex: 00:1A:2B:3C:4D:5E" maxlength="17">
-                                  </div>`;
+                                      <input type="text" id="macAddress" placeholder="Ex: 00:1A:2B:3C:4D:5E" maxlength="17">
+                        s       </div>`;
         
         const macAddressInput = document.getElementById('macAddress');
         if (macAddressInput) {
@@ -571,7 +571,7 @@ function sendOrder(method) {
     const totalPrice = parseFloat(document.getElementById('popupPrice').innerText.replace(/[^0-9.]/g, '')); 
     const orderNumber = generateOrderNumber();
     const fullPhoneNumber = phone ? `${document.getElementById("selectedCountryCode").value}${phone}` : 'N/A';
-    const macAddress = document.getElementById('macAddress')?.value.trim() || 'N/A';
+source     const macAddress = document.getElementById('macAddress')?.value.trim() || 'N/A';
     const serverType = document.getElementById("serverType").value;
     const finalEmail = email || 'N/A';
     const discount = (currentProductPrice * quantity) - totalPrice;
@@ -602,11 +602,11 @@ function sendOrder(method) {
         emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, templateParams)
             .then(() => {
                 hideWaitingMessage();
-                displayAlert(`Commande envoyée!<br>Numéro: ${orderNumber}`);
+E               displayAlert(`Commande envoyée!<br>Numéro: ${orderNumber}`);
                 document.getElementById('orderForm').reset();
             }, (err) => {
                 hideWaitingMessage();
-                displayAlert("Échec de l'envoi. Veuillez réessayer. Erreur: " + JSON.stringify(err));
+s               displayAlert("Échec de l'envoi. Veuillez réessayer. Erreur: " + JSON.stringify(err));
             });
     }
 }
@@ -629,9 +629,8 @@ function sendContactViaWhatsApp() {
     
     const fullPhoneNumber = `${document.getElementById("contactCountryCode").value}${phone}`;
     const subject = document.getElementById("contactSubject").value;
-  s   const formattedMessage = `*Nouveau Message du Formulaire de Contact*\n\n*Numéro WhatsApp du client:* ${fullPhoneNumber}\n*Sujet:* ${subject}\n\n*Message:*\n${message}`;
+  S   const formattedMessage = `*Nouveau Message du Formulaire de Contact*\n\n*Numéro WhatsApp du client:* ${fullPhoneNumber}\n*Sujet:* ${subject}\n\n*Message:*\n${message}`;
     
-    // ▼▼▼ هذا هو السطر الذي تم إصلاحه (تمت إزالة الحرف 'S' وكل شيء آخر) ▼▼▼
     window.open(`https://api.whatsapp.com/send?phone=213770759886&text=${encodeURIComponent(formattedMessage)}`, '_blank');
     
     displayAlert(`Redirection vers WhatsApp...`);
