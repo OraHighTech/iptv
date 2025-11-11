@@ -1,108 +1,21 @@
-// --- Variables globales ---
-let currentProductPrice = 0, currentProductPriceDZD = 0, currentProductName = "", currentProductDescription = "";
-let userCountry = 'FR'; // Par défaut
-let useDZD = false;
-
-// --- Au début de DOMContentLoaded, ajouter la détection de pays ---
-document.addEventListener('DOMContentLoaded', () => {
-    // Détection du pays
-    detectUserCountry();
-    
-    // Le reste de votre code existant...
-});
-
-// --- Fonction de détection de pays ---
-async function detectUserCountry() {
-    try {
-        const response = await fetch('https://ipapi.co/json/');
-        const data = await response.json();
-        userCountry = data.country_code;
-        useDZD = (userCountry === 'DZ'); // Algérie
-        console.log(`Pays détecté: ${userCountry}, utilisation DZD: ${useDZD}`);
-    } catch (error) {
-        console.error('Erreur détection pays:', error);
-        // Fallback: utiliser EUR par défaut
-        useDZD = false;
-    }
-}
-
-// --- Modifier displayProducts() pour afficher le bon prix ---
-function generateProductCards(productsToDisplay) {
-    const grid = document.querySelector('.products-grid');
-    if (!grid) return;
-    grid.innerHTML = '';
-    
-    productsToDisplay.forEach(product => {
-        const firstImage = product.images?.[0] || '';
-        const price = useDZD ? (product.price_dzd || product.price * 160) : product.price;
-        const currency = useDZD ? ' DZD' : ' €';
-        
-        grid.innerHTML += `
-            <a href="product.html?id=${product.id}" class="product-card-link">
-                <div class="product-card">
-                    <div class="product-image-wrapper">
-                        <img src="${firstImage}" alt="${product.name}" class="product-image" loading="lazy">
-                        <div class="price-badge">${price.toFixed(useDZD ? 0 : 2)}${currency}</div>
-                    </div>
-                    <div class="product-footer">
-                        <h2 class="product-name">${product.name}</h2>
-                    </div>
-                </div>
-            </a>`;
-    });
-}
-
-// --- Modifier initializeProductForm() ---
-function initializeProductForm(product) {
-    currentProductName = product.name;
-    currentProductPrice = product.price;
-    currentProductPriceDZD = product.price_dzd || product.price * 160; // Fallback si price_dzd non défini
-    currentProductDescription = product.description;
-    
-    // Le reste de votre code existant...
-    updateTotalPrice(); // Cette fonction doit être mise à jour aussi
-}
-
-// --- Modifier updateTotalPrice() ---
-function updateTotalPrice() {
-    const quantity = parseInt(document.getElementById("quantity")?.value || 1);
-    const priceDisplay = document.getElementById('popupPrice');
-    if (!priceDisplay) return;
-    
-    const basePrice = useDZD ? currentProductPriceDZD : currentProductPrice;
-    let total = basePrice * (quantity || 1);
-    
-    if (quantity > 20) total *= 0.9;
-    else if (quantity > 10) total *= 0.95;
-    
-    const currency = useDZD ? ' DZD' : ' €';
-    const decimals = useDZD ? 0 : 2;
-    priceDisplay.innerText = total.toFixed(decimals) + currency;
-}
-
-// --- Modifier sendOrder() pour inclure la devise ---
-function sendOrder(method) {
-    // ... code existant ...
-    
-    const basePrice = useDZD ? currentProductPriceDZD : currentProductPrice;
-    const currency = useDZD ? 'DZD' : 'EUR';
-    const discount = (basePrice * quantity) - totalPrice;
-    
-    const formattedMessage = `*Nouvelle commande!*\n*Numéro: ${orderNumber}\n*Produit: ${currentProductName}\n*Devise: ${currency}\n*Serveur: ${serverType}\n*MAC: ${macAddress}\n*Nom: ${name}\n*WhatsApp: ${fullPhoneNumber}\n*Email: ${email}\n*Prix unitaire: ${basePrice.toFixed(useDZD ? 0 : 2)} ${currency}\n*Quantité: ${quantity}\n*Réduction: ${discount.toFixed(useDZD ? 0 : 2)} ${currency}\n*Total: ${totalPrice.toFixed(useDZD ? 0 : 2)} ${currency}`;
-    
 // =================================================================================
 // NOTE: CE SCRIPT S'ATTEND À CE QUE 'products' (de products-db.js) SOIT DÉJÀ CHARGÉ
 // =================================================================================
 
 // --- Variables globales ---
-let currentProductPrice = 0, currentProductName = "", currentProductDescription = "";
+let currentProductPrice = 0, currentProductPriceDZD = 0, currentProductName = "", currentProductDescription = "";
+let userCountry = 'FR'; // Par défaut
+let useDZD = false;
 const EMAILJS_SERVICE_ID = "service_geh79gu", EMAILJS_TEMPLATE_ID = "template_vny80g3", EMAILJS_PUBLIC_KEY = "WNOIpj1FX2dDPSQMS";
 let currentPage = 1, productsPerPage = 8, currentCategory = 'All';
 let currentImageIndex = 0; // Garde une trace de l'image de la galerie actuelle
 let galleryInterval = null; // Variable pour le minuteur de la galerie
 
 // --- Initialisation au chargement de la page ---
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
+    // Détection du pays en premier
+    await detectUserCountry();
+    
     // Fonctions utilitaires
     const loadComponent = (url, elementId) => {
         fetch(url).then(response => response.ok ? response.text() : Promise.reject('File not found'))
@@ -143,8 +56,45 @@ document.addEventListener('DOMContentLoaded', () => {
         if (document.getElementById('selectedCountryCode')) populateCountryCodes('selectedCountryCode');
         if (document.getElementById('contactCountryCode')) populateCountryCodes('contactCountryCode');
     }
+
+    // Ajouter un indicateur visuel de devise
+    addCurrencyIndicator();
 });
 
+// --- Fonction de détection de pays ---
+async function detectUserCountry() {
+    try {
+        const response = await fetch('https://ipapi.co/json/');
+        const data = await response.json();
+        userCountry = data.country_code;
+        useDZD = (userCountry === 'DZ'); // Algérie
+        console.log(`Pays détecté: ${userCountry}, utilisation DZD: ${useDZD}`);
+    } catch (error) {
+        console.error('Erreur détection pays:', error);
+        // Fallback: utiliser EUR par défaut
+        useDZD = false;
+    }
+}
+
+// --- Fonction pour ajouter un indicateur de devise ---
+function addCurrencyIndicator() {
+    const indicator = document.createElement('div');
+    indicator.className = 'currency-indicator';
+    indicator.textContent = useDZD ? '🇩🇿 DZD' : '🇪🇺 EUR';
+    indicator.style.cssText = `
+        position: fixed;
+        top: 80px;
+        right: 10px;
+        background: var(--primary-color, #5a47fb);
+        color: white;
+        padding: 5px 10px;
+        border-radius: 4px;
+        font-size: 0.8em;
+        z-index: 1000;
+        font-family: var(--font-primary, Poppins, sans-serif);
+    `;
+    document.body.appendChild(indicator);
+}
 
 // --- Fonctions de la page d'accueil ---
 function displayProducts() {
@@ -179,15 +129,19 @@ function generateProductCards(productsToDisplay) {
     const grid = document.querySelector('.products-grid');
     if (!grid) return;
     grid.innerHTML = '';
+    
     productsToDisplay.forEach(product => {
         const firstImage = product.images?.[0] || '';
-        // Ajout du bandeau de prix dans le HTML de la carte
+        const price = useDZD ? (product.price_dzd || product.price * 160) : product.price;
+        const currency = useDZD ? ' DZD' : ' €';
+        const priceFormatted = useDZD ? price.toFixed(0) : price.toFixed(2);
+        
         grid.innerHTML += `
             <a href="product.html?id=${product.id}" class="product-card-link">
                 <div class="product-card">
                     <div class="product-image-wrapper">
                         <img src="${firstImage}" alt="${product.name}" class="product-image" loading="lazy">
-                        <div class="price-badge">${product.price.toFixed(2)} €</div>
+                        <div class="price-badge">${priceFormatted}${currency}</div>
                     </div>
                     <div class="product-footer">
                         <h2 class="product-name">${product.name}</h2>
@@ -214,7 +168,6 @@ function setupPagination(filteredProducts) {
     }
 }
 
-
 // --- Fonctions de la page produit ---
 function populateProductPage() {
     const product = products.find(p => p.id === new URLSearchParams(window.location.search).get('id'));
@@ -230,7 +183,14 @@ function populateProductPage() {
             "@context": "https://schema.org/", "@type": "Product", "name": product.name,
             "image": product.images[0], "description": product.description, "sku": product.id,
             "brand": { "@type": "Brand", "name": "IPTV Store" },
-            "offers": { "@type": "Offer", "url": window.location.href, "priceCurrency": "EUR", "price": product.price.toFixed(2), "availability": "https://schema.org/InStock", "itemCondition": "https://schema.org/NewCondition" }
+            "offers": { 
+                "@type": "Offer", 
+                "url": window.location.href, 
+                "priceCurrency": useDZD ? "DZD" : "EUR", 
+                "price": useDZD ? (product.price_dzd || product.price * 160).toFixed(0) : product.price.toFixed(2), 
+                "availability": "https://schema.org/InStock", 
+                "itemCondition": "https://schema.org/NewCondition" 
+            }
         };
         const schemaScript = document.getElementById('product-schema');
         if(schemaScript){
@@ -395,7 +355,8 @@ function setupLightbox() {
     const closeLightbox = () => { 
         lightbox.style.display = 'none';
         // Redémarre le défilement quand on ferme la lightbox
-        if(product.images.length > 1) startAutoChange(); 
+        const product = products.find(p => p.id === new URLSearchParams(window.location.search).get('id'));
+        if(product && product.images.length > 1) startAutoChange(); 
     };
     lightboxClose.addEventListener('click', closeLightbox);
     lightbox.addEventListener('click', (e) => { 
@@ -406,6 +367,7 @@ function setupLightbox() {
 function initializeProductForm(product) {
     currentProductName = product.name;
     currentProductPrice = product.price;
+    currentProductPriceDZD = product.price_dzd || product.price * 160; // Fallback si price_dzd non défini
     currentProductDescription = product.description;
     
     const serverTypeSelect = document.getElementById('serverType');
@@ -425,7 +387,6 @@ function initializeProductForm(product) {
     updateTotalPrice();
     toggleServerFields();
 }
-
 
 // --- Fonctions du formulaire et utilitaires ---
 
@@ -487,10 +448,16 @@ function updateTotalPrice() {
     const quantity = parseInt(document.getElementById("quantity")?.value || 1);
     const priceDisplay = document.getElementById('popupPrice');
     if (!priceDisplay) return;
-    let total = currentProductPrice * (quantity || 1);
+    
+    const basePrice = useDZD ? currentProductPriceDZD : currentProductPrice;
+    let total = basePrice * (quantity || 1);
+    
     if (quantity > 20) total *= 0.9;
     else if (quantity > 10) total *= 0.95;
-    priceDisplay.innerText = total.toFixed(2) + " €";
+    
+    const currency = useDZD ? ' DZD' : ' €';
+    const decimals = useDZD ? 0 : 2;
+    priceDisplay.innerText = total.toFixed(decimals) + currency;
 }
 
 function clearErrors() {
@@ -521,75 +488,19 @@ function generateOrderNumber() {
 }
 
 function sendOrder(method) {
-    clearErrors();
-    let valid = true;
-    const name = document.getElementById("name").value.trim();
-    const phone = document.getElementById("phone").value.trim();
-    
-    // Vérification des champs
-    if (!name) {
-        valid = false;
-        document.getElementById("nameError").innerText = "Veuillez entrer votre nom.";
-    }
-    if (!phone) {
-        valid = false;
-        document.getElementById("phoneError").innerText = "Veuillez entrer un numéro.";
-    }
-
-    // Si la validation échoue, on remonte la page et on arrête
-    if (!valid) {
-        // Trouve le tout premier message d'erreur affiché sur la page
-        const firstError = document.querySelector('.error-message:not(:empty)');
-        
-        if (firstError) {
-            // Fait défiler la vue jusqu'à cet élément
-            firstError.scrollIntoView({
-                behavior: 'smooth', // Défilement fluide
-                block: 'center'     // Centre l'erreur à l'écran
-            });
-        }
-        return; // Stoppe l'exécution de la fonction
-    }
-
-    // Le reste de la fonction ne s'exécute que si tout est valide
-    displayWaitingMessage();
-    const quantity = parseInt(document.getElementById("quantity").value);
-    const totalPrice = parseFloat(document.getElementById('popupPrice').innerText);
-    const orderNumber = generateOrderNumber();
-    const fullPhoneNumber = `${document.getElementById("selectedCountryCode").value}${phone}`;
-    const macAddress = document.getElementById('macAddress')?.value.trim() || 'N/A';
-    const serverType = document.getElementById("serverType").value;
-    const email = document.getElementById("email").value.trim() || 'N/A';
-    const discount = (currentProductPrice * quantity) - totalPrice;
-    
-    const formattedMessage = `*Nouvelle commande!*\n*Numéro: ${orderNumber}\n*Produit: ${currentProductName}\n*Serveur: ${serverType}\n*MAC: ${macAddress}\n*Nom: ${name}\n*WhatsApp: ${fullPhoneNumber}\n*Email: ${email}\n*Prix unitaire: ${currentProductPrice.toFixed(2)} €\n*Quantité: ${quantity}\n*Réduction: ${discount.toFixed(2)} €\n*Total: ${totalPrice.toFixed(2)} €`;
-
-    if (method === 'whatsapp') {
-        window.open(`https://api.whatsapp.com/send?phone=213770759886&text=${encodeURIComponent(formattedMessage)}`, '_blank');
-        hideWaitingMessage();
-        displayAlert(`Redirection vers WhatsApp...`);
-    } else if (method === 'email') {
-        const templateParams = { orderNumber, product: currentProductName, serverType, macAddress, name, phone: fullPhoneNumber, email, productPrice: currentProductPrice.toFixed(2), quantity, discount: discount.toFixed(2), totalPrice: totalPrice.toFixed(2), productDescription: currentProductDescription };
-        emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, templateParams)
-            .then(() => {
-                hideWaitingMessage();
-                displayAlert(`Commande envoyée!<br>Numéro: ${orderNumber}`);
-            }, () => {
-                hideWaitingMessage();
-                displayAlert("Échec de l'envoi. Veuillez réessayer.");
-            });
-    }
-}
-function sendOrder(method) {
     const name = document.getElementById("name").value.trim();
     const phone = document.getElementById("phone").value.trim();
 
     // CAS SPÉCIAL : Commande rapide par WhatsApp avec un formulaire vide
     if (method === 'whatsapp' && !name && !phone) {
         const productUrl = window.location.href;
+        const basePrice = useDZD ? currentProductPriceDZD : currentProductPrice;
+        const currency = useDZD ? 'DZD' : 'EUR';
+        const priceFormatted = useDZD ? basePrice.toFixed(0) : basePrice.toFixed(2);
+        
         const simpleMessage = `Bonjour, je souhaite commander ce produit :\n\n` +
                               `*Produit :* ${currentProductName}\n` +
-                              `*Prix :* ${currentProductPrice.toFixed(2)} €\n` +
+                              `*Prix :* ${priceFormatted} ${currency}\n` +
                               `*Lien :* ${productUrl}`;
         
         const whatsappUrl = `https://api.whatsapp.com/send?phone=213770759886&text=${encodeURIComponent(simpleMessage)}`;
@@ -639,15 +550,19 @@ function sendOrder(method) {
     // Le reste de la fonction...
     displayWaitingMessage();
     const quantity = parseInt(document.getElementById("quantity").value);
-    const totalPrice = parseFloat(document.getElementById('popupPrice').innerText);
+    const totalPriceText = document.getElementById('popupPrice').innerText;
+    const totalPrice = parseFloat(totalPriceText.replace(/[^\d.,]/g, '').replace(',', '.'));
     const orderNumber = generateOrderNumber();
     const fullPhoneNumber = phone ? `${document.getElementById("selectedCountryCode").value}${phone}` : 'N/A';
     const macAddress = document.getElementById('macAddress')?.value.trim() || 'N/A';
     const serverType = document.getElementById("serverType").value;
     const finalEmail = email || 'N/A';
-    const discount = (currentProductPrice * quantity) - totalPrice;
     
-    const detailedMessage = `*Nouvelle commande!*\n*Numéro: ${orderNumber}\n*Produit: ${currentProductName}\n*Serveur: ${serverType}\n*MAC: ${macAddress}\n*Nom: ${name}\n*WhatsApp: ${fullPhoneNumber}\n*Email: ${finalEmail}\n*Prix unitaire: ${currentProductPrice.toFixed(2)} €\n*Quantité: ${quantity}\n*Réduction: ${discount.toFixed(2)} €\n*Total: ${totalPrice.toFixed(2)} €`;
+    const basePrice = useDZD ? currentProductPriceDZD : currentProductPrice;
+    const currency = useDZD ? 'DZD' : 'EUR';
+    const discount = (basePrice * quantity) - totalPrice;
+    
+    const detailedMessage = `*Nouvelle commande!*\n*Numéro: ${orderNumber}\n*Produit: ${currentProductName}\n*Devise: ${currency}\n*Serveur: ${serverType}\n*MAC: ${macAddress}\n*Nom: ${name}\n*WhatsApp: ${fullPhoneNumber}\n*Email: ${finalEmail}\n*Prix unitaire: ${basePrice.toFixed(useDZD ? 0 : 2)} ${currency}\n*Quantité: ${quantity}\n*Réduction: ${discount.toFixed(useDZD ? 0 : 2)} ${currency}\n*Total: ${totalPrice.toFixed(useDZD ? 0 : 2)} ${currency}`;
 
     if (method === 'whatsapp') {
         window.open(`https://api.whatsapp.com/send?phone=213770759886&text=${encodeURIComponent(detailedMessage)}`, '_blank');
@@ -655,7 +570,21 @@ function sendOrder(method) {
         displayAlert(`Redirection vers WhatsApp...`);
         document.getElementById('orderForm').reset();
     } else if (method === 'email') {
-        const templateParams = { orderNumber, product: currentProductName, serverType, macAddress, name, phone: fullPhoneNumber, email: finalEmail, productPrice: currentProductPrice.toFixed(2), quantity, discount: discount.toFixed(2), totalPrice: totalPrice.toFixed(2), productDescription: currentProductDescription };
+        const templateParams = { 
+            orderNumber, 
+            product: currentProductName, 
+            currency,
+            serverType, 
+            macAddress, 
+            name, 
+            phone: fullPhoneNumber, 
+            email: finalEmail, 
+            productPrice: basePrice.toFixed(useDZD ? 0 : 2), 
+            quantity, 
+            discount: discount.toFixed(useDZD ? 0 : 2), 
+            totalPrice: totalPrice.toFixed(useDZD ? 0 : 2), 
+            productDescription: currentProductDescription 
+        };
         emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, templateParams)
             .then(() => {
                 hideWaitingMessage();
