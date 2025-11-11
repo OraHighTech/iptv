@@ -1,1 +1,295 @@
 
+/* formulaire-livraison.css */
+.delivery-form {
+    margin-top: 10px;
+    flex: 1;
+    border: solid 2px #002653;
+    box-shadow: 01px 1px 15px #cdcdcd;
+    user-select: none;
+    border-radius: 10px;
+    padding: 15px;
+    color: #002653;
+    direction: rtl;
+}
+
+.delivery-form .price {
+    font-size: 2.1em;
+    color: #fff;
+    background: linear-gradient(to right, #002653, #6f94c1);
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    text-decoration: none;
+    margin-top: 0px;
+    text-align: center;
+    cursor: context-menu;
+}
+
+.delivery-form .price:before {
+    content: "\f09d";
+    font-family: fontawesome;
+    display: inline-block;
+    vertical-align: top;
+    color: #ffffff;
+    -webkit-transition: 0.3s ease-out;
+    transition: 0.3s ease-out;
+    margin-left: 5px;
+}
+
+.wilaya {
+    width: 49.5%;
+}
+
+select#delivery-wilaya {
+    padding: 8px;
+    width: 100%;
+}
+
+.commune {
+    width: 49.5%;
+}
+
+select#delivery-commune {
+    padding: 8px;
+    width: 100%;
+}
+
+.error-message {
+    color: red;
+}
+
+.error-message-f {
+    color: red;
+    margin-right: 53px;
+}
+
+.delivery-form .form-all input,
+.delivery-form .form-all select {
+    padding: 10px;
+    font-size: 1.1em;
+    border-radius: 5px;
+    border: 2px solid #002653;
+    width: 100%;
+}
+
+label.form-ligne {
+    display: flex;
+    margin-top: 5px;
+}
+
+.button-shipping {
+    border-radius: 5px;
+    width: 100%;
+    display: flex;
+    height: auto;
+    justify-content: space-between;
+    font-size: 1.2em;
+}
+
+button#bureauBtn {
+    width: 49.5%;
+    border-radius: 5px;
+    margin: 0;
+    border: 2px solid #002653;
+    padding: 5px;
+    background: #f0f0f0;
+    cursor: pointer;
+}
+
+button#domicileBtn {
+    width: 49.5%;
+    border-radius: 5px;
+    margin: 0;
+    border: 2px solid #002653;
+    padding: 5px;
+    background: #f0f0f0;
+    cursor: pointer;
+}
+
+.delivery-btn.selected {
+    background-color: #002653 !important;
+    color: white !important;
+    border: 2px solid #002653 !important;
+}
+
+.form-ligne-fa {
+    border: 1px solid #002653;
+    border-radius: 5px;
+    margin-left: 5px;
+    background: #002653;
+    color: #fff;
+    padding: 10px;
+    font-size: 1.3em;
+    width: 50px;
+    text-align: center;
+    height: fit-content;
+}
+
+.select-city {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+    gap: 5px;
+}
+
+.b-order {
+    display: flex;
+    height: 40px;
+    justify-content: space-between;
+    margin-top: 20px;
+}
+
+.buy-button-w {
+    font-size: 1.1em;
+    color: #fff;
+    background: linear-gradient(to right, #002653, #6f94c1);
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    text-decoration: none;
+    margin-top: 0px;
+    width: 8%;
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
+    height: 40px;
+}
+
+.buy-button-w:hover {
+    background: #35d771;
+}
+
+.buy-button-emailjs {
+    font-size: 1.1em;
+    color: #fff;
+    background: linear-gradient(to right, #002653, #6f94c1);
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    text-decoration: none;
+    width: 58%;
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
+    height: 40px;
+}
+
+.buy-button-emailjs:hover {
+    background: #002653;
+}
+
+.quantity {
+    display: flex;
+    height: 40px;
+    justify-content: space-between;
+    width: 31%;
+    line-height: 2.2em;
+}
+
+.button-Q {
+    flex: 0 0 auto;
+    width: 25%;
+    display: flex;
+    height: 40px;
+    font-size: 40px;
+    background: #002653;
+    color: white;
+    border-radius: 4px;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    justify-content: center;
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
+    cursor: pointer;
+    align-items: center;
+}
+
+.quantity-input {
+    width: 44%;
+    height: 40px;
+    border: 2px solid;
+    border-radius: 5px;
+    margin: 0;
+    background: #ffff;
+    line-height: 0;
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
+    text-align: center;
+    font-size: 1.1em;
+}
+
+.Order-Summary {
+    border: 2px solid;
+    width: 100%;
+    padding: 5px;
+    border-radius: 5px;
+    margin: 15px 0px 10px 0px;
+}
+
+.Order-Summary-t {
+    font-size: 22px;
+    font-weight: bold;
+    padding: 5px;
+    color: #002653;
+    text-align: center;
+}
+
+.order-prod {
+    border-top: 2px solid;
+}
+
+.order-prod-t-p-q {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+    align-items: center;
+    height: 30px;
+    padding: 5px 0;
+}
+
+.order-prod-d {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+    border-top: 2px dashed;
+    align-items: center;
+    height: 30px;
+    padding: 5px 0;
+}
+
+.order-prod-P-t {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+    border-top: 2px dashed;
+    align-items: center;
+    height: 30px;
+    padding: 5px 0;
+    font-weight: bold;
+}
+
+.OderPrice {
+    display: flex;
+    gap: 5px;
+    align-items: center;
+}
+
+.quantity-badge {
+    background: red;
+    color: white;
+    border-radius: 4px;
+    padding: 2px 8px;
+    font-weight: bold;
+    height: 20px;
+    line-height: 1em;
+}
+
+@media screen and (max-width: 680px) {
+    .buy-button-w {
+        width: 12%;
+    }
+    .quantity {
+        width: 42% !important;
+    }
+    .buy-button-emailjs {
+        width: 44%;
+    }
+    .button-shipping {
+        font-size: 1em;
+    }
+}
