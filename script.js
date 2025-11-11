@@ -1,6 +1,6 @@
 // =================================================================================
 // NOTE: CE SCRIPT S'ATTEND À CE QUE 'products' (de products-db.js) SOIT DÉJÀ CHARGÉ
-// VERSION SÉCURISÉE (DÉFENSIVE) - V7 - Nettoyage final des typos
+// VERSION SÉCURISÉE (DÉFENSIVE) - V8 - Nettoyage final de tous les typos
 // =================================================================================
 
 // --- Variables globales ---
@@ -623,7 +623,10 @@ function sendContactViaWhatsApp() {
     const fullPhoneNumber = `${document.getElementById("contactCountryCode").value}${phone}`;
     const subject = document.getElementById("contactSubject").value;
     const formattedMessage = `*Nouveau Message du Formulaire de Contact*\n\n*Numéro WhatsApp du client:* ${fullPhoneNumber}\n*Sujet:* ${subject}\n\n*Message:*\n${message}`;
-S   window.open(`https://api.whatsapp.com/send?phone=213770759886&text=${encodeURIComponent(formattedMessage)}`, '_blank');
-    displayAlert(`Redirection vers WhatsApp...`);
+    
+    // ▼▼▼ هذا هو السطر الذي تم إصلاحه (تمت إزالة الحرف 'S') ▼▼▼
+    window.open(`https://api.whatsapp.com/send?phone=213770759886&text=${encodeURIComponent(formattedMessage)}`, '_blank');
+    
+    displayAlert(`Redirection vers WhatsApp...`);
     document.getElementById('contactForm')?.reset();
 }
