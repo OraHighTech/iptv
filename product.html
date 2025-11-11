@@ -35,52 +35,10 @@
         <p id="product-excerpt" class="product-excerpt-main"></p>
       </section>
 
-      <section class="product-form-section">
-        <form id="orderForm" class="order-form-card">
-          <h3 class="form-title">Passez votre commande</h3>
-          <p class="product-price-main" id="popupPrice"></p>
-
-          <div class="form-group">
-            <i class="fas fa-server icon"></i>
-            <select id="serverType" onchange="toggleServerFields(); updateTotalPrice()"></select>
-          </div>
-          <div id="serverFields" class="server-fields"></div>
-          <p class="error-message"></p>
-          <div class="form-group">
-            <i class="fas fa-cubes icon"></i>
-            <input type="number" id="quantity" value="1" min="1" onchange="updateTotalPrice()" placeholder="Quantité" />
-          </div>
-          <p class="error-message"></p>
-          <div class="form-group">
-            <i class="fas fa-user icon"></i>
-            <input type="text" id="name" placeholder="Votre Nom *" />
-          </div>
-          <p class="error-message" id="nameError"></p>
-
-         <div class="form-group">
-    <div class="whatsapp-input-group">
-        <select id="selectedCountryCode" class="country-code-select-standalone"></select>
-        <input type="tel" id="phone" placeholder="Numéro WhatsApp" />
-    </div>
-</div>
-<p class="error-message" id="phoneError"></p>
-
-<div class="form-group">
-    <i class="fas fa-envelope icon"></i>
-    <input type="email" id="email" placeholder="Adresse Email (Optionnel)" />
-</div>
-<p class="error-message" id="emailError"></p>
-
-          <div class="button-group">
-            <button type="button" class="btn btn-whatsapp" onclick="sendOrder('whatsapp')">
-              <i class="fab fa-whatsapp"></i> Commander via WhatsApp
-            </button>
-            <button type="button" class="btn btn-email" onclick="sendOrder('email')">
-              <i class="fas fa-envelope"></i> Commander par Email
-            </button>
-          </div>
-        </form>
-      </section>
+      <!-- Section du formulaire dynamique -->
+      <div id="form-container">
+        <!-- Le formulaire sera chargé dynamiquement ici -->
+      </div>
 
       <section class="product-full-description">
         <h2 class="section-title-small">Description Détaillée</h2>
@@ -88,6 +46,7 @@
       </section>
 
       <section class="payment-methods">
+        <h2 class="section-title-small">Moyens de paiement acceptés</h2>
         <div class="payment-icons">
           <img src="https://www.iptv-store.shop/logo/binance-logo.png" alt="Binance Pay" />
           <img src="https://www.iptv-store.shop/logo/iban-logo.png" alt="Virement bancaire IBAN" />
@@ -113,6 +72,7 @@
         </button>
       </div>
     </main>
+    
     <div id="waitingMessage" class="waiting-message" style="display: none">
       <i class="fas fa-spinner fa-spin"></i>
     </div>
@@ -128,7 +88,236 @@
     </div>
 
     <div id="footer-placeholder"></div>
+    
     <script src="products-db.js"></script>
+    <script src="formulaire-livraison.js"></script>
     <script src="script.js"></script>
+    
+    <script>
+      // Fonction pour récupérer l'ID du produit depuis l'URL
+      function getProductIdFromURL() {
+        const urlParams = new URLSearchParams(window.location.search);
+        return urlParams.get('id');
+      }
+
+      // Fonction pour trouver le produit dans la base de données
+      function findProductById(productId) {
+        if (typeof products !== 'undefined') {
+          return products.find(p => p.id === productId);
+        }
+        return null;
+      }
+
+      // Fonction pour charger le formulaire de livraison
+      async function loadDeliveryForm() {
+        try {
+          const response = await fetch('formulaire-livraison.html');
+          const html = await response.text();
+          return html;
+        } catch (error) {
+          console.error('Erreur chargement formulaire livraison:', error);
+          return '<div class="error-message">Formulaire de livraison non disponible</div>';
+        }
+      }
+
+      // Fonction pour créer le formulaire virtuel
+      function createVirtualForm() {
+        return `
+          <section class="product-form-section virtual-form">
+            <form id="orderForm" class="order-form-card">
+              <h3 class="form-title">Passez votre commande</h3>
+              <p class="product-price-main" id="popupPrice"></p>
+
+              <div class="form-group">
+                <i class="fas fa-server icon"></i>
+                <select id="serverType" onchange="toggleServerFields(); updateTotalPrice()"></select>
+              </div>
+              <div id="serverFields" class="server-fields"></div>
+              <p class="error-message"></p>
+              
+              <div class="form-group">
+                <i class="fas fa-cubes icon"></i>
+                <input type="number" id="quantity" value="1" min="1" onchange="updateTotalPrice()" placeholder="Quantité" />
+              </div>
+              <p class="error-message"></p>
+              
+              <div class="form-group">
+                <i class="fas fa-user icon"></i>
+                <input type="text" id="name" placeholder="Votre Nom *" />
+              </div>
+              <p class="error-message" id="nameError"></p>
+
+              <div class="form-group">
+                <div class="whatsapp-input-group">
+                  <select id="selectedCountryCode" class="country-code-select-standalone"></select>
+                  <input type="tel" id="phone" placeholder="Numéro WhatsApp" />
+                </div>
+              </div>
+              <p class="error-message" id="phoneError"></p>
+
+              <div class="form-group">
+                <i class="fas fa-envelope icon"></i>
+                <input type="email" id="email" placeholder="Adresse Email (Optionnel)" />
+              </div>
+              <p class="error-message" id="emailError"></p>
+
+              <div class="button-group">
+                <button type="button" class="btn btn-whatsapp" onclick="sendOrder('whatsapp')">
+                  <i class="fab fa-whatsapp"></i> Commander via WhatsApp
+                </button>
+                <button type="button" class="btn btn-email" onclick="sendOrder('email')">
+                  <i class="fas fa-envelope"></i> Commander par Email
+                </button>
+              </div>
+            </form>
+          </section>
+        `;
+      }
+
+      // Fonction pour initialiser la page produit
+      async function initializeProductPage() {
+        const productId = getProductIdFromURL();
+        const product = findProductById(productId);
+        
+        if (!product) {
+          window.location.href = '404.html';
+          return;
+        }
+
+        // Mettre à jour les informations du produit
+        document.getElementById('product-name').textContent = product.name;
+        
+        // Description et extrait
+        const fullDescription = product.description || '';
+        document.getElementById('product-description').textContent = fullDescription;
+        
+        const excerptElement = document.getElementById('product-excerpt');
+        if (excerptElement) {
+          let firstLine = fullDescription.split('\n')[0];
+          let excerpt = firstLine.substring(0, 120);
+          if (fullDescription.length > excerpt.length) {
+            excerpt += '...';
+          }
+          excerptElement.textContent = excerpt;
+        }
+
+        // Initialiser la galerie
+        if (typeof setupCombinedGallery === 'function') {
+          setupCombinedGallery(product);
+        }
+
+        // Initialiser le lightbox
+        if (typeof setupLightbox === 'function') {
+          setupLightbox(product);
+        }
+
+        // Initialiser les boutons de partage
+        if (typeof setupShareButtons === 'function') {
+          setupShareButtons(product);
+        }
+
+        // Charger le bon formulaire selon le type de produit
+        const formContainer = document.getElementById('form-container');
+        
+        if (product.product_type === 'physical') {
+          // Charger le formulaire de livraison
+          const deliveryFormHtml = await loadDeliveryForm();
+          formContainer.innerHTML = deliveryFormHtml;
+          
+          // Initialiser le formulaire de livraison
+          if (typeof initializeDeliveryForm === 'function') {
+            initializeDeliveryForm(product);
+          }
+        } else {
+          // Utiliser le formulaire virtuel
+          formContainer.innerHTML = createVirtualForm();
+          
+          // Initialiser le formulaire virtuel
+          if (typeof initializeProductForm === 'function') {
+            initializeProductForm(product);
+          }
+          
+          // Initialiser les codes pays si disponible
+          if (typeof countryCodes !== 'undefined' && typeof populateCountryCodes === 'function') {
+            populateCountryCodes('selectedCountryCode');
+          }
+        }
+
+        // Mettre à jour le schema SEO
+        updateProductSchema(product);
+      }
+
+      // Fonction pour mettre à jour le schema SEO
+      function updateProductSchema(product) {
+        const schema = {
+          "@context": "https://schema.org/",
+          "@type": "Product",
+          "name": product.name,
+          "image": product.images[0],
+          "description": product.description,
+          "sku": product.id,
+          "brand": {
+            "@type": "Brand",
+            "name": "IPTV Store"
+          },
+          "offers": {
+            "@type": "Offer",
+            "url": window.location.href,
+            "priceCurrency": "EUR",
+            "price": product.price.toFixed(2),
+            "availability": "https://schema.org/InStock",
+            "itemCondition": "https://schema.org/NewCondition"
+          }
+        };
+        
+        const schemaScript = document.getElementById('product-schema');
+        if (schemaScript) {
+          schemaScript.textContent = JSON.stringify(schema);
+        }
+      }
+
+      // Initialiser la page au chargement
+      document.addEventListener('DOMContentLoaded', function() {
+        initializeProductPage();
+        
+        // Charger les composants header/footer
+        if (typeof loadComponent === 'function') {
+          loadComponent('header.html', 'header-placeholder');
+          loadComponent('footer.html', 'footer-placeholder');
+        } else {
+          // Fallback si loadComponent n'est pas disponible
+          fetch('header.html')
+            .then(response => response.text())
+            .then(html => {
+              document.getElementById('header-placeholder').innerHTML = html;
+            });
+          
+          fetch('footer.html')
+            .then(response => response.text())
+            .then(html => {
+              document.getElementById('footer-placeholder').innerHTML = html;
+            });
+        }
+
+        // Initialiser EmailJS si disponible
+        if (typeof emailjs !== 'undefined') {
+          emailjs.init("WNOIpj1FX2dDPSQMS");
+        }
+      });
+
+      // Fonction utilitaire pour charger les composants (fallback)
+      function loadComponent(url, elementId) {
+        fetch(url)
+          .then(response => {
+            if (!response.ok) throw new Error('File not found');
+            return response.text();
+          })
+          .then(data => {
+            const element = document.getElementById(elementId);
+            if (element) element.innerHTML = data;
+          })
+          .catch(error => console.error(`Error loading component ${url}:`, error));
+      }
+    </script>
   </body>
 </html>
