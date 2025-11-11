@@ -451,6 +451,8 @@ function populateCountryCodes(selectId) {
     }
 }
 
+// (ابحث عن هذه الدالة في script.js واستبدلها)
+
 function toggleServerFields() {
     const serverType = document.getElementById("serverType")?.value;
     const serverFields = document.getElementById('serverFields');
@@ -462,7 +464,7 @@ function toggleServerFields() {
         serverFields.innerHTML = `<br><div class="form-group">
                                       <i class="fas fa-network-wired icon"></i>
                                       <input type="text" id="macAddress" placeholder="Ex: 00:1A:2B:3C:4D:5E" maxlength="17">
-                        s       </div>`;
+                                  </div>`;
         
         const macAddressInput = document.getElementById('macAddress');
         if (macAddressInput) {
@@ -474,7 +476,6 @@ function toggleServerFields() {
         }
     }
 }
-
 function updateTotalPrice() {
     const quantity = parseInt(document.getElementById("quantity")?.value || 1);
     const priceDisplay = document.getElementById('popupPrice');
@@ -636,3 +637,4 @@ function sendContactViaWhatsApp() {
     displayAlert(`Redirection vers WhatsApp...`);
     document.getElementById('contactForm')?.reset();
 }
+
