@@ -64,7 +64,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 // --- Fonction de détection de pays ---
 async function detectUserCountry() {
     try {
-        const response = await fetch('https://ipapi.co/json/');
+        const response = await fetch('https://api.ipdata.co/?api-key=916c6b6e4d160441313fb81c071aa9aadd988baa6e8e4361cfa6ad38');
         const data = await response.json();
         userCountry = data.country_code;
         useDZD = (userCountry === 'DZ'); // Algérie
