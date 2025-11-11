@@ -1,26 +1,22 @@
 // =================================================================================
 // NOTE: CE SCRIPT S'ATTEND À CE QUE 'products' (de products-db.js) SOIT DÉJÀ CHARGÉ
-// ET QUE LE FORMAT DE PRIX SOIT: product.price = { dzd: 15000, eur: 75 }
+// VERSION SÉCURISÉE (DÉFENSIVE) - Ne plantera pas si l'ancien format de prix (ex: 40) est trouvé
 // =================================================================================
 
 // --- Variables globales ---
 let currentProductPrice = 0, currentProductName = "", currentProductDescription = "";
 const EMAILJS_SERVICE_ID = "service_geh79gu", EMAILJS_TEMPLATE_ID = "template_vny80g3", EMAILJS_PUBLIC_KEY = "WNOIpj1FX2dDPSQMS";
 let currentPage = 1, productsPerPage = 8, currentCategory = 'All';
-let currentImageIndex = 0; // Garde une trace de l'image de la galerie actuelle
-let galleryInterval = null; // Variable pour le minuteur de la galerie
+let currentImageIndex = 0; 
+let galleryInterval = null; 
 
-// --- ▼▼▼ NOUVELLES VARIABLES GLOBALES POUR LE PRIX GÉO ▼▼▼ ---
+// --- Variables Géo-Prix ---
 let userCountryCode = null; // "DZ", "FR", etc.
 let userCurrency = 'EUR'; // 'EUR' ou 'DZD'
 let userCurrencySymbol = '€'; // '€' ou 'دج'
-// --- ▲▲▲ FIN DES NOUVELLES VARIABLES ▲▲▲ ---
-
 
 /**
- * --- ▼▼▼ NOUVELLE FONCTION: GÉOLOCALISATION DE L'UTILISATEUR ▼▼▼ ---
- * Tente de deviner le pays de l'utilisateur via son IP
- * @returns {Promise<object>} - Un objet avec les données de localisation (ex: { country_code: 'DZ' })
+ * --- FONCTION: GÉOLOCALISATION DE L'UTILISATEUR ---
  */
 async function getUserLocation() {
     try {
@@ -32,14 +28,12 @@ async function getUserLocation() {
         return data;
     } catch (error) {
         console.warn("Impossible de récupérer la géolocalisation:", error);
-        throw error; // Renvoie l'erreur pour que initApp puisse la gérer
+        throw error; 
     }
 }
-// --- ▲▲▲ FIN DE LA NOUVELLE FONCTION ▲▲▲ ---
-
 
 // --- Initialisation au chargement de la page (MODIFIÉE en async) ---
-document.addEventListener('DOMContentLoaded', async () => { // <-- MODIFIÉ en 'async'
+document.addEventListener('DOMContentLoaded', async () => { 
     // Fonctions utilitaires
     const loadComponent = (url, elementId) => {
         fetch(url).then(response => response.ok ? response.text() : Promise.reject('File not found'))
@@ -50,39 +44,37 @@ document.addEventListener('DOMContentLoaded', async () => { // <-- MODIFIÉ en '
             .catch(error => console.error(`Error loading component ${url}:`, error));
     };
 
-    // Chargement des composants header/footer
+    // Chargement header/footer
     loadComponent('header.html', 'header-placeholder');
     loadComponent('footer.html', 'footer-placeholder');
 
-    // --- ▼▼▼ NOUVELLE LOGIQUE D'INIT GÉO ▼▼▼ ---
+    // --- Logique d'Init Géo ---
     try {
         const locationData = await getUserLocation(); // Attend la localisation
         userCountryCode = locationData.country_code;
         
         if (userCountryCode === 'DZ') {
             userCurrency = 'DZD';
-            userCurrencySymbol = 'دج'; // Ou 'DZD' si vous préférez
+            userCurrencySymbol = 'دج';
             console.log("Pays détecté: Algérie (DZ). Utilisation du Dinar.");
         } else {
-            console.log(`Pays détecté: ${userCountryCode}. Utilisation de l'Euro.`);
-            // Les valeurs par défaut (EUR, €) sont déjà définies
+            console.log(`Pays détecté: ${userCountryCode || 'Inconnu'}. Utilisation de l'Euro.`);
         }
     } catch (error) {
-        console.warn("Erreur de géolocalisation, utilisation de l'Euro (€) par défaut.", error);
+        console.warn("Erreur de géolocalisation, utilisation de l'Euro (€) par défaut.");
     }
-    // --- ▲▲▲ FIN DE LA LOGIQUE D'INIT GÉO ▲▲▲ ---
 
-    // Vérification critique des données (après la localisation)
+    // Vérification critique des données
     if (typeof products === 'undefined') {
-        console.error("ERREUR CRITIQUE: La variable 'products' n'est pas définie. Assurez-vous que le fichier 'products-db.js' est correctement chargé AVANT 'script.js'.");
+        console.error("ERREUR CRITIQUE: La variable 'products' n'est pas définie.");
         const body = document.querySelector('body');
         if(body) {
-            body.innerHTML = '<div style="padding: 40px; text-align: center; font-family: sans-serif;"><h1>Erreur de chargement</h1><p>Impossible de charger la base de données des produits. Veuillez vérifier la console du navigateur (touche F12) pour des erreurs de type 404 (fichier non trouvé) concernant <strong>products-db.js</strong>.</p></div>';
+            body.innerHTML = '<div style="padding: 40px; text-align: center; font-family: sans-serif;"><h1>Erreur de chargement</h1><p>Impossible de charger la base de données des produits (products-db.js).</p></div>';
         }
-        return; // Arrête l'exécution du reste du script
+        return; 
     }
 
-    // Routage de la page (maintenant que la localisation est connue)
+    // Routage de la page
     const pagePath = window.location.pathname;
     if (pagePath.includes('index.html') || pagePath.endsWith('/') ) {
         setupCategoryFilters();
@@ -105,7 +97,7 @@ function displayProducts() {
     const filteredProducts = products.filter(product => currentCategory === 'All' || product.category === currentCategory);
     const startIndex = (currentPage - 1) * productsPerPage;
     const paginatedProducts = filteredProducts.slice(startIndex, startIndex + productsPerPage);
-    generateProductCards(paginatedProducts); // Cette fonction est maintenant consciente du géo-prix
+    generateProductCards(paginatedProducts); 
     setupPagination(filteredProducts);
 }
 
@@ -129,7 +121,7 @@ function setupCategoryFilters() {
     });
 }
 
-// --- MODIFIÉE pour le PRIX GÉO ---
+// --- ▼▼▼ MODIFIÉE (VERSION SÉCURISÉE) ▼▼▼ ---
 function generateProductCards(productsToDisplay) {
     const grid = document.querySelector('.products-grid');
     if (!grid) return;
@@ -137,24 +129,33 @@ function generateProductCards(productsToDisplay) {
     productsToDisplay.forEach(product => {
         const firstImage = product.images?.[0] || '';
 
-        // --- ▼▼▼ LOGIQUE DE PRIX GÉO (INDEX) ▼▼▼ ---
+        // --- LOGIQUE DE PRIX SÉCURISÉE (DÉFENSIVE) ---
         let displayPrice, priceString;
-        if (userCountryCode === 'DZ' && product.price.dzd) {
-            displayPrice = product.price.dzd;
-            priceString = `${displayPrice.toFixed(0)} ${userCurrencySymbol}`; // Pas de décimales pour DZD
-        } else {
-            // Par défaut (EUR ou si le prix dzd n'existe pas)
-            displayPrice = product.price.eur;
-            priceString = `${displayPrice.toFixed(2)} ${userCurrencySymbol}`; // 2 décimales pour EUR
+
+        // 1. Vérifie si le prix est au NOUVEAU format (objet)
+        if (typeof product.price === 'object' && product.price !== null && 'eur' in product.price && 'dzd' in product.price) {
+            if (userCountryCode === 'DZ') {
+                displayPrice = product.price.dzd;
+                priceString = `${displayPrice.toFixed(0)} ${userCurrencySymbol}`; // DZD sans décimales
+            } else {
+                displayPrice = product.price.eur;
+                priceString = `${displayPrice.toFixed(2)} ${userCurrencySymbol}`; // EUR avec 2 décimales
+            }
+        } 
+        // 2. Sinon, utilise l'ANCIEN format (juste un nombre)
+        else {
+            displayPrice = product.price;
+            priceString = `${displayPrice.toFixed(2)} €`; // Affiche en Euro par défaut pour ne pas casser
+            console.warn(`Produit "${product.name}" (ID: ${product.id}) a un format de prix ancien.`);
         }
-        // --- ▲▲▲ FIN LOGIQUE PRIX GÉO ▲▲▲ ---
+        // --- FIN LOGIQUE PRIX ---
 
         grid.innerHTML += `
             <a href="product.html?id=${product.id}" class="product-card-link">
                 <div class="product-card">
                     <div class="product-image-wrapper">
                         <img src="${firstImage}" alt="${product.name}" class="product-image" loading="lazy">
-                        <div class="price-badge">${priceString}</div>
+                        <div class="price-badge">${priceString}</div>
                     </div>
                     <div class="product-footer">
                         <h2 class="product-name">${product.name}</h2>
@@ -184,25 +185,32 @@ function setupPagination(filteredProducts) {
 
 // --- Fonctions de la page produit ---
 
-// --- MODIFIÉE pour le PRIX GÉO ---
+// --- ▼▼▼ MODIFIÉE (VERSION SÉCURISÉE) ▼▼▼ ---
 function populateProductPage() {
     const product = products.find(p => p.id === new URLSearchParams(window.location.search).get('id'));
 
     if (product) {
         
-        // --- ▼▼▼ NOUVELLE LOGIQUE DE PRIX GÉO (PAGE PRODUIT) ▼▼▼ ---
+        // --- LOGIQUE DE PRIX SÉCURISÉE (DÉFENSIVE) ---
         let selectedPrice, selectedCurrency;
-        
-        if (userCountryCode === 'DZ' && product.price.dzd) {
-            selectedPrice = product.price.dzd;
-            selectedCurrency = 'DZD';
-            // userCurrencySymbol est déjà 'دج' (défini au chargement)
-        } else {
-            selectedPrice = product.price.eur;
-            selectedCurrency = 'EUR';
-            // userCurrencySymbol est déjà '€' (défini au chargement)
+
+        // 1. Vérifie si le prix est au NOUVEAU format (objet)
+        if (typeof product.price === 'object' && product.price !== null && 'eur' in product.price && 'dzd' in product.price) {
+            if (userCountryCode === 'DZ') {
+                selectedPrice = product.price.dzd;
+                selectedCurrency = 'DZD';
+            } else {
+                selectedPrice = product.price.eur;
+                selectedCurrency = 'EUR';
+            }
+        } 
+        // 2. Sinon, utilise l'ANCIEN format (juste un nombre)
+        else {
+            selectedPrice = product.price; // ex: 40
+            selectedCurrency = 'EUR'; // Devise par défaut
+            console.warn(`Produit "${product.name}" (ID: ${product.id}) a un format de prix ancien.`);
         }
-        // --- ▲▲▲ FIN LOGIQUE PRIX GÉO ▲▲▲ ---
+        // --- FIN LOGIQUE PRIX ---
 
         // --- SEO (MODIFIÉ pour le prix géo) ---
         document.title = `${product.name} - Abonnement IPTV | www.iptv-store.shop`;
@@ -218,7 +226,7 @@ function populateProductPage() {
                 "@type": "Offer", 
                 "url": window.location.href, 
                 "priceCurrency": selectedCurrency, // <-- MODIFIÉ
-                "price": selectedPrice.toFixed(2), // <-- MODIFIÉ (format standard pour Schema)
+                "price": selectedPrice.toFixed(2), // <-- MODIFIÉ
                 "availability": "https://schema.org/InStock", 
                 "itemCondition": "https://schema.org/NewCondition" 
             }
@@ -228,7 +236,7 @@ function populateProductPage() {
             schemaScript.textContent = JSON.stringify(schema);
         }
         
-        // --- AFFICHAGE DES INFORMATIONS (CORRIGÉ) ---
+        // --- AFFICHAGE DES INFORMATIONS ---
         document.getElementById('product-name').innerText = product.name;
         document.getElementById('product-description').innerText = product.description;
 
@@ -247,7 +255,6 @@ function populateProductPage() {
         const shareFileName = `${product.id}.html`;
         const shareUrl = `https://www.iptv-store.shop/produits/${shareFileName}`;
         const shareText = `Découvrez ${product.name} sur IPTV Store !`;
-        // ... (tous les boutons de partage restent inchangés) ...
         const facebookBtn = document.getElementById('share-facebook');
         if(facebookBtn) { facebookBtn.href = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}`; }
         const twitterBtn = document.getElementById('share-twitter');
@@ -268,8 +275,7 @@ function populateProductPage() {
 
         // --- Initialisation de la galerie et du formulaire (MODIFIÉ) ---
         setupCombinedGallery(product);
-        // On passe le prix géo-localisé à la fonction d'initialisation
-        initializeProductForm(product, selectedPrice); // <-- MODIFIÉ
+        initializeProductForm(product, selectedPrice); // <-- MODIFIÉ (passe le prix géo)
         setupLightbox();
     } else {
         window.location.href = '404.html';
@@ -307,19 +313,18 @@ function setupCombinedGallery(product) {
         allThumbs.forEach((thumb, idx) => thumb.classList.toggle('active', idx === newIndex));
     };
     
-    // --- NOUVELLE FONCTION POUR LE DÉFILEMENT AUTOMATIQUE ---
     const startAutoChange = () => {
-        clearInterval(galleryInterval); // Annule le minuteur précédent
+        clearInterval(galleryInterval); 
         galleryInterval = setInterval(() => {
             const newIndex = (currentImageIndex + 1) % totalImages;
             updateGallery(newIndex);
-        }, 3000); // Change toutes les 3 secondes
+        }, 3000); 
     };
 
     allThumbs.forEach((thumb, index) => {
         thumb.addEventListener('click', () => {
             updateGallery(index);
-            startAutoChange(); // Réinitialise le minuteur lors du clic
+            startAutoChange(); 
         });
     });
 
@@ -332,7 +337,7 @@ function setupCombinedGallery(product) {
             e.stopPropagation();
             const newIndex = (currentImageIndex - 1 + totalImages) % totalImages;
             updateGallery(newIndex);
-            startAutoChange(); // Réinitialise le minuteur lors du clic
+            startAutoChange(); 
         });
 
         const nextBtn = document.createElement('button');
@@ -343,13 +348,13 @@ function setupCombinedGallery(product) {
             e.stopPropagation();
             const newIndex = (currentImageIndex + 1) % totalImages;
             updateGallery(newIndex);
-            startAutoChange(); // Réinitialise le minuteur lors du clic
+            startAutoChange(); 
         });
 
         mainImageContainer.appendChild(prevBtn);
         mainImageContainer.appendChild(nextBtn);
         
-        startAutoChange(); // Démarre le défilement automatique
+        startAutoChange(); 
     }
     
     updateGallery(0);
@@ -369,7 +374,7 @@ function setupLightbox() {
 
         const activeImg = mainImageContainer.querySelector('img.active');
         if (activeImg) {
-            clearInterval(galleryInterval); // Met en pause le défilement quand la lightbox est ouverte
+            clearInterval(galleryInterval); 
             lightboxImage.src = activeImg.src;
             lightbox.style.display = 'flex';
         }
@@ -377,8 +382,8 @@ function setupLightbox() {
     
     const closeLightbox = () => {  
         lightbox.style.display = 'none';
-        // Redémarre le défilement (corrigé: vérifie si le produit existe)
-        if (typeof product !== 'undefined' && product.images && product.images.length > 1) {
+        const product = products.find(p => p.id === new URLSearchParams(window.location.search).get('id'));
+        if (product && product.images && product.images.length > 1) {
             startAutoChange();
         }
     };
@@ -388,11 +393,10 @@ function setupLightbox() {
     });
 }
 
-// --- MODIFIÉE pour le PRIX GÉO ---
-// Accepte maintenant 'geoPrice' (le prix en DZD ou EUR) calculé dans populateProductPage
+// --- ▼▼▼ MODIFIÉE (VERSION SÉCURISÉE) ▼▼▼ ---
 function initializeProductForm(product, geoPrice) { 
     currentProductName = product.name;
-    currentProductPrice = geoPrice; // <-- MODIFIÉ (utilise le prix géo-localisé)
+    currentProductPrice = geoPrice; // <-- Utilise le prix géo-localisé (ou l'ancien prix)
     currentProductDescription = product.description;
     
     const serverTypeSelect = document.getElementById('serverType');
@@ -409,7 +413,7 @@ function initializeProductForm(product, geoPrice) {
     const quantityInput = document.getElementById('quantity');
     if (quantityInput) quantityInput.value = 1;
 
-    updateTotalPrice(); // Cette fonction va maintenant utiliser le prix géo
+    updateTotalPrice(); // Va utiliser le prix géo et la devise géo
     toggleServerFields();
 }
 
@@ -433,13 +437,17 @@ function populateCountryCodes(selectId) {
         option.innerText = `${countryCodeToEmoji(country['code-in'])} (${country.code}) ${country.name} `;
         selectElement.appendChild(option);
     });
-    selectElement.value = "+33"; // Défaut France
+    
     // Tente de sélectionner le pays de l'utilisateur s'il est connu
     if (userCountryCode) {
         const matchingCountry = countryCodes.find(c => c['code-in'] === userCountryCode);
         if (matchingCountry) {
             selectElement.value = matchingCountry.code;
+        } else {
+            selectElement.value = "+33"; // Défaut France si pays non listé
         }
+    } else {
+        selectElement.value = "+33"; // Défaut France
     }
 }
 
@@ -448,11 +456,12 @@ function toggleServerFields() {
     const serverFields = document.getElementById('serverFields');
     if (!serverFields) return;
 
-    serverFields.innerHTML = ''; // Vide le conteneur
+    serverFields.innerHTML = ''; 
 
     if (serverType === "mag") {
         serverFields.innerHTML = `<br><div class="form-group">
-                                      <i class="fas fa-network-wired icon"></i>                                       <input type="text" id="macAddress" placeholder="Ex: 00:1A:2B:3C:4D:5E" maxlength="17">
+                                      <i class="fas fa-network-wired icon"></i>
+                                      <input type="text" id="macAddress" placeholder="Ex: 00:1A:2B:3C:4D:5E" maxlength="17">
                                   </div>`;
         
         const macAddressInput = document.getElementById('macAddress');
@@ -466,14 +475,13 @@ function toggleServerFields() {
     }
 }
 
-// --- MODIFIÉE pour le PRIX GÉO ---
+// --- ▼▼▼ MODIFIÉE (VERSION SÉCURISÉE) ▼▼▼ ---
 function updateTotalPrice() {
     const quantity = parseInt(document.getElementById("quantity")?.value || 1);
     const priceDisplay = document.getElementById('popupPrice');
     if (!priceDisplay) return;
 
     let total = currentProductPrice * (quantity || 1);
-    // Logique de réduction (inchangée)
     if (quantity > 20) total *= 0.9;
     else if (quantity > 10) total *= 0.95;
     
@@ -509,8 +517,7 @@ function generateOrderNumber() {
     return `ORD-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
 }
 
-// --- MODIFIÉE pour le PRIX GÉO ---
-// (J'ai gardé la deuxième version de 'sendOrder' qui était plus complète)
+// --- ▼▼▼ MODIFIÉE (VERSION SÉCURISÉE) ▼▼▼ ---
 function sendOrder(method) {
     // Helper function pour formater les prix
     const formatPrice = (price) => price.toFixed(userCurrency === 'EUR' ? 2 : 0);
@@ -518,7 +525,7 @@ function sendOrder(method) {
     const name = document.getElementById("name").value.trim();
     const phone = document.getElementById("phone").value.trim();
 
-    // CAS SPÉCIAL : Commande rapide par WhatsApp avec un formulaire vide
+    // CAS SPÉCIAL : Commande rapide par WhatsApp
     if (method === 'whatsapp' && !name && !phone) {
         const productUrl = window.location.href;
         const simpleMessage = `Bonjour, je souhaite commander ce produit :\n\n` +
@@ -532,20 +539,18 @@ function sendOrder(method) {
         return;  
     }
 
-    // FLUX NORMAL : Commande par Email ou par WhatsApp avec le formulaire
+    // FLUX NORMAL : Commande par Email ou par WhatsApp
     clearErrors();
     let valid = true;
     const email = document.getElementById("email").value.trim();
     const phoneRegex = /^\d{7,15}$/;
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-    // 1. Vérification du Nom
     if (!name) {
         valid = false;
         document.getElementById("nameError").innerText = "Veuillez entrer votre nom.";
     }
 
-    // 2. Vérification du Numéro de Téléphone
     if (method === 'email' && !phone) {
         valid = false;
         document.getElementById("phoneError").innerText = "Veuillez entrer un numéro de téléphone.";
@@ -554,13 +559,11 @@ function sendOrder(method) {
         document.getElementById("phoneError").innerText = "Le format du numéro est invalide.";
     }
 
-    // 3. Vérification de l'Email
     if (email && !emailRegex.test(email)) {
         valid = false;
         document.getElementById("emailError").innerText = "Veuillez entrer une adresse email valide.";
     }
     
-    // Si la validation échoue, on remonte la page
     if (!valid) {
         const firstError = document.querySelector('.error-message:not(:empty)');
         if (firstError) {
@@ -569,11 +572,10 @@ function sendOrder(method) {
         return;
     }
 
-    // Le reste de la fonction...
     displayWaitingMessage();
     const quantity = parseInt(document.getElementById("quantity").value);
-    // 'totalPrice' est juste le nombre (ex: 75.00)
-    const totalPrice = parseFloat(document.getElementById('popupPrice').innerText.replace(userCurrencySymbol, '').trim()); 
+    // Extrait le nombre du texte (ex: "15000 دج" ou "75.00 €")
+    const totalPrice = parseFloat(document.getElementById('popupPrice').innerText.replace(/[^0-9.]/g, '')); 
     const orderNumber = generateOrderNumber();
     const fullPhoneNumber = phone ? `${document.getElementById("selectedCountryCode").value}${phone}` : 'N/A';
     const macAddress = document.getElementById('macAddress')?.value.trim() || 'N/A';
@@ -581,7 +583,6 @@ function sendOrder(method) {
     const finalEmail = email || 'N/A';
     const discount = (currentProductPrice * quantity) - totalPrice;
     
-    // Message WhatsApp Détaillé (MODIFIÉ)
     const detailedMessage = `*Nouvelle commande!*\n*Numéro: ${orderNumber}\n*Produit: ${currentProductName}\n*Serveur: ${serverType}\n*MAC: ${macAddress}\n*Nom: ${name}\n*WhatsApp: ${fullPhoneNumber}\n*Email: ${finalEmail}\n*Prix unitaire: ${formatPrice(currentProductPrice)} ${userCurrencySymbol}\n*Quantité: ${quantity}\n*Réduction: ${formatPrice(discount)} ${userCurrencySymbol}\n*Total: ${formatPrice(totalPrice)} ${userCurrencySymbol}`;
 
     if (method === 'whatsapp') {
@@ -590,7 +591,6 @@ function sendOrder(method) {
         displayAlert(`Redirection vers WhatsApp...`);
         document.getElementById('orderForm').reset();
     } else if (method === 'email') {
-        // Paramètres EmailJS (MODIFIÉS)
         const templateParams = { 
             orderNumber, 
             product: currentProductName, 
@@ -599,10 +599,10 @@ function sendOrder(method) {
             name, 
             phone: fullPhoneNumber, 
             email: finalEmail, 
-            productPrice: `${formatPrice(currentProductPrice)} ${userCurrencySymbol}`, // Envoie la chaîne formatée
+            productPrice: `${formatPrice(currentProductPrice)} ${userCurrencySymbol}`,
             quantity, 
-            discount: `${formatPrice(discount)} ${userCurrencySymbol}`, // Envoie la chaîne formatée
-            totalPrice: `${formatPrice(totalPrice)} ${userCurrencySymbol}`, // Envoie la chaîne formatée
+            discount: `${formatPrice(discount)} ${userCurrencySymbol}`, 
+            totalPrice: `${formatPrice(totalPrice)} ${userCurrencySymbol}`, 
             productDescription: currentProductDescription 
         };
 
