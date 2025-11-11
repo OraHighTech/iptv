@@ -3,7 +3,7 @@ const products = [
         "id": "KING_365",
         "name": "KING 365",
         "price": {
-            eur: 55.00, // صحيح
+            eur: 55.00,
             dzd: 8000
         },
         "description": "Abonnement IPTV Premium de haute qualité...\nKING 365 l'Abonnement N°1 En Europe\nelle Vous offre une satisfaction en terme de qualité d’image\ndes chaînes En HD - FHD même en 4K sans coupures,\nking365 abonnement comporte un large choix\ndes films et de séries sorties cette année",
@@ -20,7 +20,7 @@ const products = [
     {
         "id": "IRON_TV_MAX",
         "name": "IRON TV MAX",
-        "price": { // <-- تم التعديل
+        "price": {
             eur: 40.00,
             dzd: 6000
         },
@@ -38,7 +38,7 @@ const products = [
     {
         "id": "NEO4K",
         "name": "NEO4K",
-        "price": { // <-- تم التعديل
+        "price": {
             eur: 45.00,
             dzd: 6500
         },
@@ -50,19 +50,19 @@ const products = [
     {
         "id": "ATLAS_PRO",
         "name": "ATLAS PRO",
-        "price": { // <-- تم التعديل
+        "price": {
             eur: 29.00,
             dzd: 4500
         },
         "images": ["https://www.iptv-store.shop/img/ATLAS.png"],
-        "description": "Atlas Pro IPTV est votre porte d’entrée vers un divertissement illimité, profitez de milliers de chaînes de France, d’Espagne, d’Allemagne, de Belgique, de chaînes arabes et du monde entier. Ainsi que les derniers films et séries.",
+        "description": "Atlas Pro IPTV est votre porte d’entrée vers un divertissement illimité...",
         "serverTypes": ["code active", "User - Pass", "xtream", "m3u", "mag"],
         "category": "Standard"
     },
     {
         "id": "FOSTO",
         "name": "FOSTO",
-        "price": { // <-- تم التعديل
+        "price": {
             eur: 25.00,
             dzd: 3500
         },
@@ -80,7 +80,7 @@ const products = [
     {
         "id": "LYNX",
         "name": "LYNX",
-        "price": { // <-- تم التعديل
+        "price": {
             eur: 25.00,
             dzd: 3500
         },
@@ -92,7 +92,7 @@ const products = [
     {
         "id": "QHDTV",
         "name": "QHDTV",
-        "price": { // <-- تم التعديل
+        "price": {
             eur: 30.00,
             dzd: 4500
         },
@@ -107,7 +107,7 @@ const products = [
     {
         "id": "IBO",
         "name": "IBO",
-        "price": { // <-- تم التعديل
+        "price": {
             eur: 35.00,
             dzd: 5000
         },
@@ -119,7 +119,7 @@ const products = [
     {
         "id": "SMARTERS_PLAYER",
         "name": "SMARTERS PLAYER",
-        "price": { // <-- تم التعديل
+        "price": {
             eur: 30.00,
             dzd: 4500
         },
@@ -134,11 +134,11 @@ const products = [
     {
         "id": "GOGO",
         "name": "GOGO",
-        "price": { // <-- تم التعديل
+        "price": {
             eur: 30.00,
         	dzd: 4500
         },
-        "description": "à travers son application officielle ET les appareils icone vous offre l’accès à la TV et à la VOD (séries et films) ainsi qu’au replay (rediffusion)",
+        "description": "à travers son application officielle ET les appareils icone vous offre l’accès à la TV...",
         "serverTypes": ["code active"],
         "category": "Haute Qualité",
         "images": ["https://www.iptv-store.shop/img/GOGO.png"]
