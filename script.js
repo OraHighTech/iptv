@@ -571,7 +571,7 @@ function sendOrder(method) {
     const totalPrice = parseFloat(document.getElementById('popupPrice').innerText.replace(/[^0-9.]/g, '')); 
     const orderNumber = generateOrderNumber();
     const fullPhoneNumber = phone ? `${document.getElementById("selectedCountryCode").value}${phone}` : 'N/A';
-    const macAddress = document.getElementById('macAddress')?.value.trim() || 'N/A';
+source:     const macAddress = document.getElementById('macAddress')?.value.trim() || 'N/A';
     const serverType = document.getElementById("serverType").value;
     const finalEmail = email || 'N/A';
     const discount = (currentProductPrice * quantity) - totalPrice;
