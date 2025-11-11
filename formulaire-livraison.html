@@ -1,1 +1,86 @@
+<!-- formulaire-livraison.html -->
+<div class="product-details delivery-form">
+    <p class="price" id="productPrice"></p>
+    <div class="form-all">
+        <div class="form-ligne">
+            <label class="form-ligne">
+                <div class="form-ligne-fa"><i class="fa fa-user"></i></div>
+                <input id="delivery-name" placeholder="الإسم و اللقب" required type="text" />
+            </label>
+            <div class="error-message-f" id="deliveryNameError"></div>
+        </div>
 
+        <div class="form-ligne">
+            <label class="form-ligne">
+                <div class="form-ligne-fa"><i class="fa fa-phone"></i></div>
+                <input id="delivery-phone" placeholder="رقم الهاتف" required type="tel" />
+            </label>
+            <div class="error-message-f" id="deliveryPhoneError"></div>
+        </div>
+
+        <div class="form-ligne">
+            <label class="form-ligne">
+                <div class="form-ligne-fa"><i class="fa fa-road"></i></div>
+                <div class="select-city">
+                    <div class="wilaya">
+                        <select id="delivery-wilaya">
+                            <option value="">الولاية</option>
+                        </select>
+                        <div class="error-message" id="wilayaError"></div>
+                    </div>
+                    <div class="commune">
+                        <select id="delivery-commune" disabled>
+                            <option value="">البلدية</option>
+                        </select>
+                        <div class="error-message" id="communeError"></div>
+                    </div>
+                </div>
+            </label>
+        </div>
+
+        <div class="form-ligne">
+            <label class="form-ligne">
+                <div class="form-ligne-fa"><i class="fa fa-map"></i></div>
+                <input id="delivery-address" placeholder="العنوان التفصيلي" required type="text" />
+            </label>
+            <div class="error-message-f" id="deliveryAddressError"></div>
+        </div>
+
+        <!-- Order Summary -->
+        <div class="Order-Summary">
+            <div class="Order-Summary-t"><i class="fa fa-shopping-basket"></i> ملخص الطلب</div>
+            <div class="order-prod">
+                <div class="order-prod-t-p-q">
+                    <p id="delivery-product-name">Produit</p>
+                    <div class="OderPrice">
+                        <p id="delivery-quantity-display">1</p>
+                        <p>x</p>
+                        <p id="delivery-productPrice-display">0 دج</p>
+                    </div>
+                </div>
+                <div class="order-prod-d">
+                    <p>سعر التوصيل :</p>
+                    <p id="delivery-fee">0 دج</p>
+                </div>
+                <div class="order-prod-P-t">
+                    <p>السعر الإجمالي :</p>
+                    <p class="total-price0" id="delivery-totalPrice">0 دج</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="b-order">
+            <div class="quantity">
+                <span class="button-Q" onclick="decreaseDeliveryQuantity()">-</span>
+                <input class="quantity" id="delivery-quantity" type="text" value="1" readonly />
+                <span class="button-Q" onclick="increaseDeliveryQuantity()">+</span>
+            </div>
+            <button class="buy-button-w" onclick="sendDeliveryOrder()">
+                <i class="fa fa-brands fa-whatsapp"></i>
+            </button>
+            <button class="buy-button-emailjs" onclick="sendDeliveryOrder()">
+                تأكيد الطلب <i class="fa fa-shopping-cart"></i>
+            </button>
+        </div>
+    </div>
+</div>
