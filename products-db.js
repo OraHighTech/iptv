@@ -2,7 +2,10 @@ const products = [
     {
         "id": "KING_365",
         "name": "KING 365",
-        "price": 55,
+        "price": {
+        eur: 55.00, // السعر باليورو
+        dzd: 8000  // السعر بالدينار
+    },
         "description": "Abonnement IPTV Premium de haute qualité...\nKING 365 l'Abonnement N°1 En Europe\nelle Vous offre une satisfaction en terme de qualité d’image\ndes chaînes En HD - FHD même en 4K sans coupures,\nking365 abonnement comporte un large choix\ndes films et de séries sorties cette année",
         "serverTypes": [
             "User - Pass",
