@@ -181,4 +181,15 @@ const products = [
             "https://www.iptv-store.shop/img/GOGO.png"
         ]
     }
+	 {
+        "id": "DECODEUR_TV", 
+        "name": "Décodeur TV",
+        "price": 120,
+        "price_dzd": 19200,
+        "product_type": "physical", // ← NOUVEAU CHAMP
+        "description": "Décodeur TV physique avec installation...",
+        "serverTypes": ["Livraison physique"],
+        "category": "Matériel",
+        "images": ["https://www.iptv-store.shop/img/decodeur.png"]
+    }
 ];
