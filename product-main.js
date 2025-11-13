@@ -2,6 +2,10 @@
 let currentProduct = null;
 let useDZD = false;
 
+// Variables globales pour le carousel
+let currentImageIndex = 0;
+let carouselInterval = null;
+
 // Fonction pour récupérer l'ID du produit
 function getProductIdFromURL() {
   const urlParams = new URLSearchParams(window.location.search);
@@ -83,63 +87,145 @@ function createVirtualForm(product) {
   `;
 }
 
-// Setup de la galerie
-function setupCombinedGallery(product) {
-  const mainImageContainer = document.querySelector('.main-image-container-fade');
-  const thumbnailContainer = document.getElementById('thumbnail-container');
-  
-  if (!mainImageContainer || !thumbnailContainer || !product.images || product.images.length === 0) {
-    console.error('Galerie: éléments manquants ou pas d\'images');
-    return;
-  }
-
-  // Vider les conteneurs
-  mainImageContainer.innerHTML = '';
-  thumbnailContainer.innerHTML = '';
-
-  // Ajouter les images principales
-  product.images.forEach((imageUrl, index) => {
-    const mainImg = document.createElement('img');
-    mainImg.src = imageUrl;
-    mainImg.alt = `Image de ${product.name}`;
-    mainImg.style.opacity = index === 0 ? '1' : '0';
-    mainImg.style.transition = 'opacity 0.3s ease';
-    mainImg.style.width = '100%';
-    mainImg.style.height = '100%';
-    mainImg.style.objectFit = 'contain';
-    mainImg.style.position = 'absolute';
-    mainImg.style.top = '0';
-    mainImg.style.left = '0';
-    mainImageContainer.appendChild(mainImg);
-  });
-
-  // Ajouter les miniatures
-  product.images.forEach((imageUrl, index) => {
-    const thumb = document.createElement('img');
-    thumb.src = imageUrl;
-    thumb.alt = `Miniature de ${product.name}`;
-    thumb.style.cursor = 'pointer';
-    thumb.style.width = '80px';
-    thumb.style.height = '80px';
-    thumb.style.objectFit = 'cover';
-    thumb.style.border = index === 0 ? '2px solid var(--primary-color)' : '2px solid transparent';
-    thumb.style.borderRadius = '8px';
-    thumb.style.margin = '5px';
+// Fonction pour initialiser le carousel
+function setupCarousel(product) {
+    const mainImageContainer = document.querySelector('.main-image-container-fade');
+    const thumbnailContainer = document.getElementById('thumbnail-container');
     
-    thumb.addEventListener('click', () => {
-      // Mettre à jour l'image principale
-      mainImageContainer.querySelectorAll('img').forEach((img, imgIndex) => {
-        img.style.opacity = imgIndex === index ? '1' : '0';
-      });
-      
-      // Mettre à jour les bordures des miniatures
-      thumbnailContainer.querySelectorAll('img').forEach((thumbImg, thumbIndex) => {
-        thumbImg.style.border = thumbIndex === index ? '2px solid var(--primary-color)' : '2px solid transparent';
-      });
+    if (!mainImageContainer || !thumbnailContainer || !product.images || product.images.length === 0) {
+        console.error('Carousel: éléments manquants ou pas d\'images');
+        return;
+    }
+
+    // Vider les conteneurs
+    mainImageContainer.innerHTML = '';
+    thumbnailContainer.innerHTML = '';
+
+    // Ajouter les boutons de navigation
+    mainImageContainer.innerHTML = `
+        <button class="carousel-button prev" onclick="prevImage()">
+            <i class="fas fa-chevron-left"></i>
+        </button>
+        <button class="carousel-button next" onclick="nextImage()">
+            <i class="fas fa-chevron-right"></i>
+        </button>
+        <div class="carousel-indicators" id="carouselIndicators"></div>
+    `;
+
+    // Ajouter les images principales
+    product.images.forEach((imageUrl, index) => {
+        const mainImg = document.createElement('img');
+        mainImg.src = imageUrl;
+        mainImg.alt = `Image de ${product.name}`;
+        mainImg.style.opacity = index === 0 ? '1' : '0';
+        mainImg.style.transition = 'opacity 0.5s ease-in-out';
+        mainImg.style.width = '100%';
+        mainImg.style.height = '100%';
+        mainImg.style.objectFit = 'contain';
+        mainImg.style.position = 'absolute';
+        mainImg.style.top = '0';
+        mainImg.style.left = '0';
+        mainImageContainer.appendChild(mainImg);
+    });
+
+    // Ajouter les indicateurs
+    const indicatorsContainer = document.getElementById('carouselIndicators');
+    product.images.forEach((_, index) => {
+        const indicator = document.createElement('div');
+        indicator.className = `carousel-indicator ${index === 0 ? 'active' : ''}`;
+        indicator.addEventListener('click', () => showImage(index));
+        indicatorsContainer.appendChild(indicator);
+    });
+
+    // Ajouter les miniatures
+    product.images.forEach((imageUrl, index) => {
+        const thumb = document.createElement('img');
+        thumb.src = imageUrl;
+        thumb.alt = `Miniature de ${product.name}`;
+        thumb.style.cursor = 'pointer';
+        thumb.style.width = '80px';
+        thumb.style.height = '80px';
+        thumb.style.objectFit = 'cover';
+        thumb.style.border = index === 0 ? '2px solid var(--primary-color)' : '2px solid transparent';
+        thumb.style.borderRadius = '8px';
+        thumb.style.margin = '5px';
+        
+        thumb.addEventListener('click', () => showImage(index));
+        thumbnailContainer.appendChild(thumb);
+    });
+
+    // Démarrer le carousel automatique
+    startCarousel();
+}
+
+// Fonction pour afficher une image spécifique
+function showImage(index) {
+    const images = document.querySelectorAll('.main-image-container-fade img');
+    const indicators = document.querySelectorAll('.carousel-indicator');
+    const thumbnails = document.querySelectorAll('#thumbnail-container img');
+    
+    if (images.length === 0) return;
+    
+    // Mettre à jour l'index courant
+    currentImageIndex = index;
+    
+    // Mettre à jour les images
+    images.forEach((img, i) => {
+        img.style.opacity = i === index ? '1' : '0';
     });
     
-    thumbnailContainer.appendChild(thumb);
-  });
+    // Mettre à jour les indicateurs
+    indicators.forEach((indicator, i) => {
+        indicator.classList.toggle('active', i === index);
+    });
+    
+    // Mettre à jour les miniatures
+    thumbnails.forEach((thumb, i) => {
+        thumb.style.border = i === index ? '2px solid var(--primary-color)' : '2px solid transparent';
+    });
+    
+    // Redémarrer le carousel automatique
+    restartCarousel();
+}
+
+// Fonction pour l'image suivante
+function nextImage() {
+    const images = document.querySelectorAll('.main-image-container-fade img');
+    if (images.length === 0) return;
+    
+    const nextIndex = (currentImageIndex + 1) % images.length;
+    showImage(nextIndex);
+}
+
+// Fonction pour l'image précédente
+function prevImage() {
+    const images = document.querySelectorAll('.main-image-container-fade img');
+    if (images.length === 0) return;
+    
+    const prevIndex = (currentImageIndex - 1 + images.length) % images.length;
+    showImage(prevIndex);
+}
+
+// Démarrer le carousel automatique
+function startCarousel() {
+    if (carouselInterval) clearInterval(carouselInterval);
+    
+    carouselInterval = setInterval(() => {
+        nextImage();
+    }, 5000); // Change d'image toutes les 5 secondes
+}
+
+// Redémarrer le carousel automatique
+function restartCarousel() {
+    startCarousel();
+}
+
+// Arrêter le carousel automatique
+function stopCarousel() {
+    if (carouselInterval) {
+        clearInterval(carouselInterval);
+        carouselInterval = null;
+    }
 }
 
 // Setup lightbox
@@ -247,8 +333,8 @@ async function initializeProductPage() {
     excerptElement.textContent = excerpt;
   }
 
-  // Initialiser la galerie
-  setupCombinedGallery(currentProduct);
+  // Initialiser le carousel
+  setupCarousel(currentProduct);
 
   // Initialiser le lightbox
   setupLightbox(currentProduct);
@@ -492,6 +578,13 @@ document.addEventListener('DOMContentLoaded', function() {
   loadComponent('header.html', 'header-placeholder');
   loadComponent('footer.html', 'footer-placeholder');
   
+  // Événements pour le carousel
+  const mainImageContainer = document.querySelector('.main-image-container-fade');
+  if (mainImageContainer) {
+    mainImageContainer.addEventListener('mouseenter', stopCarousel);
+    mainImageContainer.addEventListener('mouseleave', startCarousel);
+  }
+  
   // Initialiser la page produit
   initializeProductPage();
 });
@@ -501,3 +594,9 @@ window.sendVirtualOrder = sendVirtualOrder;
 window.updateTotalPrice = updateTotalPrice;
 window.toggleServerFields = toggleServerFields;
 window.closeAlert = closeAlert;
+window.showImage = showImage;
+window.nextImage = nextImage;
+window.prevImage = prevImage;
+window.startCarousel = startCarousel;
+window.stopCarousel = stopCarousel;
+window.restartCarousel = restartCarousel;
