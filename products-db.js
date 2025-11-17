@@ -200,8 +200,8 @@ const products = [
         "description": "",
         "serverTypes": ["Livraison physique"],
         "category": "BOX ANROID",
-        "images": ["http://localhost/zaki/img/XIAOMI_TV_BOX_S_3GEN.png",
-		           "http://localhost/zaki/img/XIAOMI_TV_BOX_S_3GEN-1.png" 
+        "images": ["https://www.iptv-store.shop/img/XIAOMI_TV_BOX_S_3GEN.png",
+		           "https://www.iptv-store.shop/img/XIAOMI_TV_BOX_S_3GEN-1.png" 
 		]
     }
 ];
