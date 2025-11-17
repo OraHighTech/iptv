@@ -192,14 +192,16 @@ const products = [
         ]
     },
 	{
-        "id": "DECODEUR_TV",
-        "name": "Décodeur TV", 
-        "price": 120,
-        "price_dzd": 19200,
+        "id": "XIAOMI_TV_BOX_S_3GEN",
+        "name": "XIAOMI TV BOX S 4K WIFI 6 32GO GEN 3", 
+        "price": 100,
+        "price_dzd": 17000,
         "product_type": "physical",
-        "description": "Décodeur TV physique avec installation...",
+        "description": "",
         "serverTypes": ["Livraison physique"],
-        "category": "Matériel",
-        "images": ["https://www.iptv-store.shop/img/decodeur.png"]
+        "category": "BOX ANROID",
+        "images": ["http://localhost/zaki/img/XIAOMI_TV_BOX_S_3GEN.png",
+		           "http://localhost/zaki/img/XIAOMI_TV_BOX_S_3GEN-1.png" 
+		]
     }
 ];
