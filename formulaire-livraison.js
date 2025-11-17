@@ -55,7 +55,7 @@ function createPhysicalForm(product, useDZD) {
                         </div>
                         <div class="button-shipping">
                             <button class="delivery-btn" id="bureauBtn" type="button"><i class="fa fa-building"></i> توصيل الى المكتب</button>
-                            <button class="delivery-btn" id="domicileBtn" type="button"><i class="fa fa-solid fa-person-carry-box"></i> توصيل الى باب الدار</button>
+                            <button class="delivery-btn" id="domicileBtn" type="button"><i class="fa fa-solid fa-people-carry-box"></i> توصيل الى باب الدار</button>
                         </div>
                     </label>
                 </div>
